@@ -1,0 +1,3 @@
+[submodule "plugins"]
+	path = plugins
+	url = git@github.com:apigee/microgateway-plugins.git
