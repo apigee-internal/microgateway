@@ -6,7 +6,7 @@ describe('process lifecycle', function() {
   var key, secret;
   var uid;
   var app = require('../lib/agent');
-  var config = require('edgemicro-config').load();
+  var config = require('microgateway-config').load();
   var target = url.format({
     hostname: config.agent.address || '127.0.0.1',
     port: config.agent.port || 9000,

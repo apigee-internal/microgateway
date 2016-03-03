@@ -9,7 +9,7 @@ describe('configured agent/server address', function() {
   var target;
   var saveEMAddress;
   var saveAgentAddress;
-  var config = require('edgemicro-config').load();
+  var config = require('microgateway-config').load();
   before(function(done) {
     // config edgemicro and agent addresses from OS interfaces
     var interfaces = os.networkInterfaces();
