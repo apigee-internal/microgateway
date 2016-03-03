@@ -1,0 +1,38 @@
+agent:
+  min_uptime: 5000
+  spin_sleep_time: 1000
+  max_times: 300
+  port: 9000
+
+edge_config:
+  bootstrap: https://apigee.net/edgemicro/bootstrap/organization/org/environment/env...
+  jwt_public_key: http://apigee.net/edgemicro/publicKey...
+
+edgemicro:
+  home: ../gateway
+  port: 8000
+  max_connections: -1
+  max_connections_hard: -1
+  debug:
+    port: 5999
+    args: --nolazy
+  logging:
+    level: info
+    dir: /var/tmp
+    stats_log_interval: 60
+    rotate_interval: 24
+  plugins:
+    dir: ../../../plugins
+    sequence:
+      - oauth
+
+headers:
+  x-forwarded-for: true
+  x-forwarded-host: true
+  x-request-id: true
+  x-response-time: true
+  via: true
+
+oauth:
+  allowNoAuthorization: false
+  allowInvalidAuthorization: false
