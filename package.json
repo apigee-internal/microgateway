@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Management Agent for Edge Micro",
   "author": "shawnfeldman",
-  "main": "agent.js",
+  "main": "lib/agent.js",
   "dependencies": {
     "async": "^1.2.1",
     "body-parser": "^1.12.4",
