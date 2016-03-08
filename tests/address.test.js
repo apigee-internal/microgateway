@@ -39,11 +39,11 @@ describe('configured agent/server address', function() {
     } else {
       saveAgentAddress = true;
     }
-    key = process.env['EDGEMICRO_KEY'];
+    key ='7ef8d2c6d302a8db90981a5ae372e2fdceb156288538e528026bf43a4c4d67a7';
     assert(key, 'env EDGEMICRO_KEY not set');
     // to prevent agent from auto-starting an instance
     delete process.env['EDGEMICRO_KEY'];
-    secret = process.env['EDGEMICRO_SECRET'];
+    secret = '62dde466dccc8790d385ec3a1765127d094a00136e5397bb0a89f5b64bacc17d';
     assert(secret, 'env EDGEMICRO_SECRET not set');
     // to prevent agent from auto-starting an instance
     delete process.env['EDGEMICRO_SECRET'];
