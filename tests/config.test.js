@@ -75,6 +75,8 @@ describe('Edge config verification', function() {
   });
   it('should have a config', function(done) {
     assert(app.config);
+    var config = app.getDefaultConfig();
+    assert(config)
     done();
   });
   it('should verify analytics availability with 500 error', function(done) {
