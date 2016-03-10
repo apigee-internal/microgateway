@@ -3,13 +3,14 @@ var assert = require('assert');
 var request = require('request');
 var url = require('url');
 var os = require('os');
+const configPath = './tests/config.yaml';
 describe('configured agent/server address', function() {
   var key, secret;
-  var app = require('../lib/agent');
   var target;
   var saveEMAddress;
   var saveAgentAddress;
-  var config = require('microgateway-config').load();
+  var app = require('../lib/agent')(configPath);
+  var config = require('microgateway-config').load({source:configPath});
   before(function(done) {
     // config edgemicro and agent addresses from OS interfaces
     var interfaces = os.networkInterfaces();
@@ -54,7 +55,7 @@ describe('configured agent/server address', function() {
       pathname: 'proc'
     });
     // initialize agent
-    app.init(done);
+    app.start({ key:key, secret:secret },done);
   });
   after(function(done) {
     process.env['EDGEMICRO_KEY'] = key;
@@ -90,7 +91,7 @@ describe('configured agent/server address', function() {
               operation: 'stop'
             })
           }, function(err, res, body) {
-            console.log('stop', uid, err, body);
+            console.log('stop', err, body);
             app.close(done); // ignore err
           });
         }else {

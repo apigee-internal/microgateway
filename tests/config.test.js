@@ -7,7 +7,7 @@ describe('Edge config verification', function() {
   var key;
   var secret;
   var uid;
-  var app = require('../lib/agent');
+  var app = require('../lib/agent')('./tests/config.yaml');
   var config = require('microgateway-config').load();
   var target = url.format({
     hostname: (config.agent.address || '127.0.0.1'),
@@ -28,14 +28,11 @@ describe('Edge config verification', function() {
     secret = '62dde466dccc8790d385ec3a1765127d094a00136e5397bb0a89f5b64bacc17d';
     assert(secret, 'env EDGEMICRO_SECRET not set');
     delete process.env['EDGEMICRO_SECRET'];
-    app.init(function(err) {
+    app.start({ key: key, secret: secret }, (err) => {
       if (err) {
         return done(err);
       }
-      app.start({
-        key: key,
-        secret: secret
-      }, done);
+      done();
     });
   });
   after(function(done) {
@@ -73,12 +70,7 @@ describe('Edge config verification', function() {
     pause(2000);
     done();
   });
-  it('should have a config', function(done) {
-    assert(app.config);
-    var config = app.getDefaultConfig();
-    assert(config)
-    done();
-  });
+ 
   it('should verify analytics availability with 500 error', function(done) {
     request({
       method: 'POST',

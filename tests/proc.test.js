@@ -5,7 +5,7 @@ var url = require('url');
 describe('process lifecycle', function() {
   var key, secret;
   var uid;
-  var app = require('../lib/agent');
+  var app = require('../lib/agent')();
   var config = require('microgateway-config').load();
   var target = url.format({
     hostname: config.agent.address || '127.0.0.1',
@@ -22,7 +22,7 @@ describe('process lifecycle', function() {
     // to prevent agent from auto-starting an instance
     delete process.env['EDGEMICRO_KEY'];
     delete process.env['EDGEMICRO_SECRET'];
-    app.init(done);
+    app.start(done);
   });
   after(function(done) {
     process.env['EDGEMICRO_KEY'] = key;
