@@ -1,19 +1,21 @@
 'use strict';
-var assert = require('assert');
-var request = require('request');
-var url = require('url');
-var os = require('os');
+const assert = require('assert');
+const request = require('request');
+const url = require('url');
+const os = require('os');
+const agent = require('../lib/agent');
+const edgeConfig = require('microgateway-config');
 const configPath = './tests/config.yaml';
 describe('configured agent/server address', function() {
   var key, secret;
   var target;
   var saveEMAddress;
   var saveAgentAddress;
-  var app = require('../lib/agent')(configPath);
-  var config = require('microgateway-config').load({source:configPath});
+  const app = agent(configPath);
+  var config = edgeConfig.load({source:configPath});
   before(function(done) {
     // config edgemicro and agent addresses from OS interfaces
-    var interfaces = os.networkInterfaces();
+    const interfaces = os.networkInterfaces();
     var addr;
     Object.keys(interfaces).some(function(inter, ndx, ni) {
       addr = interfaces[inter].find(function(obj) {

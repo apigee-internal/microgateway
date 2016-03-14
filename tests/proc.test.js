@@ -1,12 +1,16 @@
 'use strict';
-var assert = require('assert');
-var request = require('request');
-var url = require('url');
+const assert = require('assert');
+const request = require('request');
+const url = require('url');
+const edgeConfig = require('microgateway-config');
+const agent = require('../lib/agent');
+const configPath = './tests/config.yaml';
+
 describe('process lifecycle', function() {
   var key, secret;
   var uid;
-  var app = require('../lib/agent')();
-  var config = require('microgateway-config').load();
+  var config = edgeConfig.load({source:configPath});
+  var app = agent(configPath);
   var target = url.format({
     hostname: config.agent.address || '127.0.0.1',
     port: config.agent.port || 9000,
@@ -22,7 +26,8 @@ describe('process lifecycle', function() {
     // to prevent agent from auto-starting an instance
     delete process.env['EDGEMICRO_KEY'];
     delete process.env['EDGEMICRO_SECRET'];
-    app.start(done);
+    const keys = { key:key, secret:secret }
+    app.start(keys,done);
   });
   after(function(done) {
     process.env['EDGEMICRO_KEY'] = key;

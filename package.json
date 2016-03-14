@@ -15,7 +15,7 @@
     "lodash": "^3.9.3",
     "log-symbols": "^1.0.2",
     "microgateway-config": "git+ssh://git@github.com:apigee/microgateway-config.git#agent-less",
-    "microgateway-core": "git+ssh://git@github.com:apigee/microgateway-core.git",
+    "microgateway-core": "git+ssh://git@github.com:apigee/microgateway-core.git#v0.1.1",
     "request": "^2.67.0",
     "restify": "^4.0.4",
     "uuid": "^2.0.1"
