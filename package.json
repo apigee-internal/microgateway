@@ -1,5 +1,5 @@
 {
-  "name": "microgateway-agent",
+  "name": "microgateway-cli",
   "version": "0.1.0",
   "description": "Management Agent for Edge Micro",
   "author": "shawnfeldman",
