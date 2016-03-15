@@ -25,8 +25,8 @@ headers:
   x-response-time: true
   via: true
 oauth:
-  allowNoAuthorization: false
-  allowInvalidAuthorization: false
+  allowNoAuthorization: true
+  allowInvalidAuthorization: true
   verify_api_key_url: 'https://sfeldmanmicro-test.apigee.net/edgemicro-auth/verifyApiKey'
   public_key: |-
     -----BEGIN CERTIFICATE-----
@@ -58,10 +58,10 @@ analytics:
   flushInterval: 250
 proxies:
   - max_connections: -1
-    name: edgemicro_weather
+    name: test
     revision: '1'
-    proxy_name: default
-    base_path: /hello
+    proxy_name: test
+    base_path: '/'
     target_name: default
     url: 'http://localhost:3000'
 product_to_proxy: *ref_0
