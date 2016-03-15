@@ -6,17 +6,21 @@ const os = require('os');
 const agent = require('../lib/agent');
 const edgeConfig = require('microgateway-config');
 const configPath = './tests/config.yaml';
+const restServer = require('./server/hello/hello.js')();
 describe('configured agent/server address', function() {
   var key, secret;
   var target;
   var saveEMAddress;
   var saveAgentAddress;
+  var addr;
   const app = agent(configPath);
-  var config = edgeConfig.load({source:configPath});
+  const config = edgeConfig.load({source:configPath});
+  const port = 3303;
+  config.proxies[0].url= 'http://localhost:' + port;
   before(function(done) {
+    restServer.listen(port)
     // config edgemicro and agent addresses from OS interfaces
     const interfaces = os.networkInterfaces();
-    var addr;
     Object.keys(interfaces).some(function(inter, ndx, ni) {
       addr = interfaces[inter].find(function(obj) {
         return obj.family === 'IPv4';
@@ -69,6 +73,7 @@ describe('configured agent/server address', function() {
       delete config.agent.address;
     }
     // close agent server before finishing
+    restServer.close();
     app.close(done);
   });
   beforeEach(function(done) {
