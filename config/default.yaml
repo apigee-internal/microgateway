@@ -13,9 +13,6 @@ edgemicro:
   port: 8000
   max_connections: -1
   max_connections_hard: -1
-  debug:
-    port: 5999
-    args: --nolazy
   logging:
     level: info
     dir: /var/tmp

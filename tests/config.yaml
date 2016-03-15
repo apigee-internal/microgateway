@@ -1,0 +1,68 @@
+agent:
+  min_uptime: 5000
+  spin_sleep_time: 1000
+  max_times: 300
+  port: 9000
+edgemicro:
+  home: ../gateway
+  port: 8000
+  max_connections: -1
+  max_connections_hard: -1
+  logging:
+    level: info
+    dir: /var/tmp
+    stats_log_interval: 60
+    rotate_interval: 24
+  plugins:
+    dir: ../microgateway-plugins
+    sequence:
+      - analytics
+      - oauth
+headers:
+  x-forwarded-for: true
+  x-forwarded-host: true
+  x-request-id: true
+  x-response-time: true
+  via: true
+oauth:
+  allowNoAuthorization: true
+  allowInvalidAuthorization: true
+  verify_api_key_url: 'https://sfeldmanmicro-test.apigee.net/edgemicro-auth/verifyApiKey'
+  public_key: |-
+    -----BEGIN CERTIFICATE-----
+    MIICpDCCAYwCCQCneAA0RvoKfDANBgkqhkiG9w0BAQsFADAUMRIwEAYDVQQDEwls
+    b2NhbGhvc3QwHhcNMTYwMjAyMjIzODA3WhcNMTYwMjAzMjIzODA3WjAUMRIwEAYD
+    VQQDEwlsb2NhbGhvc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDE
+    sYWsvrWxAXRXxTuQpJz1ppHgnfcouIzlHuBKuIuMfwcLb3F2LwxCVPyoKShJpEvb
+    yvl9MVpRaBMAkDtmVt3Vmtge95pocDg0/A4+W50XeV0wkQBi+9K7zy21U6Yi6zgL
+    XvxTUTe2tLsNO63ZdYt0eHhWLoEDnKD2G5WxN2wUA3mJeea6h/3hnAjwzWtEmKOT
+    txHDUkb7yRSWMpyy0609JF6XYigD6FiEVqSUeFTQ25YSEpU/1X4YuknjdG5vq0vu
+    N2FrQzqMbgxhy+jSSgCe3Lzw3b4dgD9av1a9QGyaqUbs+FnQOqXgOLRGg6mV48gO
+    q30einGQM95A0wqcHALnAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAC0FDCimnD1V
+    5kPvmwMGkz4roF1HWAeJlvydcx4i2awsVQkScdSL1GlgjCXGAsY4/d4nSmRFhzog
+    ygs+xvUxpfeuLL4aWaXwEqKbws2zTyVtilYUgq1tmY7Ii/1hQcBpVcG/YtpzyjNR
+    Uzm6L9LIZ62TRmexVjnE9XkkbSkjbLkttSatQUR2nFC3MzGtp1J3bbbl2YDzwvE9
+    VX6ULbT3AwEJr0AmOvkKAG8jUFXAWMYd7hn57ugjNUii4FgX8r3YOTalfkhDGCbA
+    d78PkEH5FJeyaamikCmb/QX7lSWJB0Kzpb1Fgu/V8sm2hxau1QNEn6DKZBRZtMuU
+    DXhK5Ix3Zq4=
+    -----END CERTIFICATE-----
+  product_to_proxy: &ref_0
+    EdgeMicroTestProduct:
+      - edgemicro_weather
+analytics:
+  uri: 'https://edgemicroservices-us-east-1.apigee.net/edgemicro/axpublisher/organization/sfeldmanmicro/environment/test'
+  source: microgateway
+  proxy: dummy
+  proxy_revision: 1
+  compress: false
+  flushInterval: 250
+proxies:
+  - max_connections: -1
+    name: test
+    revision: '1'
+    proxy_name: test
+    base_path: '/'
+    target_name: default
+    url: 'http://localhost:3000'
+product_to_proxy: *ref_0
+quota: {}
