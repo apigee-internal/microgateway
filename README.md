@@ -1,4 +1,4 @@
-# Microgateway 
+# Apigee Microgateway 
 
 The Apigee Microgateway is a lightweight api proxy that routes requests between northbound and southbound api endpoints. As the requests are routed the microgateway introduces an eventing model that is based on the concept of http middleware.  You can add custom plugins to the http router via the plugins directory.  You can also change the code to explicitly load plugins via the gateway.addPlugin method.  For more information about plugins see [https://github.com/apigee/microgateway-plugins](https://github.com/apigee/microgateway-plugins)
 
