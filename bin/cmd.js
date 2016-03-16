@@ -22,6 +22,7 @@ const setup = function setup() {
     .option('-u, --username <user>', 'username of the organization admin')
     .option('-p, --password <password>', 'password of the organization admin')
     .option('-r, --url <url>', 'organization\'s custom API URL (https://api.example.com)')
+    .option('-w, --overwrite <overwrite>', 'overwrite the current config, yes|ok|true|y')
     .option('-d, --debug', 'execute with debug output')
     .action(configure);
 

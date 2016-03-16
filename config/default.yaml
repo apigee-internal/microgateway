@@ -1,3 +1,9 @@
+managementUri: https://api.enterprise.apigee.com
+vaultName: microgateway
+authUri: https://%s-%s.apigee.net/edgemicro-auth
+baseUri: https://edgemicroservices.apigee.net/edgemicro/%s/organization/%s/environment/%s
+bootstrapMessage: Please copy the following property to the edge micro agent config
+keySecretMessage: The following credentials are required to start edge micro
 agent:
   min_uptime: 5000
   spin_sleep_time: 1000
