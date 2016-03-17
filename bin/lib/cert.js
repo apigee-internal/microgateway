@@ -16,7 +16,7 @@ const ERR_STORE_MISSING = 'com.apigee.secure-store.securestore_does_not_exist';
 //const ERR_STORE_ITEM_MISSING = 'com.apigee.secure-store.storeitem_does_not_exist';
 
 
-const certLogic = function(config){
+const CertLogic = function(config){
   this.managementUri = config['managementUri'];
   this.vaultName = config['vaultName'];
   this.baseUri = config['baseUri'];
@@ -25,17 +25,10 @@ const certLogic = function(config){
   this.keySecretMessage = config['keySecretMessage'];
 };
 
-function optionError(message) {
-  console.error(message);
-  this.help();
-}
 
 
 
-certLogic.prototype.retrievePublicKey = function(options, callback) {
-
-  if (!options.org) { return optionError.bind(this)('org is required'); }
-  if (!options.env) { return optionError.bind(this)('env is required'); }
+CertLogic.prototype.retrievePublicKey = function(options, callback) {
 
   getPublicKey(options.org, options.env, this.authUri, function(err, certificate) {
     if (err && err.status !== 404) {
@@ -49,46 +42,29 @@ certLogic.prototype.retrievePublicKey = function(options, callback) {
       if (callback) {
         return callback(err);
       } else {
-        return console.log(err.response.text);
+        return callback(err.response.text);
       }
     }
-    if (callback) {
       callback(null, certificate);
-    } else {
-      console.log(certificate);
-    }
   });
 }
 
-certLogic.prototype.retrievePublicKeyPrivate = function(options, callback) {
+CertLogic.prototype.retrievePublicKeyPrivate = function(options, callback) {
 
-  if (!options.org) { return optionError.bind(this)('org is required'); }
-  if (!options.env) { return optionError.bind(this)('env is required'); }
-
-  getPublicKeyPrivate(options, function(err, certificate) {
+  getPublicKeyPrivate(options, function (err, certificate) {
     if (err && err.status !== 404) {
-      if (callback) {
-        return callback(err);
-      } else {
-        return printError(err);
-      }
+      return callback(err);
+
     }
     if (err) {
-      if (callback) {
-        return callback(err);
-      } else {
-        return console.log(err.response.text);
-      }
+      return callback(err);
+
     }
-    if (callback) {
-      callback(null, certificate);
-    } else {
-      console.log(certificate);
-    }
+    callback(null, certificate);
   });
 }
 
-certLogic.prototype.checkCertWithPassword = function(options, callback) {
+CertLogic.prototype.checkCertWithPassword = function(options, callback) {
 
   const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries',
     this.managementUri, options.org, options.env, this.vaultName);
@@ -117,7 +93,7 @@ certLogic.prototype.checkCertWithPassword = function(options, callback) {
   });
 }
 
-certLogic.prototype.checkPrivateCert = function(options, callback) {
+CertLogic.prototype.checkPrivateCert = function(options, callback) {
 
   const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries',
     options.mgmtUrl, options.org, options.env, this.vaultName);
@@ -147,7 +123,7 @@ certLogic.prototype.checkPrivateCert = function(options, callback) {
   });
 }
 
-certLogic.prototype.installPrivateCert = function(options, callback) {
+CertLogic.prototype.installPrivateCert = function(options, callback) {
 
   const vaultName = this.vaultName;
   createCert(function(err, keys) {
@@ -203,18 +179,11 @@ certLogic.prototype.installPrivateCert = function(options, callback) {
   });
 }
 
-certLogic.prototype.installCert = function(options) {
 
-  if (!options.username) { return optionError.bind(this)('username is required'); }
-  if (!options.org) { return optionError.bind(this)('org is required'); }
-  if (!options.env) { return optionError.bind(this)('env is required'); }
-
-  promptForPassword('org admin password: ', options, certLogic.installCertWithPassword);
-}
-
-certLogic.prototype.installCertWithPassword = function(options, callback) {
-
+CertLogic.prototype.installCertWithPassword = function(options, callback) {
+  const managementUri = this.managementUri ;
   const vaultName = this.vaultName;
+
   createCert(function(err, keys) {
     if (err) {
       if (callback) {
@@ -268,16 +237,8 @@ certLogic.prototype.installCertWithPassword = function(options, callback) {
   });
 }
 
-certLogic.prototype.deleteCert = function(options) {
 
-  if (!options.username) { return optionError.bind(this)('username is required'); }
-  if (!options.org) { return optionError.bind(this)('org is required'); }
-  if (!options.env) { return optionError.bind(this)('env is required'); }
-
-  promptForPassword('org admin password: ', options, deleteCertWithPassword);
-}
-
-certLogic.prototype.generateKeysWithPassword = function generateKeysWithPassword(options, cb) {
+CertLogic.prototype.generateKeysWithPassword = function generateKeysWithPassword(options, cb) {
 
   const keySecretMessage = this.keySecretMessage;
   const bootstrapMessage = this.bootstrapMessage;
@@ -403,18 +364,20 @@ certLogic.prototype.generateKeysWithPassword = function generateKeysWithPassword
     });
   });
 
-}
+};
 
-function deleteCertWithPassword(options) {
+CertLogic.prototype.deleteCertWithPassword = function deleteCertWithPassword(options, cb) {
+  const managementUri = this.managementUri ;
+  const vaultName = this.vaultName;
 
-  deleteVault(options.username, options.password, managementUri, options.org, options.env, this.vaultName, options, function(err) {
+  deleteVault(options.username, options.password, managementUri, options.org, options.env, vaultName, options, function(err) {
     if (err) {
-      printError(err);
+      cb(err);
     } else {
-      console.log('Vault deleted!');
+      cb(null,'Vault deleted!');
     }
   });
-}
+};
 
 function printError(err) {
   if (err.response) {
@@ -549,5 +512,5 @@ function getPublicKeyPrivate(options, cb) {
 }
 
 module.exports = function(config){
-  return new certLogic(config)
+  return new CertLogic(config)
 };

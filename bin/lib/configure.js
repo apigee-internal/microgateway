@@ -3,7 +3,6 @@
 const edgeconfig = require('microgateway-config')
 const prompt = require('cli-prompt');
 const path = require('path');
-const os = require('os');
 const apigeetool = require('apigeetool');
 const _ = require('lodash');
 const async = require('async')
@@ -18,16 +17,12 @@ const cert = require('./cert')(defaultConfig)
 
 
 module.exports = function configure(options) {
-  configureEdgemicro(options,defaultConfig);
-};
-
-const configureEdgemicro = function configureEdgemicro(options) {
   if (!options.username) { return optionError.bind(this)('username is required'); }
   if (!options.org) { return optionError.bind(this)('org is required'); }
   if (!options.env) { return optionError.bind(this)('env is required'); }
-
   promptForPassword('org admin password: ', options, checkDeployedProxies);
-}
+};
+
 
 function checkDeployedProxies(options) {
 

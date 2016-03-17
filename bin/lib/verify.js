@@ -19,9 +19,8 @@ module.exports = function verify(options) {
   if (!options.key) { return optionError.bind(this)('key is required'); }
   if (!options.secret) { return optionError.bind(this)('secret is required'); }
 
-  verifyConfig(options);
+  return verifyConfig(options);
 
-  return;
 }
 
 

@@ -14,9 +14,8 @@ module.exports = function gateway(options) {
   if (!options.key) { return optionError.bind(this)('key is required'); }
   if (!options.secret) { return optionError.bind(this)('secret is required'); }
 
-  run(options);
+  return run(options);
 
-  return;
 };
 
 const run = function run(options){
