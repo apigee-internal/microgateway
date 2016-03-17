@@ -48,7 +48,7 @@ const setup = function setup() {
     .action(run);
 
   commander
-    .command('cert install')
+    .command('cert-install')
     .option('-o, --org <org>', 'the organization')
     .option('-e, --env <env>', 'the environment')
     .option('-u, --username <user>', 'username of the organization admin')
@@ -58,7 +58,7 @@ const setup = function setup() {
     .action(cert.installCert);
 
   commander
-    .command('cert delete')
+    .command('cert-delete')
     .option('-o, --org <org>', 'the organization')
     .option('-e, --env <env>', 'the environment')
     .option('-u, --username <user>', 'username of the organization admin')
@@ -67,7 +67,7 @@ const setup = function setup() {
     .action(cert.deleteCert);
 
   commander
-    .command('cert check')
+    .command('cert-check')
     .option('-o, --org <org>', 'the organization')
     .option('-e, --env <env>', 'the environment')
     .option('-u, --username <user>', 'username of the organization admin')
@@ -76,7 +76,7 @@ const setup = function setup() {
     .action(cert.checkCert);
 
   commander
-    .command('cert public-key')
+    .command('cert-public-key')
     .option('-o, --org <org>', 'the organization')
     .option('-e, --env <env>', 'the environment')
     .description('retrieve the public key')
@@ -84,13 +84,13 @@ const setup = function setup() {
 
 
   commander
-    .command('token decode')
+    .command('token-decode')
     .option('-f, --file <file>', 'file containing jwt')
     .description('decode a token without verifying it')
     .action(token.decodeToken);
 
   commander
-    .command('token verify')
+    .command('token-verify')
     .option('-f, --file <file>', 'file containing jwt')
     .option('-o, --org <org>', 'the organization')
     .option('-e, --env <env>', 'the environment')
@@ -98,7 +98,7 @@ const setup = function setup() {
     .action(token.verifyToken);
 
   commander
-    .command('token get')
+    .command('token-get')
     .option('-o, --org <org>', 'the organization')
     .option('-e, --env <env>', 'the environment')
     .option('-i, --id <id>', 'the client id')
