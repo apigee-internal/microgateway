@@ -2,9 +2,8 @@
 
 const commander = require('commander');
 const configure = require('./configure');
-const deploy = require('./deploy');
 const verify = require('./verify');
-const generate = require('./generate');
+const run = require('./gateway');
 
 const setup = function setup() {
   commander
@@ -26,26 +25,6 @@ const setup = function setup() {
     .option('-d, --debug', 'execute with debug output')
     .action(configure);
 
-  commander
-    .command('deploy-edge-service')
-    .description('deploy edge micro support server to Apigee')
-    .option('-n, --proxyName <proxyName>', 'the proxy name')
-    .option('-o, --org <org>', 'the organization')
-    .option('-e, --env <env>', 'the environment')
-    .option('-u, --username <user>', 'username of the organization admin')
-    .option('-p, --password <password>', 'password of the organization admin')
-    .option('-d, --debug', 'execute with debug output')
-    .option('-v, --virtualHosts', 'override virtualHosts (default: "default,secure")')
-    .action(deploy);
-
-  commander
-    .command('genkeys')
-    .option('-o, --org <org>', 'the organization')
-    .option('-e, --env <env>', 'the environment')
-    .option('-u, --username <user>', 'username of the organization admin')
-    .option('-p, --password <password>', 'password of the organization admin')
-    .description('generate authentication keys')
-    .action(generate);
 
   commander
     .command('verify')
@@ -56,6 +35,15 @@ const setup = function setup() {
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
     .action(verify);
 
+
+  commander
+    .command('start')
+    .option('-k, --key <key>', 'key for authenticating with Edge')
+    .option('-s, --secret <secret>', 'secret for authenticating with Edge')
+    .option('-t, --target <target>', 'agent host (default 127.0.0.1)')
+    .option('-p, --port <port>', 'agent port (default 9000)')
+    .description('control agent processes')
+    .action(run);
 
   commander.parse(process.argv);
 
