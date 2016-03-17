@@ -74,7 +74,7 @@ module.exports.deleteCert = function(options) {
   });
 };
 
-module.exports.retrievePublicKey = function(options, callback) {
+module.exports.retrievePublicKey = function(options) {
 
   if (!options.org) { return optionError.bind(this)('org is required'); }
   if (!options.env) { return optionError.bind(this)('env is required'); }
@@ -90,7 +90,7 @@ module.exports.retrievePublicKey = function(options, callback) {
 };
 
 
-module.exports.retrievePublicKeyPrivate = function(options, callback) {
+module.exports.retrievePublicKeyPrivate = function(options) {
 
   if (!options.org) { return optionError.bind(this)('org is required'); }
   if (!options.env) { return optionError.bind(this)('env is required'); }
