@@ -9,10 +9,10 @@ const _ = require('lodash');
 const async = require('async')
 const util = require('util')
 
-const defaultConfigPath = path.join(__dirname, '..', 'config', 'default.yaml');
+const defaultConfigPath = path.join(__dirname, '..','..', 'config', 'default.yaml');
 const targetFile = 'config.yaml';
 const alternateFile = 'new-config.yaml';
-const targetDir = path.join(__dirname, '..', 'config');
+const targetDir = path.join(__dirname, '..','..', 'config');
 const defaultConfig = edgeconfig.load({source:defaultConfigPath});
 const cert = require('./cert')(defaultConfig)
 

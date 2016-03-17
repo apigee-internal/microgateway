@@ -4,11 +4,11 @@ const path = require('path');
 const assert = require('assert');
 const _ = require('lodash');
 
-const targetDir = path.join(__dirname, '..', 'config');
+const targetDir = path.join(__dirname, '..','..', 'config');
 const sourceFile = 'config.yaml';
 const sourcePath = path.join(targetDir,sourceFile);
 const targetPath = path.join( targetDir, 'cache-config.yaml');
-const agent = require('../lib/agent')(targetPath);
+const agent = require('../../lib/agent')(targetPath);
 
 module.exports = function gateway(options) {
   if (!options.key) { return optionError.bind(this)('key is required'); }

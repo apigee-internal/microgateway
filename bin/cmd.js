@@ -1,9 +1,9 @@
 'use strict';
 
 const commander = require('commander');
-const configure = require('./configure');
-const verify = require('./verify');
-const run = require('./gateway');
+const configure = require('./lib/configure');
+const verify = require('./lib/verify');
+const run = require('./lib/gateway');
 
 const setup = function setup() {
   commander
