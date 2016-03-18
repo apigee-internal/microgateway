@@ -109,6 +109,5 @@ function optionError(message) {
   console.error(message);
   this.help();
 }
-module.exports = function(){
-  return new Token();
-}();
+var token = new Token();
+module.exports = token;

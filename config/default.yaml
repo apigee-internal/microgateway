@@ -5,8 +5,6 @@ baseUri: https://edgemicroservices.apigee.net/edgemicro/%s/organization/%s/envir
 bootstrapMessage: Please copy the following property to the edge micro agent config
 keySecretMessage: The following credentials are required to start edge micro
 agent:
-  min_uptime: 5000
-  spin_sleep_time: 1000
   max_times: 300
   port: 9000
 
