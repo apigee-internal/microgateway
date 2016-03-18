@@ -1,7 +1,7 @@
 'use strict'; 
 const path = require('path');
 const assert = require('assert');
-const runner = require('../../lib/runner');
+const runner = require('../../lib/process');
 const request = require('request');
 const edgeConfig = require('microgateway-config');
 
@@ -10,6 +10,7 @@ const sourceFile = 'config.yaml';
 const sourcePath = path.join(targetDir,sourceFile);
 const targetPath = path.join( targetDir, 'cache-config.yaml');
 const config = edgeConfig.load({source:targetPath});
+const agentConfig = require('../../lib/agent-config');
 
 
 module.exports = {
@@ -24,19 +25,12 @@ module.exports = {
       runner(options, sourcePath, targetPath);
     } else {
       const keys = {key: options.key, secret: options.secret};
-      edgeConfig.get({source: sourcePath, target: targetPath, keys: keys}, function (e, config) {
+      agentConfig({source: sourcePath, target: targetPath, keys: keys}, function (e, agent) {
         if (e) {
-           console.error(e);
+          console.error('agent failed to start',e);
           process.exit(1);
         }
-        const agent = require('../../lib/agent')(config);
-
-        agent.start(keys, function (err) {
-          if (err) {
-            console.error('edgemicro failed to start agent', err);
-            process.exit(1);
-          }
-        });
+        console.log('agent started');
       });
     }
 
