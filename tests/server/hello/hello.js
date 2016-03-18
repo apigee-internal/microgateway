@@ -1,7 +1,7 @@
 var restify = require('restify');
 
 
-module.exports = function () {
+module.exports = function (useRoot) {
 
   function respond(req, res, next) {
     console.log('request received');
@@ -22,8 +22,6 @@ module.exports = function () {
   server.use(restify.bodyParser());
 
   server.get('/echo/:key', respond);
-  //server.delete('/echo/:key', respond);
-
 
   server.post({
     path: '/echo/:key'
@@ -35,6 +33,12 @@ module.exports = function () {
   server.del({
     path: '/echo/:key'
   }, respond);
+
+  if(useRoot) {
+    server.get('/', respond);
+  }
+
+
 
   return server;
 

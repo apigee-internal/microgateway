@@ -21,11 +21,13 @@ module.exports = {
     if (!options.secret) {
       return optionError.bind(this)('secret is required');
     }
+    const source = options.sourcePath || sourcePath;
+    const target = options.targetPath || targetPath;
     if (options.forever) {
-      runner(options, sourcePath, targetPath);
+      runner(options, source, target);
     } else {
       const keys = {key: options.key, secret: options.secret};
-      agentConfig({source: sourcePath, target: targetPath, keys: keys}, function (e, agent) {
+      agentConfig({source: source, target: target, keys: keys}, function (e, agent) {
         if (e) {
           console.error('agent failed to start',e);
           process.exit(1);

@@ -37,4 +37,5 @@ node_modules
 .DS_Store
 config/config.yaml
 config/cache-config.yaml
+tests/cache-config.yaml
 

@@ -42,6 +42,8 @@ const setup = function setup() {
     .command('start')
     .option('-k, --key <key>', 'key for authenticating with Edge')
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
+    .option('-d, --defaultConfig <sourcePath>', 'default config directory')
+    .option('-t, --targetConfig <targetPath>', 'target config directory')
     .option('-f, --forever', 'agent port (default 9000)')
     .description('control agent processes')
     .action(run.start);
@@ -86,7 +88,9 @@ const setup = function setup() {
     .command('token-decode')
     .option('-f, --file <file>', 'file containing jwt')
     .description('decode a token without verifying it')
-    .action(token.decodeToken);
+    .action((options)=>{
+      token.decodeToken(options)
+    });
 
   commander
     .command('token-verify')
@@ -94,7 +98,9 @@ const setup = function setup() {
     .option('-o, --org <org>', 'the organization')
     .option('-e, --env <env>', 'the environment')
     .description('verify a jwt token against the public key')
-    .action(token.verifyToken);
+    .action((options)=> {
+      token.verifyToken(options)
+    });
 
   commander
     .command('token-get')
@@ -103,7 +109,9 @@ const setup = function setup() {
     .option('-i, --id <id>', 'the client id')
     .option('-s, --secret <secret>', 'the client secret')
     .description('create a client_credentials oauth token')
-    .action(token.getToken);
+    .action((options)=>{
+      token.getToken(options)
+    });
 
   commander.parse(process.argv);
 

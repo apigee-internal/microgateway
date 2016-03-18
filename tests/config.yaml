@@ -18,6 +18,7 @@ edgemicro:
     sequence:
       - analytics
       - oauth
+
 headers:
   x-forwarded-for: true
   x-forwarded-host: true

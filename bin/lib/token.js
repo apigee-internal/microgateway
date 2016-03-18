@@ -62,7 +62,7 @@ Token.prototype.verifyToken = function(options) {
   });
 }
 
-Token.prototype.getToken = function(options) {
+Token.prototype.getToken = function(options,cb) {
 
   const authUri = this.authUri;
   if (!options.org) { return optionError.bind(this)('org is required'); }
@@ -81,8 +81,12 @@ Token.prototype.getToken = function(options) {
     method: 'POST',
     json: body
   }, function(err, res) {
-    if (err) { return printError(err) }
+    if (err) {
+      cb && cb(err)
+      return printError(err)
+    }
     console.log(res.body)
+    cb && cb(null,res.body)
   });
 }
 
