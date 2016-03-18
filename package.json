@@ -36,7 +36,7 @@
     "run-sequence": "^1.1.0"
   },
   "scripts": {
-    "start": "node lib/index.js",
+    "start": "node lib/process-instance.js",
     "package": "node bin/package.js",
     "test": "mocha tests"
   }

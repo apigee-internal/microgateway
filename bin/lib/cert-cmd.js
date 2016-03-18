@@ -12,7 +12,7 @@ const util = require('util');
 const targetDir = path.join(__dirname, '..','..', 'config');
 
 const targetPath = path.join( targetDir, 'cache-config.yaml');
-const agent = require('../../lib/agent')(targetPath);
+const agent = require('../../lib/server')(targetPath);
 module.exports.installCert = function(options) {
   if (!options.username) {
     return optionError.bind(this)('username is required');

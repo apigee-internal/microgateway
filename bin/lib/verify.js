@@ -8,7 +8,7 @@ const assert = require('assert');
 const targetDir = path.join(__dirname, '..','..', 'config');
 const sourceFile = 'config.yaml';
 const sourcePath = path.join(targetDir,sourceFile);
-const agentLib = require('../../lib/agent');
+const agentLib = require('../../lib/server');
 const targetPath = path.join( targetDir, 'cache-config.yaml');
 const util = require('util');
 
