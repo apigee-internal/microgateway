@@ -15,6 +15,16 @@ const agentConfig = require('../../lib/agent-config');
 
 module.exports = {
   start: function start(options) {
+    const defaultKey = process.env.EDGEMICRO_KEY
+    const defaultSecret = process.env.EDGEMICRO_SECRET
+
+    if(defaultKey){
+      options.key = defaultKey;
+    }
+    if(defaultSecret){
+      options.secret = defaultSecret;
+    }
+    
     if (!options.key) {
       return optionError.bind(this)('key is required');
     }
