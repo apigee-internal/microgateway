@@ -13,6 +13,7 @@
     "config": "^1.13.0",
     "crypto": "0.0.3",
     "debug": "^2.2.0",
+    "forever-monitor": "^1.7.0",
     "fs-extra": "^0.20.1",
     "js-yaml": "^3.5.4",
     "jsonwebtoken": "^5.7.0",
