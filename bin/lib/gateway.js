@@ -17,19 +17,17 @@ module.exports = {
   start: function start(options) {
     const defaultKey = process.env.EDGEMICRO_KEY
     const defaultSecret = process.env.EDGEMICRO_SECRET
-
-    if(defaultKey){
-      options.key = defaultKey;
-    }
-    if(defaultSecret){
-      options.secret = defaultSecret;
-    }
-    
-    if (!options.key) {
+    if (!options.key && !defaultKey) {
       return optionError.bind(this)('key is required');
     }
-    if (!options.secret) {
+    if (!options.secret && !defaultSecret) {
       return optionError.bind(this)('secret is required');
+    }
+    if(defaultKey){
+      options.key = options.key || defaultKey;
+    }
+    if(defaultSecret){
+      options.secret = options.secret || defaultSecret;
     }
     const source = options.sourcePath || sourcePath;
     const target = options.targetPath || targetPath;
