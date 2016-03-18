@@ -3,14 +3,12 @@ const assert = require('assert');
 const request = require('request');
 const url = require('url');
 const os = require('os');
-const agent = require('../lib/agent');
+const agent = require('../lib/server')();
 const edgeConfig = require('microgateway-config');
 const configPath = './tests/config.yaml';
 const restServer = require('./server/hello/hello.js')();
 describe('configured agent/server address', function() {
   var key, secret;
-  var addr;
-  const agentSvc = agent(configPath);
   const config = edgeConfig.load({ source: configPath });
   const port = 3303;
   const target = "http://localhost:" + config.edgemicro.port + "/echo/test";
@@ -29,14 +27,14 @@ describe('configured agent/server address', function() {
     // to prevent agent from auto-starting an instance
     delete process.env['EDGEMICRO_SECRET'];
     // initialize agent
-    agentSvc.start({ key: key, secret: secret }, config, done);
+    agent.start({ key: key, secret: secret }, config, done);
   });
   after(function(done) {
     process.env['EDGEMICRO_KEY'] = key;
     process.env['EDGEMICRO_SECRET'] = secret;
     // close agent server before finishing
     restServer.close();
-    agentSvc.close(done);
+    agent.close(done);
   });
   beforeEach(function(done) {
     delete process.env['EDGEMICRO_KEY'];
@@ -57,27 +55,27 @@ describe('configured agent/server address', function() {
 
 
   it('fails to hit server', function(done) {
-    agentSvc.close();
+    agent.close();
     request({
       method: 'GET',
       uri: target
     }, function(err, res, body) {
       assert(err, 'must have err');
       assert.equal(err.code, "ECONNREFUSED");
-      agentSvc.start({ key: key, secret: secret }, done);
+      agent.start({ key: key, secret: secret }, config,done);
     });
   });
 
   it('fails to hit server, then starts', function(done) {
     this.timeout(5000000);
-    agentSvc.close();
+    agent.close();
     request({
       method: 'GET',
       uri: target
     }, function(err, res, body) {
       assert(err, 'must have err');
       assert.equal(err.code, "ECONNREFUSED");
-      agentSvc.start({ key: key, secret: secret }, config, () => {
+      agent.start({ key: key, secret: secret }, config, () => {
         request({
           method: 'GET',
           uri: target

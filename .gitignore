@@ -36,4 +36,6 @@ node_modules
 .vscode
 .DS_Store
 config/config.yaml
+config/cache-config.yaml
+tests/cache-config.yaml
 
