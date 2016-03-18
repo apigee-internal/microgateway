@@ -20,17 +20,29 @@ module.exports = {
     if (!options.secret) {
       return optionError.bind(this)('secret is required');
     }
-    runner(options, sourcePath, targetPath);
-  },
-  stop: function stop(options) {
-    const port = config.agent.port || 9000;
-    request('http://localhost:'+port+'/stop', {method:'POST'}, (err, r, b)=> {
-      err && console.error(err);
-      console.log('request finished.')
-      !err && console.log(JSON.stringify(b));
-    });
+    if (options.forever) {
+      runner(options, sourcePath, targetPath);
+    } else {
+      const keys = {key: options.key, secret: options.secret};
+      edgeConfig.get({source: sourcePath, target: targetPath, keys: keys}, function (e, config) {
+        if (e) {
+           console.error(e);
+          process.exit(1);
+        }
+        const agent = require('../../lib/agent')(config);
+
+        agent.start(keys, function (err) {
+          if (err) {
+            console.error('edgemicro failed to start agent', err);
+            process.exit(1);
+          }
+        });
+      });
+    }
+
   }
 };
+
 
 function optionError(message) {
   console.error(message);

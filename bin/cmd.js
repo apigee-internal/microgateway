@@ -42,19 +42,9 @@ const setup = function setup() {
     .command('start')
     .option('-k, --key <key>', 'key for authenticating with Edge')
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
-    .option('-t, --target <target>', 'agent host (default 127.0.0.1)')
-    .option('-p, --port <port>', 'agent port (default 9000)')
+    .option('-f, --forever', 'agent port (default 9000)')
     .description('control agent processes')
     .action(run.start);
-
-  commander
-    .command('stop')
-    .option('-k, --key <key>', 'key for authenticating with Edge')
-    .option('-s, --secret <secret>', 'secret for authenticating with Edge')
-    .option('-t, --target <target>', 'agent host (default 127.0.0.1)')
-    .option('-p, --port <port>', 'agent port (default 9000)')
-    .description('control agent processes')
-    .action(run.stop);
 
   commander
     .command('cert-install')
