@@ -10,6 +10,7 @@ const edgeConfig = require('microgateway-config');
 const configPath = './tests/default.yaml';
 const targetConfigPath = './tests/cache-config.yaml';
 const restServer = require('./server/hello/hello.js')(true);
+
 describe('test-cli', function() {
   var key, secret;
   const config = edgeConfig.load({ source: configPath });
