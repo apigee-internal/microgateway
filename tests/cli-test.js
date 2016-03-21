@@ -10,6 +10,7 @@ const edgeConfig = require('microgateway-config');
 const configPath = './tests/default.yaml';
 const targetConfigPath = './tests/cache-config.yaml';
 const restServer = require('./server/hello/hello.js')(true);
+
 describe('test-cli', function() {
   var key, secret;
   const config = edgeConfig.load({ source: configPath });
@@ -36,7 +37,9 @@ describe('test-cli', function() {
       org:'sfeldmanmicro',
       env:'test',
       id:'AK8oYG53vyAgKKtvazNaiAs42xwqYkZ4',
-      secret:'DsOnAeAC9U4OGmg4'
+      token:'DsOnAeAC9U4OGmg4',
+      key:key,
+      secret:secret
     },(err,token)=>{
       err && done(err);
       assert(token && token.token,"token is there")

@@ -9,7 +9,6 @@ const targetDir = path.join(__dirname, '..','..', 'config');
 const sourceFile = 'config.yaml';
 const sourcePath = path.join(targetDir,sourceFile);
 const agentLib = require('../../lib/server');
-const targetPath = path.join( targetDir, 'cache-config.yaml');
 const util = require('util');
 
 
@@ -220,7 +219,7 @@ function verifyConfig(options) {
     }
   ];
 
-  edgeconfig.get({source:sourcePath,target:targetPath,keys:keys},function(err,config){
+  edgeconfig.get({source:sourcePath,keys:keys},function(err,config){
     const agent = agentLib(config);
     agent.start({ // start agent
       key: key,
