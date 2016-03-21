@@ -12,22 +12,16 @@ const jwt = require('jsonwebtoken');
 
 const targetDir = path.join(__dirname, '..','..', 'config');
 
-const targetPath = path.join( targetDir, 'cache-config.yaml');
+const targetPath = path.join( targetDir, 'config.yaml');
 
 const Token = function(){
-  const config = edgeconfig.load({source:targetPath});
 
-  this.managementUri = config['managementUri'];
-  this.vaultName = config['vaultName'];
-  this.authUri = config['authUri'];
 
-  this.isPublicCloud = this.managementUri === 'https://api.enterprise.apigee.com';
 
 };
 
 
 Token.prototype.decodeToken = function(options) {
-
   if (!options.file) { return optionError.bind(this)('file is required'); }
 
   const jtw = require('../api/helpers/jwt');
@@ -39,55 +33,75 @@ Token.prototype.decodeToken = function(options) {
 }
 
 Token.prototype.verifyToken = function(options) {
-  const authUri = this.authUri;
 
   if (!options.file) { return optionError.bind(this)('file is required'); }
   if (!options.org) { return optionError.bind(this)('org is required'); }
   if (!options.env) { return optionError.bind(this)('env is required'); }
+  if (!options.key) { return optionError.bind(this)('key is required'); }
+  if (!options.secret) { return optionError.bind(this)('secret is required'); }
+
+  const key = options.key;
+  const secret = options.secret;
+  const keys = {key:key,secret:secret};
 
   const token = fs.readFileSync(path.resolve(options.file), 'utf8').trim();
 
-  getPublicKey(options.org, options.env, authUri, this.isPublicCloud, function(err, certificate) {
-    if (err) { return printError(err); }
+  edgeconfig.get({source:targetPath,keys:keys},(err,config)=>{
+    const authUri = config['authUri'];
+    this.isPublicCloud = config['managementUri'] === 'https://api.enterprise.apigee.com';
 
-    const opts = {
-      algorithms: ['RS256'],
-      ignoreExpiration: false
-    };
-
-    jwt.verify(token, certificate, opts, function(err, result) {
+    getPublicKey(options.org, options.env, authUri, this.isPublicCloud, function(err, certificate) {
       if (err) { return printError(err); }
-      console.log(result);
+
+      const opts = {
+        algorithms: ['RS256'],
+        ignoreExpiration: false
+      };
+
+      jwt.verify(token, certificate, opts, function(err, result) {
+        if (err) { return printError(err); }
+        console.log(result);
+      });
     });
-  });
+  })
+
 }
 
 Token.prototype.getToken = function(options,cb) {
 
-  const authUri = this.authUri;
   if (!options.org) { return optionError.bind(this)('org is required'); }
   if (!options.env) { return optionError.bind(this)('env is required'); }
   if (!options.id) { return optionError.bind(this)('client id is required'); }
-  if (!options.secret) { return optionError.bind(this)('client secret is required'); }
+  if (!options.token) { return optionError.bind(this)('client secret is required'); }
 
-  const uri = this.isPublicCloud ? util.format(authUri + '/token', options.org, options.env) : authUri + '/token';
-  const body = {
-    client_id: options.id,
-    client_secret: options.secret,
-    grant_type: 'client_credentials'
-  };
-  request({
-    uri: uri,
-    method: 'POST',
-    json: body
-  }, function(err, res) {
-    if (err) {
-      cb && cb(err)
-      return printError(err)
-    }
-    console.log(res.body)
-    cb && cb(null,res.body)
-  });
+  if (!options.key) { return optionError.bind(this)('key is required'); }
+  if (!options.secret) { return optionError.bind(this)('secret is required'); }
+  const key = options.key;
+  const secret = options.secret;
+  const keys = {key:key,secret:secret};
+  edgeconfig.get({source:targetPath,keys:keys},(err,config)=>{
+    const authUri = config['authUri'];
+    this.isPublicCloud = config['managementUri'] === 'https://api.enterprise.apigee.com';
+    const uri = this.isPublicCloud ? util.format(authUri + '/token', options.org, options.env) : authUri + '/token';
+    const body = {
+      client_id: options.id,
+      client_secret: options.token,
+      grant_type: 'client_credentials'
+    };
+    request({
+      uri: uri,
+      method: 'POST',
+      json: body
+    }, function(err, res) {
+      if (err) {
+        cb && cb(err)
+        return printError(err)
+      }
+      console.log(res.body)
+      cb && cb(null,res.body)
+    });
+  })
+
 }
 
 function getPublicKey(organization, environment,authUri, isPublicCloud,cb) {

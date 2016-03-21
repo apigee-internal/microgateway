@@ -36,7 +36,9 @@ describe('test-cli', function() {
       org:'sfeldmanmicro',
       env:'test',
       id:'AK8oYG53vyAgKKtvazNaiAs42xwqYkZ4',
-      secret:'DsOnAeAC9U4OGmg4'
+      token:'DsOnAeAC9U4OGmg4',
+      key:key,
+      secret:secret
     },(err,token)=>{
       err && done(err);
       assert(token && token.token,"token is there")
