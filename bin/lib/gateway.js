@@ -28,7 +28,7 @@ module.exports = {
     }
     const source = options.sourcePath || sourcePath;
     if (options.forever) {
-      runner(options, source, target);
+      runner(options, source);
     } else {
       const keys = {key: options.key, secret: options.secret};
       agentConfig({source: source,  keys: keys}, function (e, agent) {
