@@ -28,13 +28,14 @@ module.exports = {
     if(defaultSecret){
       options.secret = options.secret || defaultSecret;
     }
+     
 
-    const config = edgeconfig.load({source:sourcePath});
     if (options.forever) {
+      const config = edgeconfig.load({ source: sourcePath });
       runner(options, config, sourcePath, targetPath);
     } else {
       const keys = {key: options.key, secret: options.secret};
-      agentConfig({source: sourcePath,target:targetPath,  keys: keys}, function (e, agent) {
+      agentConfig({source: sourcePath,target:targetPath,  keys: keys,ignorecachedconfig:options.ignorecachedconfig}, function (e, agent) {
         if (e) {
           console.error('edge micro failed to start',e);
           process.exit(1);
