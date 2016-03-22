@@ -38,5 +38,5 @@ node_modules
 config/config.yaml
 config/cache-config.yaml
 tests/cache-config.yaml
-tmp-
+tmp-*
 default.yaml.bak
