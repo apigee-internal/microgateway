@@ -53,7 +53,7 @@ const backupPath = path.join( targetDir, 'default.yaml.bak');
 
 const DEFAULT_HOSTS = 'default,secure';
 
-const EXTRA_MODULES = ['apigeetool', 'cli-prompt', 'commander', 'cpr', 'mkdirp', 'rimraf', 'should', 'supertest', 'tmp', 'xml2js'];
+const EXTRA_MODULES = ['apigeetool','lodash', 'cli-prompt', 'commander', 'cpr', 'mkdirp', 'rimraf', 'should', 'supertest', 'tmp', 'xml2js'];
 
 const privateLogic =  function(){
 
@@ -200,7 +200,7 @@ privateLogic.prototype.configureEdgeMicroInternalProxy = function configureEdgeM
 
 
   // only edit default.xml when virutalHosts is not default
-  if (this.virtualHosts !== DEFAULT_HOSTS) {
+  if (that.virtualHosts !== DEFAULT_HOSTS) {
 
     const defaultFlow = [
       function(cb) {
@@ -395,6 +395,18 @@ privateLogic.prototype.deployWithLeanPayload = function deployWithLeanPayload(op
     cpr(path.resolve(__dirname, '..','..'), tmpDir.name, cb);
   });
 
+// delete config
+ tasks.push(function(cb) {
+    rimraf(path.join(tmpDir.name, 'tmp-*'), cb);
+ });
+  tasks.push(function(cb) {
+    rimraf(path.join(tmpDir.name, 'config'), cb);
+  });
+// delete git
+  tasks.push(function(cb) {
+    rimraf(path.join(tmpDir.name, '.gitignore'), cb);
+  });
+  
   // delete bin
   tasks.push(function(cb) {
     rimraf(path.join(tmpDir.name, 'bin'), cb);
@@ -407,7 +419,7 @@ privateLogic.prototype.deployWithLeanPayload = function deployWithLeanPayload(op
 
   // delete tests
   tasks.push(function(cb) {
-    rimraf(path.join(tmpDir.name, 'test'), cb);
+    rimraf(path.join(tmpDir.name, 'tests'), cb);
   });
 
   // delete extraneous node modules
