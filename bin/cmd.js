@@ -9,6 +9,8 @@ const setup = function setup() {
   commander
     .command('token [action]', 'token commands, see: "edgemicro token -h"')
     .command('cert [action]', 'cert commands, see: "edgemicro cert -h"')
+    .command('private [action]', 'private commands, see: "edgemicro private -h"')
+
 
   commander
     .command('configure')

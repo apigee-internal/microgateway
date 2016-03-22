@@ -5,14 +5,17 @@
   "author": "shawnfeldman",
   "main": "lib/agent.js",
   "dependencies": {
+    "a127-magic": "^0.12.1",
     "apigeetool": "^0.6.3",
     "async": "^1.5.2",
     "body-parser": "^1.12.4",
     "cli-prompt": "^0.5.0",
     "commander": "^2.9.0",
     "config": "^1.13.0",
+    "cpr": "^1.0.0",
     "crypto": "0.0.3",
     "debug": "^2.2.0",
+    "express": "^4.13.4",
     "forever-monitor": "^1.7.0",
     "fs-extra": "^0.20.1",
     "js-yaml": "^3.5.4",
@@ -25,7 +28,8 @@
     "request": "^2.67.0",
     "restify": "^4.0.4",
     "util": "^0.10.3",
-    "uuid": "^2.0.1"
+    "uuid": "^2.0.1",
+    "xml2js": "^0.4.16"
   },
   "devDependencies": {
     "gulp": "^3.8.11",
