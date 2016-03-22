@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const edgeconfig = require('microgateway-config');
 const jwt = require('jsonwebtoken');
+const assert = require('assert')
 
 
 
@@ -80,6 +81,7 @@ Token.prototype.getToken = function(options,cb) {
   const secret = options.secret;
   const keys = {key:key,secret:secret};
   edgeconfig.get({source:targetPath,keys:keys},(err,config)=>{
+    assert(!err,err);
     const authUri = config['authUri'];
     this.isPublicCloud = config['managementUri'] === 'https://api.enterprise.apigee.com';
     const uri = this.isPublicCloud ? util.format(authUri + '/token', options.org, options.env) : authUri + '/token';

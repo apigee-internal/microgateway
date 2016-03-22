@@ -13,7 +13,7 @@ const targetDir = path.join(__dirname, '..','..', 'config');
 
 const targetPath = path.join( targetDir, 'cache-config.yaml');
 const agent = require('../../lib/server')(targetPath);
-module.exports.installCert = function(options) {
+module.exports.installCert = function(options,cb) {
   if (!options.username) {
     return optionError.bind(this)('username is required');
   }
@@ -30,6 +30,8 @@ module.exports.installCert = function(options) {
         return console.error(err, 'failed to update cert')
       }
       console.log('installed cert');
+      cb()
+      process.exit(0);
     });
   }
 

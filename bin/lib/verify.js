@@ -5,10 +5,10 @@ const request = require('request');
 const async = require('async');
 const assert = require('assert');
 
-const targetDir = path.join(__dirname, '..','..', 'config');
-const sourceFile = 'config.yaml';
-const sourcePath = path.join(targetDir,sourceFile);
-const agentLib = require('../../lib/server');
+const targetDir = path.join(__dirname, '..', '..', 'config');
+const sourcePath = path.join(targetDir, 'config.yaml');
+const cachePath = path.join(targetDir, 'cache-config.yaml');
+const agentLib = require('../../lib/agent-config');
 const util = require('util');
 
 
@@ -26,9 +26,9 @@ module.exports = function verify(options) {
 function verifyConfig(options) {
   const key = options.key;
   const secret = options.secret;
-  const keys = {key:key,secret:secret};
+  const keys = { key: key, secret: secret };
   var downloadedConfig;
-  const agentConfig = edgeconfig.load({source:sourcePath});
+  const agentConfig = edgeconfig.load({ source: sourcePath });
 
   const authUri = agentConfig['authUri']
 
@@ -39,13 +39,13 @@ function verifyConfig(options) {
     function(cb) {
       // check analytics availability with 500 error
       request({
-          method: 'POST',
-          uri: downloadedConfig.analytics.uri,
-          auth: {
-            user: key,
-            pass: secret
-          }
-        },
+        method: 'POST',
+        uri: downloadedConfig.analytics.uri,
+        auth: {
+          user: key,
+          pass: secret
+        }
+      },
         function(err, res) {
           if (err) {
             console.log('verifying analytics negative case: FAIL');
@@ -57,7 +57,7 @@ function verifyConfig(options) {
             return cb(new Error('analytics up - got 401 Unauthorized. Invalid key/secret credentials.'));
           } else if (res.statusCode !== 500) {
             console.log('verifying analytics negative case: FAIL');
-            return cb(new Error('analytics up - got code: '+res.statusCode));
+            return cb(new Error('analytics up - got code: ' + res.statusCode));
           } else {
             console.log('verifying analytics negative case: OK');
             cb();
@@ -67,13 +67,13 @@ function verifyConfig(options) {
     function(cb) {
       // verify bootstrap url availability
       request({
-          method: 'GET',
-          uri: options.bootstrap,
-          auth: {
-            user: key,
-            pass: secret
-          }
-        },
+        method: 'GET',
+        uri: options.bootstrap,
+        auth: {
+          user: key,
+          pass: secret
+        }
+      },
         function(err, res, body) {
           if (err) {
             console.log('verifying bootstrap url availability:FAIL');
@@ -85,7 +85,7 @@ function verifyConfig(options) {
             return cb(new Error('bootstrap - got 401 Unauthorized. Invalid key/secret credentials.'));
           } else if (res.statusCode !== 200) {
             console.log('verifying bootstrap url availability:FAIL');
-            return cb(new Error('bootstrap - got code: '+res.statusCode))
+            return cb(new Error('bootstrap - got code: ' + res.statusCode))
           } else {
             console.log('verifying bootstrap url availability:OK');
             cb();
@@ -95,9 +95,9 @@ function verifyConfig(options) {
     function(cb) {
       // verify jwt_public key availability
       request({
-          method: 'GET',
-          uri: options['jwt_path']
-        },
+        method: 'GET',
+        uri: options['jwt_path']
+      },
         function(err, res, body) {
           if (err) {
             console.log('verifying jwt_public_key availability: FAIL');
@@ -106,7 +106,7 @@ function verifyConfig(options) {
 
           if (res.statusCode !== 200) {
             console.log('verifying jwt_public_key availability: FAIL');
-            return cb(new Error('jwt - got code: '+res.statusCode));
+            return cb(new Error('jwt - got code: ' + res.statusCode));
           } else {
             console.log('verifying jwt_public_key availability: OK');
             cb();
@@ -115,20 +115,20 @@ function verifyConfig(options) {
     },
     function(cb) {
       // verify products endpoint availability
-      const productsUrl = util.format(authUri+'/products', options.org, options.env);
+      const productsUrl = util.format(authUri + '/products', options.org, options.env);
       request({
-          method: 'GET',
-          uri: productsUrl
-        },
+        method: 'GET',
+        uri: productsUrl
+      },
         function(err, res, body) {
           if (err) {
             console.log('verifying products availability: FAIL');
             return cb(err);
           }
 
-          if (res.statusCode !== 200){
+          if (res.statusCode !== 200) {
             console.log('verifying products availability: FAIL');
-            return cb(new Error('products - got code: '+res.statusCode));
+            return cb(new Error('products - got code: ' + res.statusCode));
           } else {
             console.log('verifying products availability: OK');
             cb();
@@ -139,27 +139,27 @@ function verifyConfig(options) {
       // verify quota availability for configured products
       const prods = Object.keys(downloadedConfig.quota);
 
-      async.each(prods, function(prod, eachCb){
+      async.each(prods, function(prod, eachCb) {
         request({
-            method: 'POST',
-            uri: downloadedConfig.quota[prod].uri,
-            auth: {
-              user: key,
-              pass: secret
-            }
-          },
+          method: 'POST',
+          uri: downloadedConfig.quota[prod].uri,
+          auth: {
+            user: key,
+            pass: secret
+          }
+        },
           function(err, res, body) {
-            if (err) {return eachCb(err);}
+            if (err) { return eachCb(err); }
 
             if (res.statusCode === 401) {
               return eachCb(new Error('Got 401 Unauthorized. Invalid key/secret credentials.'));
             } else if (res.statusCode !== 200) {
-              return eachCb(new Error('quota - got code: '+res.statusCode));
+              return eachCb(new Error('quota - got code: ' + res.statusCode));
             } else {
               eachCb();
             }
           });
-      }, function(err){
+      }, function(err) {
         if (err) {
           console.log('verifying quota with configured products: FAIL');
           cb(err);
@@ -172,32 +172,32 @@ function verifyConfig(options) {
     function(cb) {
       // verify analytics works with synthetic payload
       const payload = {
-        "client_received_start_timestamp":Date.now(),
-        "client_received_end_timestamp":Date.now(),
-        "recordType":"APIAnalytics",
-        "apiproxy":"edgemicro_127",
-        "request_uri":"http://127.0.0.1:8000/hello",
-        "request_path":"/hello",
-        "request_verb":"GET",
-        "client_ip":"127.0.0.1",
-        "useragent":"curl/7.43.0",
-        "apiproxy_revision":"1",
-        "response_status_code":200,
-        "client_sent_start_timestamp":Date.now(),
-        "client_sent_end_timestamp":Date.now(),
-        "developer_app":"52ec80e1-06b7-4db6-ac36-9c5842072603",
-        "client_id":"6gClRCKp0UCOZ8o9Q5S7X88nI5hgizGQ",
-        "api_product":"travel-app"
+        "client_received_start_timestamp": Date.now(),
+        "client_received_end_timestamp": Date.now(),
+        "recordType": "APIAnalytics",
+        "apiproxy": "edgemicro_127",
+        "request_uri": "http://127.0.0.1:8000/hello",
+        "request_path": "/hello",
+        "request_verb": "GET",
+        "client_ip": "127.0.0.1",
+        "useragent": "curl/7.43.0",
+        "apiproxy_revision": "1",
+        "response_status_code": 200,
+        "client_sent_start_timestamp": Date.now(),
+        "client_sent_end_timestamp": Date.now(),
+        "developer_app": "52ec80e1-06b7-4db6-ac36-9c5842072603",
+        "client_id": "6gClRCKp0UCOZ8o9Q5S7X88nI5hgizGQ",
+        "api_product": "travel-app"
       }
 
       request({
-          method: 'POST',
-          uri: downloadedConfig.analytics.uri,
-          auth: {
-            user: key,
-            pass: secret
-          }
-        },
+        method: 'POST',
+        uri: downloadedConfig.analytics.uri,
+        auth: {
+          user: key,
+          pass: secret
+        }
+      },
         function(err, res, body) {
           if (err) {
             console.log('verifying analytics with payload: FAIL');
@@ -207,9 +207,9 @@ function verifyConfig(options) {
           if (res.statusCode === 401) {
             console.log('verifying analytics with payload: FAIL');
             return cb(new Error('analytics synthetic - got 401 Unauthorized. Invalid key/secret credentials.'));
-          } else if( res.statusCode !== 200) {
+          } else if (res.statusCode !== 200) {
             console.log('verifying analytics with payload: FAIL');
-            return cb(new Error('analytics synthetic - got code: '+res.statusCode));
+            return cb(new Error('analytics synthetic - got code: ' + res.statusCode));
           } else {
             console.log('verifying analytics with payload: OK');
             return cb();
@@ -219,26 +219,17 @@ function verifyConfig(options) {
     }
   ];
 
-  edgeconfig.get({source:sourcePath,keys:keys},function(err,config){
-    const agent = agentLib(config);
-    agent.start({ // start agent
-      key: key,
-      secret: secret,
-      env: {
-        DEBUG: 'gateway:logging' // ensure log records are printed to console
-      }
-    }, function(err, config) {
-      if (err) {
-        return printError(err);
-      }
-      downloadedConfig = config;
-      async.series(tasks, function(asyncErr, res) {
-        console.log('verification complete');
-
-        agent.close(process.exit); // close and stop agent
-      });
+  agentLib({ source: sourcePath, keys: keys, target: cachePath }, (err, agent, config) => {
+    if (err) {
+      return printError(err);
+    }
+    downloadedConfig = config;
+    async.series(tasks, function(asyncErr, res) {
+      console.log('verification complete');
+      agent.close(process.exit); // close and stop agent
     });
   })
+
 
 }
 

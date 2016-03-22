@@ -49,9 +49,9 @@ CertLogic.prototype.retrievePublicKey = function(options, callback) {
   });
 }
 
-CertLogic.prototype.retrievePublicKeyPrivate = function(options, callback) {
+CertLogic.prototype.retrievePublicKeyPrivate = function(runtimeUrl,basePath, callback) {
 
-  getPublicKeyPrivate(options, function (err, certificate) {
+  getPublicKeyPrivate(runtimeUrl,basePath, function (err, certificate) {
     if (err && err.status !== 404) {
       return callback(err);
 
@@ -123,9 +123,8 @@ CertLogic.prototype.checkPrivateCert = function(options, callback) {
   });
 }
 
-CertLogic.prototype.installPrivateCert = function(options, callback) {
+CertLogic.prototype.installPrivateCert = function(options,managementUri,vaultName, callback) {
 
-  const vaultName = this.vaultName;
   createCert(function(err, keys) {
     if (err) {
       if (callback) {
@@ -143,19 +142,19 @@ CertLogic.prototype.installPrivateCert = function(options, callback) {
       [
         function(cb) {
           if (!options.force) { return cb(); }
-          deleteVault(options.username, options.password, options.mgmtUrl, options.org, options.env, vaultName, options, cb);
+          deleteVault(options.username, options.password, managementUri, options.org, options.env, vaultName, cb);
         },
         function(cb) {
           console.log('creating vault');
-          createVault(options.username, options.password, options.mgmtUrl, options.org, options.env, vaultName, options, cb);
+          createVault(options.username, options.password, managementUri, options.org, options.env, vaultName, cb);
         },
         function(cb) {
           console.log('adding private_key');
-          addKeyToVault(options.username, options.password, options.mgmtUrl, options.org, options.env, vaultName, 'private_key', privateKey, cb);
+          addKeyToVault(options.username, options.password, managementUri, options.org, options.env, vaultName, 'private_key', privateKey, cb);
         },
         function(cb) {
           console.log('adding public_key');
-          addKeyToVault(options.username, options.password, options.mgmtUrl, options.org, options.env, vaultName, 'public_key', publicKey, cb);
+          addKeyToVault(options.username, options.password, managementUri, options.org, options.env, vaultName, 'public_key', publicKey, cb);
         }
       ],
       function(err) {
@@ -201,7 +200,7 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
       [
         function(cb) {
           if (!options.force) { return cb(); }
-          deleteVault(options.username, options.password, managementUri, options.org, options.env, vaultName, options, cb);
+          deleteVault(options.username, options.password, managementUri, options.org, options.env, vaultName, cb);
         },
         function(cb) {
           console.log('creating vault');
@@ -370,7 +369,7 @@ CertLogic.prototype.deleteCertWithPassword = function deleteCertWithPassword(opt
   const managementUri = this.managementUri ;
   const vaultName = this.vaultName;
 
-  deleteVault(options.username, options.password, managementUri, options.org, options.env, vaultName, options, function(err) {
+  deleteVault(options.username, options.password, managementUri, options.org, options.env, vaultName, function(err) {
     if (err) {
       cb(err);
     } else {
@@ -408,7 +407,7 @@ function createCert(cb) {
   pem.createCertificate(options, cb);
 }
 
-function deleteVault(username, password, managementUri, organization, environment, vaultName, options, cb) {
+function deleteVault(username, password, managementUri, organization, environment, vaultName, cb) {
 
   console.log('deleting vault');
   const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s', managementUri, organization, environment, vaultName);
@@ -430,7 +429,7 @@ function deleteVault(username, password, managementUri, organization, environmen
   });
 }
 
-function createVault(username, password, managementUri, organization, environment, vaultName, options, cb) {
+function createVault(username, password, managementUri, organization, environment, vaultName, cb) {
 
   const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults', managementUri, organization, environment);
   request({
@@ -499,8 +498,8 @@ function getPublicKey(organization, environment, authUri,cb) {
   });
 }
 
-function getPublicKeyPrivate(options, cb) {
-  const runtimeUri = options.runtimeUrl + options.basePath + '/publicKey';
+function getPublicKeyPrivate(runtimeUrl, basePath, cb) {
+  const runtimeUri = runtimeUrl + basePath + '/publicKey';
 
   request({
     uri: runtimeUri,
