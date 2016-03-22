@@ -7,12 +7,16 @@ const apigeetool = require('apigeetool');
 const _ = require('lodash');
 const async = require('async')
 const util = require('util')
+const fs = require('fs')
 
-const defaultConfigPath = path.join(__dirname, '..','..', 'config', 'default.yaml');
 const targetFile = 'config.yaml';
 const alternateFile = 'new-config.yaml';
-const targetDir = path.join(__dirname, '..','..', 'config');
-const defaultConfig = edgeconfig.load({source:defaultConfigPath});
+const targetDir = path.join(__dirname, '..', '..', 'config');
+const defaultConfigPath = path.join(targetDir, 'default.yaml');
+const cacheConfigPath = path.join(targetDir, 'cache-config.yaml');
+
+const defaultConfig = edgeconfig.load({ source: defaultConfigPath });
+
 const cert = require('./cert')(defaultConfig)
 
 
@@ -26,6 +30,13 @@ module.exports = function configure(options) {
 
 function checkDeployedProxies(options) {
 
+  console.log('delete cache config');
+  const exists = fs.existsSync(cacheConfigPath);
+  if (exists) {
+    fs.unlinkSync(cacheConfigPath);
+    console.log('deleted ' + cacheConfigPath);
+  }
+  
   console.log();
   console.log('checking for previously deployed proxies')
   const opts = {
@@ -48,7 +59,7 @@ function checkDeployedProxies(options) {
 }
 
 function configureEdgemicroWithCreds(options) {
-  var tasks = [],authUri,agentConfigPath;
+  var tasks = [], authUri, agentConfigPath;
 
   options.proxyName = 'edgemicro-auth';
 
@@ -56,8 +67,8 @@ function configureEdgemicroWithCreds(options) {
     if (options.url.indexOf('://') === -1) {
       options.url = 'https://' + options.url;
     }
-     authUri = options.url + '/edgemicro-auth';
-  }else{
+    authUri = options.url + '/edgemicro-auth';
+  } else {
     authUri = defaultConfig.authUri
   }
 
@@ -76,7 +87,7 @@ function configureEdgemicroWithCreds(options) {
   tasks.push(
     function(callback) {
       console.log('checking org for existing vault');
-      cert.checkCertWithPassword(options, function(err, certs){
+      cert.checkCertWithPassword(options, function(err, certs) {
         if (err) {
           cert.installCertWithPassword(options, callback);
         } else {
@@ -101,18 +112,18 @@ function configureEdgemicroWithCreds(options) {
     console.log('updating agent configuration');
 
 
-    const answercb = function (overwrite) {
+    const answercb = function(overwrite) {
       edgeconfig.init({
         source: defaultConfigPath,
         targetDir: targetDir,
         targetFile: overwrite ? targetFile : alternateFile,
-        overwrite:overwrite
-      }, function (err, configPath) {
-        if(err){
+        overwrite: overwrite
+      }, function(err, configPath) {
+        if (err) {
           process.exit(1)
         }
         agentConfigPath = configPath;
-        const agentConfig = edgeconfig.load({source:configPath});
+        const agentConfig = edgeconfig.load({ source: configPath });
 
         if (!jwtSearch) {
           agentConfig['edge_config']['jwt_public_key'] = results[0]; // get deploy results
@@ -144,14 +155,14 @@ function configureEdgemicroWithCreds(options) {
         process.exit(0)
       });
     };
-    const promptCb = function (prompt_message, answer_cb) {
+    const promptCb = function(prompt_message, answer_cb) {
       console.log();
       prompt(prompt_message, answer_cb);
     }
-    if(options.overwrite){
+    if (options.overwrite) {
       answercb(options.overwrite.match(/^(yes|ok|true|y)$/i) ? true : false)
-    }else {
-      promptCb('overwrite exisiting configuration? (y/n) ', function (ans) {
+    } else {
+      promptCb('overwrite exisiting configuration? (y/n) ', function(ans) {
         ans = ans.match(/^(yes|ok|true|y)$/i) ? true : false;
         answercb(ans)
       });
