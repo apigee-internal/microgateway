@@ -40,6 +40,7 @@ const setup = function setup() {
     .command('start')
     .option('-k, --key <key>', 'key for authenticating with Edge')
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
+    .option('-i, --ignorecachedconfig', 'bypass cached config')
     .option('-f, --forever', 'will ensure the server will restart in case of exceptions')
     .description('control agent processes')
     .action(run.start);
