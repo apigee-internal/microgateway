@@ -53,7 +53,7 @@ const backupPath = path.join( targetDir, 'default.yaml.bak');
 
 const DEFAULT_HOSTS = 'default,secure';
 
-const EXTRA_MODULES = ['apigeetool','lodash', 'cli-prompt', 'commander', 'cpr', 'mkdirp', 'rimraf', 'should', 'supertest', 'tmp', 'xml2js'];
+const EXTRA_MODULES = ['apigeetool', 'cli-prompt', 'commander', 'cpr', 'mkdirp', 'rimraf', 'should', 'supertest', 'tmp', 'xml2js'];
 
 const privateLogic =  function(){
 
@@ -392,34 +392,7 @@ privateLogic.prototype.deployWithLeanPayload = function deployWithLeanPayload(op
   // copy bin folder into tmp
   tasks.push(function(cb) {
     console.log('preparing edgemicro-auth app to be deployed to your Edge instance');
-    cpr(path.resolve(__dirname, '..','..'), tmpDir.name, cb);
-  });
-
-// delete config
- tasks.push(function(cb) {
-    rimraf(path.join(tmpDir.name, 'tmp-*'), cb);
- });
-  tasks.push(function(cb) {
-    rimraf(path.join(tmpDir.name, 'config'), cb);
-  });
-// delete git
-  tasks.push(function(cb) {
-    rimraf(path.join(tmpDir.name, '.gitignore'), cb);
-  });
-  
-  // delete bin
-  tasks.push(function(cb) {
-    rimraf(path.join(tmpDir.name, 'bin'), cb);
-  });
-
-  // delete lib
-  tasks.push(function(cb) {
-    rimraf(path.join(tmpDir.name, 'lib'), cb);
-  });
-
-  // delete tests
-  tasks.push(function(cb) {
-    rimraf(path.join(tmpDir.name, 'tests'), cb);
+    cpr(path.resolve(__dirname, '..','..','app'), tmpDir.name, cb);
   });
 
   // delete extraneous node modules
