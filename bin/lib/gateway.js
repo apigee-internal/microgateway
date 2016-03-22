@@ -36,10 +36,10 @@ module.exports = {
       const keys = {key: options.key, secret: options.secret};
       agentConfig({source: sourcePath,target:targetPath,  keys: keys}, function (e, agent) {
         if (e) {
-          console.error('agent failed to start',e);
+          console.error('edge micro failed to start',e);
           process.exit(1);
         }
-        console.log('agent started');
+        console.log('edge micro started');
       });
     }
 
