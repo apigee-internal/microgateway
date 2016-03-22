@@ -8,7 +8,7 @@ const assert = require('assert');
 const targetDir = path.join(__dirname, '..', '..', 'config');
 const sourcePath = path.join(targetDir, 'config.yaml');
 const cachePath = path.join(targetDir, 'cache-config.yaml');
-const agentLib = require('../../lib/server');
+const agentLib = require('../../lib/agent-config');
 const util = require('util');
 
 
@@ -219,25 +219,14 @@ function verifyConfig(options) {
     }
   ];
 
-  edgeconfig.get({ source: sourcePath, keys: keys }, (err, config) => {
-    edgeconfig.save(config, cachePath);
-    config = edgeconfig.load({ source: cachePath })
-    const agent = agentLib();
-    agent.start({ // start agent
-      key: key,
-      secret: secret,
-      env: {
-        DEBUG: 'gateway:logging' // ensure log records are printed to console
-      }
-    },config, function(err, config) {
-      if (err) {
-        return printError(err);
-      }
-      downloadedConfig = config;
-      async.series(tasks, function(asyncErr, res) {
-        console.log('verification complete');
-        agent.close(process.exit); // close and stop agent
-      });
+  agentLib({ source: sourcePath, keys: keys, target: cachePath }, (err, agent, config) => {
+    if (err) {
+      return printError(err);
+    }
+    downloadedConfig = config;
+    async.series(tasks, function(asyncErr, res) {
+      console.log('verification complete');
+      agent.close(process.exit); // close and stop agent
     });
   })
 
