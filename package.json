@@ -1,6 +1,6 @@
 {
   "name": "microgateway-cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Management Agent for Edge Micro",
   "author": "shawnfeldman",
   "main": "lib/agent.js",
@@ -42,6 +42,6 @@
     "start": "node lib/process-instance.js",
     "package": "node bin/package.js",
     "test": "mocha tests",
-    "preinstall":"pushd app;npm i;popd"
+    "preinstall": "pushd app;npm i;popd"
   }
 }
