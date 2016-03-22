@@ -42,8 +42,6 @@ const setup = function setup() {
     .command('start')
     .option('-k, --key <key>', 'key for authenticating with Edge')
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
-    .option('-d, --defaultConfig <sourcePath>', 'default config directory')
-    .option('-t, --targetConfig <targetPath>', 'target config directory')
     .option('-f, --forever', 'agent port (default 9000)')
     .description('control agent processes')
     .action(run.start);
