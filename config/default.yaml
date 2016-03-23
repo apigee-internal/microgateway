@@ -6,8 +6,6 @@ bootstrapMessage: Please copy the following property to the edge micro agent con
 keySecretMessage: The following credentials are required to start edge micro
 agent:
   max_times: 300
-  port: 9000
-
 edge_config:
   bootstrap: https://apigee.net/edgemicro/bootstrap/organization/org/environment/env...
   jwt_public_key: http://apigee.net/edgemicro/publicKey...
@@ -15,15 +13,15 @@ edge_config:
 edgemicro:
   home: ../gateway
   port: 8000
-  max_connections: -1
-  max_connections_hard: -1
+  max_connections: 1000
+  max_connections_hard: 5000
   logging:
     level: info
     dir: /var/tmp
     stats_log_interval: 60
     rotate_interval: 24
   plugins:
-    dir: ../microgateway-plugins
+    dir: ./plugins
     sequence:
       - oauth
 

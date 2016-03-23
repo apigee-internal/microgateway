@@ -45,11 +45,11 @@ const rimraf = require('rimraf');
 const mkdirp = require('mkdirp');
 const cpr = require('cpr');
 const edgeconfig = require('microgateway-config');
-const targetDir = path.join(__dirname, '..','..', 'config');
-const sourcePath = path.join( targetDir, 'default.yaml');
-const targetPath = path.join( targetDir, 'config.yaml');
-const altTargetPath = path.join( targetDir, 'new-config.yaml');
-const backupPath = path.join( targetDir, 'default.yaml.bak');
+const configLocations = require('../../config/locations');
+const sourcePath = configLocations.default
+const targetPath = configLocations.source
+const altTargetPath = path.join( configLocations.homeDir, 'new-config.yaml');
+const backupPath = path.join( configLocations.initDir, configLocations.defaultFile+'.bak');
 
 const DEFAULT_HOSTS = 'default,secure';
 
@@ -58,7 +58,6 @@ const EXTRA_MODULES = ['apigeetool', 'cli-prompt', 'commander', 'cpr', 'mkdirp',
 const privateLogic =  function(){
 
 };
-
 
 
 // begins edgemicro configuration process
@@ -343,7 +342,7 @@ privateLogic.prototype.configureEdgemicroWithCreds = function configureEdgemicro
       const promptCb = function(overwrite) {
         edgeconfig.init({
             source: sourcePath,
-            targetDir: targetDir,
+            targetDir: configLocations.dir,
             targetFile: overwrite ? targetPath : altTargetPath,
             overwrite:overwrite
           },
