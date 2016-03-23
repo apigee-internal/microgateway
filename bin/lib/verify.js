@@ -5,9 +5,9 @@ const request = require('request');
 const async = require('async');
 const assert = require('assert');
 
-const targetDir = path.join(__dirname, '..', '..', 'config');
-const sourcePath = path.join(targetDir, 'config.yaml');
-const cachePath = path.join(targetDir, 'cache-config.yaml');
+const configLocations = require('../../config/locations');
+const sourcePath = configLocations.source;
+const cachePath = configLocations.cache;
 const agentLib = require('../../lib/agent-config');
 const util = require('util');
 

@@ -9,11 +9,9 @@ const edgeconfig = require('microgateway-config');
 const jwt = require('jsonwebtoken');
 const assert = require('assert')
 
+const configLocations = require('../../config/locations');
 
-
-const targetDir = path.join(__dirname, '..','..', 'config');
-
-const targetPath = path.join( targetDir, 'config.yaml');
+const targetPath = configLocations.source;
 
 const Token = function(){
 

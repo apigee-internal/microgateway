@@ -8,11 +8,9 @@ const apigeetool = require('apigeetool');
 const _ = require('lodash');
 const async = require('async');
 const util = require('util');
+const configLocations = require('../../config/locations');
 
-const targetDir = path.join(__dirname, '..','..', 'config');
-
-const targetPath = path.join( targetDir, 'cache-config.yaml');
-const agent = require('../../lib/server')(targetPath);
+const agent = require('../../lib/server')(configLocations.cache);
 module.exports.installCert = function(options,cb) {
   if (!options.username) {
     return optionError.bind(this)('username is required');

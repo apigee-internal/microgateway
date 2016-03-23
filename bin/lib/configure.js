@@ -9,13 +9,13 @@ const async = require('async')
 const util = require('util')
 const fs = require('fs')
 
-const targetFile = 'config.yaml';
-const alternateFile = 'new-config.yaml';
-const targetDir = path.join(__dirname, '..', '..', 'config');
-const defaultConfigPath = path.join(targetDir, 'default.yaml');
-const cacheConfigPath = path.join(targetDir, 'cache-config.yaml');
+const configLocations = require('../../config/locations');
 
-const defaultConfig = edgeconfig.load({ source: defaultConfigPath });
+const targetFile = configLocations.sourceFile;
+const alternateFile = 'new-config.yaml';
+
+
+const defaultConfig = edgeconfig.load({ source: configLocations.default });
 
 const cert = require('./cert')(defaultConfig)
 
@@ -31,10 +31,10 @@ module.exports = function configure(options) {
 function checkDeployedProxies(options) {
 
   console.log('delete cache config');
-  const exists = fs.existsSync(cacheConfigPath);
+  const exists = fs.existsSync(configLocations.cache);
   if (exists) {
-    fs.unlinkSync(cacheConfigPath);
-    console.log('deleted ' + cacheConfigPath);
+    fs.unlinkSync(configLocations.cache);
+    console.log('deleted ' + configLocations.cache);
   }
   
   console.log();
@@ -114,8 +114,8 @@ function configureEdgemicroWithCreds(options) {
 
     const answercb = function(overwrite) {
       edgeconfig.init({
-        source: defaultConfigPath,
-        targetDir: targetDir,
+        source: configLocations.default,
+        targetDir: configLocations.homeDir,
         targetFile: overwrite ? targetFile : alternateFile,
         overwrite: overwrite
       }, function(err, configPath) {

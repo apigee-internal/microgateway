@@ -4,11 +4,7 @@ const assert = require('assert');
 const runner = require('../../lib/process');
 const edgeconfig = require('microgateway-config');
 
-const targetDir = path.join(__dirname, '..','..', 'config');
-const sourceFile = 'config.yaml';
-const sourcePath = path.join(targetDir,sourceFile);
-const targetPath = path.join(targetDir,'cache-config.yaml');
-
+const configLocations = require('../../config/locations');
 const agentConfig = require('../../lib/agent-config');
 
 
@@ -31,11 +27,11 @@ module.exports = {
      
 
     if (options.forever) {
-      const config = edgeconfig.load({ source: sourcePath });
-      runner(options, config, sourcePath, targetPath);
+      const config = edgeconfig.load({ source: configLocations.source });
+      runner(options, config, configLocations.source, configLocations.cache);
     } else {
       const keys = {key: options.key, secret: options.secret};
-      agentConfig({source: sourcePath,target:targetPath,  keys: keys,ignorecachedconfig:options.ignorecachedconfig}, function (e, agent) {
+      agentConfig({source: configLocations.source,target:configLocations.cache,  keys: keys,ignorecachedconfig:options.ignorecachedconfig}, function (e, agent) {
         if (e) {
           console.error('edge micro failed to start',e);
           process.exit(1);
