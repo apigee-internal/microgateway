@@ -13,13 +13,13 @@ const configLocations = require('../../config/locations');
 const agent = require('../../lib/server')(configLocations.cache);
 module.exports.installCert = function(options,cb) {
   if (!options.username) {
-    return optionError.bind(this)('username is required');
+    return optionError.bind(options)('username is required');
   }
   if (!options.org) {
-    return optionError.bind(this)('org is required');
+    return optionError.bind(options)('org is required');
   }
   if (!options.env) {
-    return optionError.bind(this)('env is required');
+    return optionError.bind(options)('env is required');
   }
   const fx = (options) => {
     const config = edgeconfig.load({source: targetPath});
@@ -39,9 +39,9 @@ module.exports.installCert = function(options,cb) {
 
 module.exports.checkCert = function(options) {
 
-  if (!options.username) { return optionError.bind(this)('username is required'); }
-  if (!options.org) { return optionError.bind(this)('org is required'); }
-  if (!options.env) { return optionError.bind(this)('env is required'); }
+  if (!options.username) { return optionError.bind(options)('username is required'); }
+  if (!options.org) { return optionError.bind(options)('org is required'); }
+  if (!options.env) { return optionError.bind(options)('env is required'); }
 
 
   const fx =(options) =>{
@@ -60,9 +60,9 @@ module.exports.checkCert = function(options) {
 
 module.exports.deleteCert = function(options) {
 
-  if (!options.username) { return optionError.bind(this)('username is required'); }
-  if (!options.org) { return optionError.bind(this)('org is required'); }
-  if (!options.env) { return optionError.bind(this)('env is required'); }
+  if (!options.username) { return optionError.bind(options)('username is required'); }
+  if (!options.org) { return optionError.bind(options)('org is required'); }
+  if (!options.env) { return optionError.bind(options)('env is required'); }
 
   promptForPassword('org admin password: ', options, (options)=>{
     const config = edgeconfig.load({source:targetPath});
@@ -76,8 +76,8 @@ module.exports.deleteCert = function(options) {
 
 module.exports.retrievePublicKey = function(options) {
 
-  if (!options.org) { return optionError.bind(this)('org is required'); }
-  if (!options.env) { return optionError.bind(this)('env is required'); }
+  if (!options.org) { return optionError.bind(options)('org is required'); }
+  if (!options.env) { return optionError.bind(options)('env is required'); }
 
   const config = edgeconfig.load({source:targetPath});
   cert(config).retrievePublicKey(options,(err,certificate)=>{
@@ -92,8 +92,8 @@ module.exports.retrievePublicKey = function(options) {
 
 module.exports.retrievePublicKeyPrivate = function(options) {
 
-  if (!options.org) { return optionError.bind(this)('org is required'); }
-  if (!options.env) { return optionError.bind(this)('env is required'); }
+  if (!options.org) { return optionError.bind(options)('org is required'); }
+  if (!options.env) { return optionError.bind(options)('env is required'); }
 
   const config = edgeconfig.load({source:targetPath});
   cert(config).retrievePublicKeyPrivate(options,(err,certificate)=>{

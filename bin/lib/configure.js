@@ -21,9 +21,9 @@ const cert = require('./cert')(defaultConfig)
 
 
 module.exports = function configure(options) {
-  if (!options.username) { return optionError.bind(this)('username is required'); }
-  if (!options.org) { return optionError.bind(this)('org is required'); }
-  if (!options.env) { return optionError.bind(this)('env is required'); }
+  if (!options.username) { return optionError.bind(options)('username is required'); }
+  if (!options.org) { return optionError.bind(options)('org is required'); }
+  if (!options.env) { return optionError.bind(options)('env is required'); }
   promptForPassword('org admin password: ', options, checkDeployedProxies);
 };
 

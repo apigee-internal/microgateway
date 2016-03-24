@@ -13,10 +13,10 @@ module.exports = {
     const defaultKey = process.env.EDGEMICRO_KEY
     const defaultSecret = process.env.EDGEMICRO_SECRET
     if (!options.key && !defaultKey) {
-      return optionError.bind(this)('key is required');
+      return optionError.bind(options)('key is required');
     }
     if (!options.secret && !defaultSecret) {
-      return optionError.bind(this)('secret is required');
+      return optionError.bind(options)('secret is required');
     }
     if(defaultKey){
       options.key = options.key || defaultKey;

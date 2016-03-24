@@ -17,8 +17,6 @@ const setup = function setup() {
 
   commander
     .command('verify')
-    .option('-k, --key <key>', 'key for authenticating with Edge')
-    .option('-s, --secret <secret>', 'secret for authenticating with Edge')
     .option('-f, --file <file>', 'file containing jwt')
     .option('-o, --org <org>', 'the organization')
     .option('-e, --env <env>', 'the environment')
@@ -29,12 +27,10 @@ const setup = function setup() {
 
   commander
     .command('get')
-    .option('-k, --key <key>', 'key for authenticating with Edge')
-    .option('-s, --secret <secret>', 'secret for authenticating with Edge')
     .option('-o, --org <org>', 'the organization')
     .option('-e, --env <env>', 'the environment')
     .option('-i, --id <id>', 'the client id')
-    .option('-t, --token <secret>', 'the client secret')
+    .option('-s, --secret <secret>', 'the client secret')
     .description('create a client_credentials oauth token')
     .action((options)=>{
       token.getToken(options)

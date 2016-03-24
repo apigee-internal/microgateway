@@ -63,25 +63,25 @@ const privateLogic =  function(){
 // begins edgemicro configuration process
 privateLogic.prototype.configureEdgemicro = function(options) {
   if (!options.username) {
-    return optionError.bind(this)('username is required');
+    return optionError.bind(options)('username is required');
   }
   if (!options.org) {
-    return optionError.bind(this)('org is required');
+    return optionError.bind(options)('org is required');
   }
   if (!options.env) {
-    return optionError.bind(this)('env is required');
+    return optionError.bind(options)('env is required');
   }
   if (!options.key) {
-    return optionError.bind(this)('secret is required');
+    return optionError.bind(options)('secret is required');
   }
   if (!options.secret) {
-    return optionError.bind(this)('key is required');
+    return optionError.bind(options)('key is required');
   }
   if (!options.runtimeUrl) {
-    return optionError.bind(this)('runtimeUrl is required');
+    return optionError.bind(options)('runtimeUrl is required');
   }
   if (!options.mgmtUrl) {
-    return optionError.bind(this)('mgmtUrl is required');
+    return optionError.bind(options)('mgmtUrl is required');
   }
 
   this.name = 'edgemicro-auth';
