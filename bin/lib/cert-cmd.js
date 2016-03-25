@@ -10,7 +10,6 @@ const async = require('async');
 const util = require('util');
 const configLocations = require('../../config/locations');
 
-const agent = require('../../lib/server')(configLocations.cache);
 module.exports.installCert = function(options,cb) {
   if (!options.username) {
     return optionError.bind(options)('username is required');
@@ -22,7 +21,7 @@ module.exports.installCert = function(options,cb) {
     return optionError.bind(options)('env is required');
   }
   const fx = (options) => {
-    const config = edgeconfig.load({source: targetPath});
+    const config = edgeconfig.load({source: configLocations.getSourcePath(options.org,options.env)});
     cert(config).installCertWithPassword(options, (err, res)=> {
       if (err) {
         return console.error(err, 'failed to update cert')
@@ -45,7 +44,7 @@ module.exports.checkCert = function(options) {
 
 
   const fx =(options) =>{
-    const config = edgeconfig.load({source:targetPath});
+    const config = edgeconfig.load({source:configLocations.getSourcePath(options.org,options.env)});
     cert(config).checkCertWithPassword(options, (err,res)=>{
       if(err){
         return console.error(err,'failed to update cert')
@@ -65,7 +64,7 @@ module.exports.deleteCert = function(options) {
   if (!options.env) { return optionError.bind(options)('env is required'); }
 
   promptForPassword('org admin password: ', options, (options)=>{
-    const config = edgeconfig.load({source:targetPath});
+    const config = edgeconfig.load({source:configLocations.getSourcePath(options.org,options.env)});
 
     cert(config).deleteCertWithPassword(options,function(err,msg){
       err && console.error(err);
@@ -79,7 +78,7 @@ module.exports.retrievePublicKey = function(options) {
   if (!options.org) { return optionError.bind(options)('org is required'); }
   if (!options.env) { return optionError.bind(options)('env is required'); }
 
-  const config = edgeconfig.load({source:targetPath});
+  const config = edgeconfig.load({source:configLocations.getSourcePath(options.org,options.env)});
   cert(config).retrievePublicKey(options,(err,certificate)=>{
     if(err){
       return console.error(err,'failed to retrieve public key')
@@ -95,7 +94,7 @@ module.exports.retrievePublicKeyPrivate = function(options) {
   if (!options.org) { return optionError.bind(options)('org is required'); }
   if (!options.env) { return optionError.bind(options)('env is required'); }
 
-  const config = edgeconfig.load({source:targetPath});
+  const config = edgeconfig.load({source:configLocations.getSourcePath(options.org,options.env)});
   cert(config).retrievePublicKeyPrivate(options,(err,certificate)=>{
     if(err){
       return console.error(err,'failed to retrieve public key')

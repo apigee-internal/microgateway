@@ -11,32 +11,27 @@ const fs = require('fs')
 
 const configLocations = require('../../config/locations');
 
-const targetFile = configLocations.sourceFile;
-const alternateFile = 'new-config.yaml';
-
-
 const defaultConfig = edgeconfig.load({ source: configLocations.default });
 
 const cert = require('./cert')(defaultConfig)
 
-
-module.exports = function configure(options) {
+module.exports = function configure(options,cb) {
   if (!options.username) { return optionError.bind(options)('username is required'); }
   if (!options.org) { return optionError.bind(options)('org is required'); }
   if (!options.env) { return optionError.bind(options)('env is required'); }
-  promptForPassword('org admin password: ', options, checkDeployedProxies);
+  promptForPassword('org admin password: ', options, checkDeployedProxies,cb);
 };
 
 
-function checkDeployedProxies(options) {
-
+function checkDeployedProxies(options,cb) {
+  const cache = configLocations.getCachePath(options.org,options.env);
   console.log('delete cache config');
-  const exists = fs.existsSync(configLocations.cache);
+  const exists = fs.existsSync(cache);
   if (exists) {
-    fs.unlinkSync(configLocations.cache);
-    console.log('deleted ' + configLocations.cache);
+    fs.unlinkSync(cache);
+    console.log('deleted ' + cache);
   }
-  
+
   console.log();
   console.log('checking for previously deployed proxies')
   const opts = {
@@ -47,18 +42,18 @@ function checkDeployedProxies(options) {
     username: options.username,
     password: options.password,
     debug: options.debug,
-    overwrite: options.overwrite
+    overwrite: true
   }
 
   apigeetool.listDeployments(opts, function(err, proxies) {
     if (err) { return printError(err); }
 
     _.assign(options, proxies);
-    configureEdgemicroWithCreds(options);
+    configureEdgemicroWithCreds(options,cb);
   })
 }
 
-function configureEdgemicroWithCreds(options) {
+function configureEdgemicroWithCreds(options,cb) {
   var tasks = [], authUri, agentConfigPath;
 
   options.proxyName = 'edgemicro-auth';
@@ -110,74 +105,63 @@ function configureEdgemicroWithCreds(options) {
     }
 
     console.log('updating agent configuration');
+    const targetFile = configLocations.getSourceFile(options.org,options.env);
+    edgeconfig.init({
+      source: configLocations.default,
+      targetDir: configLocations.homeDir,
+      targetFile: targetFile,
+      overwrite: true
+    }, function(err, configPath) {
+      if (err) {
+        process.exit(1)
+      }
+      agentConfigPath = configPath;
+      const agentConfig = edgeconfig.load({ source: configPath });
 
+      if (!jwtSearch) {
+        agentConfig['edge_config']['jwt_public_key'] = results[0]; // get deploy results
+        agentConfig['edge_config'].bootstrap = results[2].bootstrap; // get genkeys results
+      } else {
+        agentConfig['edge_config']['jwt_public_key'] =
+          options.url ? authUri + '/publicKey' : util.format(authUri + '/publicKey', options.org, options.env);
+        agentConfig['edge_config'].bootstrap = results[1].bootstrap;
+      }
 
-    const answercb = function(overwrite) {
-      edgeconfig.init({
-        source: configLocations.default,
-        targetDir: configLocations.homeDir,
-        targetFile: overwrite ? targetFile : alternateFile,
-        overwrite: overwrite
-      }, function(err, configPath) {
-        if (err) {
-          process.exit(1)
-        }
-        agentConfigPath = configPath;
-        const agentConfig = edgeconfig.load({ source: configPath });
-
-        if (!jwtSearch) {
-          agentConfig['edge_config']['jwt_public_key'] = results[0]; // get deploy results
-          agentConfig['edge_config'].bootstrap = results[2].bootstrap; // get genkeys results
-        } else {
-          agentConfig['edge_config']['jwt_public_key'] =
-            options.url ? authUri + '/publicKey' : util.format(authUri + '/publicKey', options.org, options.env);
-          agentConfig['edge_config'].bootstrap = results[1].bootstrap;
-        }
-
-        console.log();
-        console.log('saving configuration information to:', agentConfigPath);
-        edgeconfig.save(agentConfig, agentConfigPath); // if it didn't throw, save succeeded
-        console.log();
-
-        if (jwtSearch) {
-          console.log('vault info:\n', results[0]);
-        } else {
-          console.log('vault info:\n', results[1]);
-        }
-        console.log();
-
-        console.info(defaultConfig.keySecretMessage);
-        console.info('  key:', results[2] ? results[2].key : results[1].key);
-        console.info('  secret:', results[2] ? results[2].secret : results[1].secret);
-        console.log();
-
-        console.log('edgemicro configuration complete!');
-        process.exit(0)
-      });
-    };
-    const promptCb = function(prompt_message, answer_cb) {
       console.log();
-      prompt(prompt_message, answer_cb);
-    }
-    if (options.overwrite) {
-      answercb(options.overwrite.match(/^(yes|ok|true|y)$/i) ? true : false)
-    } else {
-      promptCb('overwrite exisiting configuration? (y/n) ', function(ans) {
-        ans = ans.match(/^(yes|ok|true|y)$/i) ? true : false;
-        answercb(ans)
-      });
-    }
+      console.log('saving configuration information to:', agentConfigPath);
+      edgeconfig.save(agentConfig, agentConfigPath); // if it didn't throw, save succeeded
+      console.log();
+
+      if (jwtSearch) {
+        console.log('vault info:\n', results[0]);
+      } else {
+        console.log('vault info:\n', results[1]);
+      }
+      console.log();
+
+      console.info(defaultConfig.keySecretMessage);
+      console.info('  key:', results[2] ? results[2].key : results[1].key);
+      console.info('  secret:', results[2] ? results[2].secret : results[1].secret);
+      console.log();
+
+      console.log('edgemicro configuration complete!');
+      if(_.isFunction(cb)){
+        cb();
+      }else{
+        process.exit(0)        
+      }
+    });
   });
 }
 
 // prompt for a password if it is not specified
-function promptForPassword(message, options, continuation) {
+function promptForPassword(message, options, continuation,cb) {
   if (options.password) {
-    continuation(options);
+    continuation(options,cb);
   } else {
     prompt.password(message, function(pw) {
       options.password = pw;
-      continuation(options);
+      continuation(options,cb);
     });
   }
 }
