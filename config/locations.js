@@ -6,17 +6,22 @@ const os = require('os');
 const configDir = path.join(__dirname);
 const homeDir =  path.join(os.homedir(), '.edgemicro');
 const sourceFile = 'config.yaml';
-const defaultFile = 'default.yaml'
+const defaultFile = 'default.yaml';
+const cacheFile =  'cache-config.yaml';
 const defaultPath = path.join(configDir,defaultFile);
-const sourcePath = path.join(homeDir, sourceFile);
-const cachePath = path.join(homeDir, 'cache-config.yaml');
 
 module.exports = {
   default: defaultPath,
-  source: sourcePath,
-  cache: cachePath,
-  sourceFile: sourceFile,
   defaultFile: defaultFile,
+  getSourcePath: function getSource(org,env){
+    return path.join(homeDir, this.getSourceFile(org,env));
+  },
+  getSourceFile: function getSourceFile(org,env){
+    return org + "-" + env + "-" + sourceFile;
+  },
+  getCachePath: function getCachePath(org,env){
+    return path.join(homeDir, org + "-" + env + "-" + cacheFile);
+  },
   initDir: configDir,
   homeDir: homeDir
 }

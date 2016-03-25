@@ -10,8 +10,7 @@ const jwt = require('jsonwebtoken');
 const assert = require('assert')
 
 const configLocations = require('../../config/locations');
-
-const targetPath = configLocations.source;
+ 
 
 const Token = function() {
 
@@ -36,6 +35,7 @@ Token.prototype.verifyToken = function(options) {
   if (!options.file) { return optionError.bind(options)('file is required'); }
   if (!options.org) { return optionError.bind(options)('org is required'); }
   if (!options.env) { return optionError.bind(options)('env is required'); }
+  const targetPath = configLocations.getSourcePath(options.org,options.env);
 
   const key = options.key;
   const secret = options.secret;
@@ -71,6 +71,7 @@ Token.prototype.getToken = function(options, cb) {
   if (!options.env) { return optionError.bind(options)('env is required'); }
   if (!options.id) { return optionError.bind(options)('client id is required'); }
   if (!options.secret) { return optionError.bind(options)('client secret is required'); }
+  const targetPath = configLocations.getSourcePath(options.org,options.env);
 
   const key = options.key;
   const secret = options.secret;

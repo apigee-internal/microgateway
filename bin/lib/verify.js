@@ -6,28 +6,24 @@ const async = require('async');
 const assert = require('assert');
 
 const configLocations = require('../../config/locations');
-const sourcePath = configLocations.source;
-const cachePath = configLocations.cache;
+
+
 const agentLib = require('../../lib/agent-config');
 const util = require('util');
 
 
 module.exports = function verify(options) {
-  if (!options.org) { return optionError.bind(this)('org is required'); }
-  if (!options.env) { return optionError.bind(this)('env is required'); }
-  if (!options.key) { return optionError.bind(this)('key is required'); }
-  if (!options.secret) { return optionError.bind(this)('secret is required'); }
-
-  return verifyConfig(options);
-
-}
-
-
-function verifyConfig(options) {
+  if (!options.org) { return optionError.bind(options)('org is required'); }
+  if (!options.env) { return optionError.bind(options)('env is required'); }
+  if (!options.key) { return optionError.bind(options)('key is required'); }
+  if (!options.secret) { return optionError.bind(options)('secret is required'); }
+ 
   const key = options.key;
   const secret = options.secret;
   const keys = { key: key, secret: secret };
   var downloadedConfig;
+  const sourcePath = configLocations.getSourcePath(options.org,options.env);
+
   const agentConfig = edgeconfig.load({ source: sourcePath });
 
   const authUri = agentConfig['authUri']
@@ -218,6 +214,8 @@ function verifyConfig(options) {
         .write(JSON.stringify(payload));
     }
   ];
+
+  const cachePath = configLocations.getCachePath(options.org,options.env);
 
   agentLib({ source: sourcePath, keys: keys, target: cachePath }, (err, agent, config) => {
     if (err) {

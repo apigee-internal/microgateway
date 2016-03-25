@@ -47,8 +47,7 @@ const cpr = require('cpr');
 const edgeconfig = require('microgateway-config');
 const configLocations = require('../../config/locations');
 const sourcePath = configLocations.default
-const targetPath = configLocations.source
-const altTargetPath = path.join( configLocations.homeDir, 'new-config.yaml');
+
 const backupPath = path.join( configLocations.initDir, configLocations.defaultFile+'.bak');
 
 const DEFAULT_HOSTS = 'default,secure';
@@ -84,6 +83,7 @@ privateLogic.prototype.configureEdgemicro = function(options) {
     return optionError.bind(options)('mgmtUrl is required');
   }
 
+  const targetPath = configLocations.getSourcePath(options.org,options.env);
   this.name = 'edgemicro-auth';
   this.basePath = '/edgemicro-auth';
   this.managementUri = options.mgmtUrl;
@@ -278,6 +278,8 @@ privateLogic.prototype.deployEdgeMicroInternalProxy = function deployEdgeMicroIn
 // checks deployments, deploys proxies as necessary, checks/installs certs, generates keys
 privateLogic.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithCreds(options) {
   const that = this;
+  const targetPath = configLocations.getSourcePath(options.org,options.env);
+  
   const emSearch = _.find(options.deployments, function(proxy) {
     return proxy.name === 'edgemicro-internal';
   });
@@ -342,9 +344,9 @@ privateLogic.prototype.configureEdgemicroWithCreds = function configureEdgemicro
       const promptCb = function(overwrite) {
         edgeconfig.init({
             source: sourcePath,
-            targetDir: configLocations.dir,
-            targetFile: overwrite ? targetPath : altTargetPath,
-            overwrite:overwrite
+            targetDir: configLocations.homeDir,
+            targetFile: targetPath,
+            overwrite:true
           },
           function (configPath) {
             const agentConfigPath = configPath;

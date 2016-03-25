@@ -21,7 +21,6 @@ const setup = function setup() {
     .option('-u, --username <user>', 'username of the organization admin')
     .option('-p, --password <password>', 'password of the organization admin')
     .option('-r, --url <url>', 'organization\'s custom API URL (https://api.example.com)')
-    .option('-w, --overwrite <overwrite>', 'overwrite the current config, yes|ok|true|y')
     .option('-d, --debug', 'execute with debug output')
     .action(configure);
 
@@ -38,6 +37,8 @@ const setup = function setup() {
 
   commander
     .command('start')
+    .option('-o, --org <org>', 'the organization')
+    .option('-e, --env <env>', 'the environment')
     .option('-k, --key <key>', 'key for authenticating with Edge')
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
     .option('-i, --ignorecachedconfig', 'bypass cached config')

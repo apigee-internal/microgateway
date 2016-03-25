@@ -18,6 +18,8 @@ module.exports = {
     if (!options.secret && !defaultSecret) {
       return optionError.bind(options)('secret is required');
     }
+    if (!options.org) { return optionError.bind(options)('org is required'); }
+    if (!options.env) { return optionError.bind(options)('env is required'); }
     if(defaultKey){
       options.key = options.key || defaultKey;
     }
@@ -26,12 +28,14 @@ module.exports = {
     }
      
 
+    const source = configLocations.getSourcePath(options.org,options.env);
+    const cache = configLocations.getCachePath(options.org,options.env);
     if (options.forever) {
-      const config = edgeconfig.load({ source: configLocations.source });
-      runner(options, config, configLocations.source, configLocations.cache);
+      const config = edgeconfig.load({ source: source });
+      runner(options, config, source, cache);
     } else {
       const keys = {key: options.key, secret: options.secret};
-      agentConfig({source: configLocations.source,target:configLocations.cache,  keys: keys,ignorecachedconfig:options.ignorecachedconfig}, function (e, agent) {
+      agentConfig({source: source,target: cache,  keys: keys,ignorecachedconfig:options.ignorecachedconfig}, function (e, agent) {
         if (e) {
           console.error('edge micro failed to start',e);
           process.exit(1);
@@ -46,6 +50,8 @@ module.exports = {
 
 function optionError(message) {
   console.error(message);
-  this.help();
+  if(this.help){
+    this.help();
+  }
 }
 

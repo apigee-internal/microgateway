@@ -15,6 +15,8 @@ edgemicro:
   port: 8000
   max_connections: 1000
   max_connections_hard: 5000
+  restart_sleep: 500
+  restart_max: 50
   logging:
     level: info
     dir: /var/tmp
