@@ -46,9 +46,9 @@ const mkdirp = require('mkdirp');
 const cpr = require('cpr');
 const edgeconfig = require('microgateway-config');
 const configLocations = require('../../config/locations');
-const sourcePath = configLocations.default
+const sourcePath = configLocations.getDefaultPath()
 
-const backupPath = path.join( configLocations.initDir, configLocations.defaultFile+'.bak');
+const backupPath = path.join( configLocations.defaultDir, configLocations.getDefaultPath()+'.bak');
 
 const DEFAULT_HOSTS = 'default,secure';
 
@@ -94,13 +94,13 @@ privateLogic.prototype.configureEdgemicro = function(options) {
   const config = edgeconfig.load({source: sourcePath});
 
   that.config = config;
-  that.authUri = config.authUri = that.runtimeUrl + that.basePath;
-  that.config.managementUri = that.managementUri;
-  that.vaultName = config['vaultName']
+  that.authUri = config.edge_config.authUri = that.runtimeUrl + that.basePath;
+  that.config.edge_config.managementUri = that.managementUri;
+  that.vaultName = config.edge_config['vaultName']
   promptForPassword('org admin password: ', options, (options)=> {
     edgeconfig.save(that.config, backupPath);
 
-    config.baseUri = that.runtimeUrl + '/edgemicro/%s/organization/%s/environment/%s';
+    config.edge_config.baseUri = that.runtimeUrl + '/edgemicro/%s/organization/%s/environment/%s';
     try {
       edgeconfig.save(that.config, targetPath);
     } catch (e) {
@@ -626,7 +626,7 @@ privateLogic.prototype.generateKeysWithPassword = function generateKeysWithPassw
             }
 
             console.log('configuring host', res.body.host, 'for region', res.body.region);
-            const bootstrapUrl = util.format(config.baseUri, 'bootstrap', options.org, options.env);
+            const bootstrapUrl = util.format(config.edge_config.baseUri, 'bootstrap', options.org, options.env);
             const parsedUrl = url.parse(bootstrapUrl);
             const parsedRes = url.parse(res.body.host);
 
@@ -635,19 +635,19 @@ privateLogic.prototype.generateKeysWithPassword = function generateKeysWithPassw
 
             if (continuation) {
               console.log();
-              console.info(config.keySecretMessage);
+              console.info(config.edge_config.keySecretMessage);
               console.info('  key:', key);
               console.info('  secret:', secret);
               console.log();
               return continuation(null, updatedUrl);
             } else {
-              console.info(config.bootstrapMessage);
+              console.info(config.edge_config.bootstrapMessage);
               console.info('  bootstrap:', updatedUrl);
             }
             console.log();
 
             console.log();
-            console.info(config.keySecretMessage);
+            console.info(config.edge_config.keySecretMessage);
             console.info('  key:', key);
             console.info('  secret:', secret);
             console.log();

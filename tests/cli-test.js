@@ -5,17 +5,20 @@ const url = require('url');
 const os = require('os');
 const agent = require('../bin/lib/gateway');
 const configure = require('../bin/lib/configure');
-
+const path = require('path');
+const configLocations = require('../config/locations');
+const thisPath = path.normalize(__dirname);
+configLocations.homeDir = thisPath;
+configLocations.defaultDir = thisPath;
 const token = require('../bin/lib/token');
 
 const edgeConfig = require('microgateway-config');
-const configLocations = require('../config/locations')
 const restServer = require('./server/hello/hello.js')(true);
 
 describe('test-cli', function() {
   const key = '7ef8d2c6d302a8db90981a5ae372e2fdceb156288538e528026bf43a4c4d67a7';
   const secret = '62dde466dccc8790d385ec3a1765127d094a00136e5397bb0a89f5b64bacc17d';
-  const config = edgeConfig.load({ source: configLocations.default })
+  const config = edgeConfig.load({ source: configLocations.getDefaultPath() })
   const target = "http://localhost:" + config.edgemicro.port + "/hello";
   restServer.listen(3000);
   before(function(done) {

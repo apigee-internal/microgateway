@@ -1,15 +1,15 @@
-managementUri: https://api.enterprise.apigee.com
-vaultName: microgateway
-authUri: https://%s-%s.apigee.net/edgemicro-auth
-baseUri: https://edgemicroservices.apigee.net/edgemicro/%s/organization/%s/environment/%s
-bootstrapMessage: Please copy the following property to the edge micro agent config
-keySecretMessage: The following credentials are required to start edge micro
+
 agent:
   max_times: 300
 edge_config:
   bootstrap: https://apigee.net/edgemicro/bootstrap/organization/org/environment/env...
   jwt_public_key: http://apigee.net/edgemicro/publicKey...
-
+  managementUri: https://api.enterprise.apigee.com
+  vaultName: microgateway
+  authUri: https://%s-%s.apigee.net/edgemicro-auth
+  baseUri: https://edgemicroservices.apigee.net/edgemicro/%s/organization/%s/environment/%s
+  bootstrapMessage: Please copy the following property to the edge micro agent config
+  keySecretMessage: The following credentials are required to start edge micro
 edgemicro:
   home: ../gateway
   port: 8000

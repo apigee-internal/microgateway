@@ -17,11 +17,11 @@ const ERR_STORE_MISSING = 'com.apigee.secure-store.securestore_does_not_exist';
 
 
 const CertLogic = function(config){
-  this.managementUri = config['managementUri'];
-  this.vaultName = config['vaultName'];
-  this.baseUri = config['baseUri'];
-  this.authUri = config['authUri'];
-  this.bootstrapMessage = config['bootstrapMessage'];
+  this.managementUri = config.edge_config['managementUri'];
+  this.vaultName = config.edge_config['vaultName'];
+  this.baseUri = config.edge_config['baseUri'];
+  this.authUri = config.edge_config['authUri'];
+  this.bootstrapMessage = config.edge_config['bootstrapMessage'];
   this.keySecretMessage = config['keySecretMessage'];
 };
 
