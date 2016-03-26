@@ -95,7 +95,7 @@ module.exports.retrievePublicKeyPrivate = function(options) {
   if (!options.env) { return optionError.bind(options)('env is required'); }
 
   const config = edgeconfig.load({source:configLocations.getSourcePath(options.org,options.env)});
-  cert(config).retrievePublicKeyPrivate(options,(err,certificate)=>{
+  cert(config).retrievePublicKeyPrivate((err,certificate)=>{
     if(err){
       return console.error(err,'failed to retrieve public key')
     }

@@ -22,7 +22,7 @@ const CertLogic = function(config){
   this.baseUri = config.edge_config['baseUri'];
   this.authUri = config.edge_config['authUri'];
   this.bootstrapMessage = config.edge_config['bootstrapMessage'];
-  this.keySecretMessage = config['keySecretMessage'];
+  this.keySecretMessage = config.edge_config['keySecretMessage'];
 };
 
 
@@ -49,9 +49,10 @@ CertLogic.prototype.retrievePublicKey = function(options, callback) {
   });
 }
 
-CertLogic.prototype.retrievePublicKeyPrivate = function(runtimeUrl,basePath, callback) {
+CertLogic.prototype.retrievePublicKeyPrivate = function( callback) {
 
-  getPublicKeyPrivate(runtimeUrl,basePath, function (err, certificate) {
+  const authUri = this.authUri;
+  getPublicKeyPrivate(authUri, function (err, certificate) {
     if (err && err.status !== 404) {
       return callback(err);
 
@@ -96,7 +97,7 @@ CertLogic.prototype.checkCertWithPassword = function(options, callback) {
 CertLogic.prototype.checkPrivateCert = function(options, callback) {
 
   const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries',
-    options.mgmtUrl, options.org, options.env, this.vaultName);
+    this.managementUri, options.org, options.env, this.vaultName);
 
   request({
     uri: uri,
@@ -123,8 +124,9 @@ CertLogic.prototype.checkPrivateCert = function(options, callback) {
   });
 }
 
-CertLogic.prototype.installPrivateCert = function(options,managementUri,vaultName, callback) {
-
+CertLogic.prototype.installPrivateCert = function(options, callback) {
+  const managementUri = this.managementUri;
+  const vaultName = this.vaultName;
   createCert(function(err, keys) {
     if (err) {
       if (callback) {
@@ -498,8 +500,8 @@ function getPublicKey(organization, environment, authUri,cb) {
   });
 }
 
-function getPublicKeyPrivate(runtimeUrl, basePath, cb) {
-  const runtimeUri = runtimeUrl + basePath + '/publicKey';
+function getPublicKeyPrivate(authUri, cb) {
+  const runtimeUri = authUri+ '/publicKey';
 
   request({
     uri: runtimeUri,

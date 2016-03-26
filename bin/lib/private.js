@@ -46,9 +46,6 @@ const mkdirp = require('mkdirp');
 const cpr = require('cpr');
 const edgeconfig = require('microgateway-config');
 const configLocations = require('../../config/locations');
-const sourcePath = configLocations.getDefaultPath()
-
-const backupPath = path.join( configLocations.defaultDir, configLocations.getDefaultPath()+'.bak');
 
 const DEFAULT_HOSTS = 'default,secure';
 
@@ -83,29 +80,27 @@ privateLogic.prototype.configureEdgemicro = function(options) {
     return optionError.bind(options)('mgmtUrl is required');
   }
 
-  const targetPath = configLocations.getSourcePath(options.org,options.env);
+  this.sourcePath = configLocations.getSourcePath(options.org,options.env);
   this.name = 'edgemicro-auth';
   this.basePath = '/edgemicro-auth';
-  this.managementUri = options.mgmtUrl;
+  this.managementUri  = options.mgmtUrl;
   this.runtimeUrl = options.runtimeUrl;
   this.virtualHosts = options.virtualHosts || 'default';
 
+  
+  const config = edgeconfig.load({source: configLocations.getDefaultPath()});
+
+  this.config = config;
+  this.authUri = config.edge_config.authUri = this.runtimeUrl + this.basePath;
+  this.config.edge_config.managementUri = this.managementUri;
+  this.baseUri = this.runtimeUrl + '/edgemicro/%s/organization/%s/environment/%s';
+  this.vaultName = config.edge_config.vaultName;
+  this.config.edge_config.baseUri = this.baseUri;
+  
   const that = this;
-  const config = edgeconfig.load({source: sourcePath});
-
-  that.config = config;
-  that.authUri = config.edge_config.authUri = that.runtimeUrl + that.basePath;
-  that.config.edge_config.managementUri = that.managementUri;
-  that.vaultName = config.edge_config['vaultName']
+  
   promptForPassword('org admin password: ', options, (options)=> {
-    edgeconfig.save(that.config, backupPath);
-
-    config.edge_config.baseUri = that.runtimeUrl + '/edgemicro/%s/organization/%s/environment/%s';
-    try {
-      edgeconfig.save(that.config, targetPath);
-    } catch (e) {
-      return printError(e);
-    }
+    edgeconfig.save(that.config, that.sourcePath);
     that.cert = cert(that.config);
     that.checkDeployedProxies(options);
   });
@@ -260,7 +255,7 @@ privateLogic.prototype.deployEdgeMicroInternalProxy = function deployEdgeMicroIn
     debug: options.debug,
     verbose: options.debug,
     api: 'edgemicro-internal',
-    directory: __dirname,
+    directory:  path.join(__dirname),
     'import-only': false,
     'resolve-modules': false,
     virtualhosts: that.virtualHosts || 'default'
@@ -278,7 +273,7 @@ privateLogic.prototype.deployEdgeMicroInternalProxy = function deployEdgeMicroIn
 // checks deployments, deploys proxies as necessary, checks/installs certs, generates keys
 privateLogic.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithCreds(options) {
   const that = this;
-  const targetPath = configLocations.getSourcePath(options.org,options.env);
+  const sourcePath = that.sourcePath;
   
   const emSearch = _.find(options.deployments, function(proxy) {
     return proxy.name === 'edgemicro-internal';
@@ -317,10 +312,10 @@ privateLogic.prototype.configureEdgemicroWithCreds = function configureEdgemicro
     console.log('checking org for existing vault');
     that.cert.checkPrivateCert(options, function(err, certs){
       if (err) {
-        that.cert.installPrivateCert(options, that.managementUri, that.vaultName, callback);
+        that.cert.installPrivateCert(options,  callback);
       } else {
         console.log('vault already exists in your org');
-        that.cert.retrievePublicKeyPrivate(that.runtimeUrl,that.basePath, callback);
+        that.cert.retrievePublicKeyPrivate(callback);
       }
     });
   });
@@ -343,14 +338,14 @@ privateLogic.prototype.configureEdgemicroWithCreds = function configureEdgemicro
 
       const promptCb = function(overwrite) {
         edgeconfig.init({
-            source: sourcePath,
+            source: configLocations.getDefaultPath(),
             targetDir: configLocations.homeDir,
-            targetFile: targetPath,
+            targetFile: sourcePath,
             overwrite:true
           },
           function (configPath) {
             const agentConfigPath = configPath;
-            const agentConfig = that.config = edgeconfig.load({source:targetPath});
+            const agentConfig = that.config = edgeconfig.load({source:sourcePath});
 
             if (!emSearch && !jwtSearch) {
               agentConfig['edge_config']['jwt_public_key'] = results[2]; // get deploy results
@@ -626,7 +621,7 @@ privateLogic.prototype.generateKeysWithPassword = function generateKeysWithPassw
             }
 
             console.log('configuring host', res.body.host, 'for region', res.body.region);
-            const bootstrapUrl = util.format(config.edge_config.baseUri, 'bootstrap', options.org, options.env);
+            const bootstrapUrl = util.format(that.baseUri, 'bootstrap', options.org, options.env);
             const parsedUrl = url.parse(bootstrapUrl);
             const parsedRes = url.parse(res.body.host);
 

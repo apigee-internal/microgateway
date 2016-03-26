@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<JavaCallout async="false" continueOnError="false" enabled="true" name="Authenticate">
+    <DisplayName>Authenticate</DisplayName>
+    <Properties/>
+    <ClassName>com.apigee.edgemicro.javacallout.Authenticate</ClassName>
+    <ResourceURL>java://edge-micro-javacallout-1.0.0.jar</ResourceURL>
+</JavaCallout>
