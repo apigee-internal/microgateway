@@ -67,12 +67,6 @@ privateLogic.prototype.configureEdgemicro = function(options) {
   if (!options.env) {
     return optionError.bind(options)('env is required');
   }
-  if (!options.key) {
-    return optionError.bind(options)('secret is required');
-  }
-  if (!options.secret) {
-    return optionError.bind(options)('key is required');
-  }
   if (!options.runtimeUrl) {
     return optionError.bind(options)('runtimeUrl is required');
   }
