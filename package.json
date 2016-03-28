@@ -43,6 +43,6 @@
     "start": "node lib/process-instance.js",
     "package": "node bin/package.js",
     "test": "mocha tests",
-    "preinstall": "pushd app;npm i;popd"
+    "preinstall": "pushd private;pushd app;npm i;popd;popd;"
   }
 }

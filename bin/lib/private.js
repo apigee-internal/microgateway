@@ -126,7 +126,7 @@ privateLogic.prototype.checkDeployedProxies = function checkDeployedProxies(opti
 // configures Callout.xml & default.xml of apiproxy being deployed
 privateLogic.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroInternalProxy(options, callback) {
   const that = this;
-  const apipath = path.join(__dirname, 'apiproxy');
+  const apipath = path.join(__dirname,'..','..','private', 'apiproxy');
   var resPath;
   try {
     resPath = fs.realpathSync(apipath);
@@ -382,7 +382,7 @@ privateLogic.prototype.deployWithLeanPayload = function deployWithLeanPayload(op
   // copy bin folder into tmp
   tasks.push(function(cb) {
     console.log('preparing edgemicro-auth app to be deployed to your Edge instance');
-    cpr(path.resolve(__dirname, '..','..','app'), tmpDir.name, cb);
+    cpr(path.resolve(__dirname, '..','..','private','app'), tmpDir.name, cb);
   });
 
   // delete extraneous node modules
