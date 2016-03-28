@@ -25,27 +25,16 @@ const CertLogic = function(config){
   this.keySecretMessage = config.edge_config['keySecretMessage'];
 };
 
-
-
-
 CertLogic.prototype.retrievePublicKey = function(options, callback) {
 
   getPublicKey(options.org, options.env, this.authUri, function(err, certificate) {
     if (err && err.status !== 404) {
-      if (callback) {
         return callback(err);
-      } else {
-        return printError(err);
-      }
     }
     if (err) {
-      if (callback) {
-        return callback(err);
-      } else {
-        return callback(err.response.text);
-      }
+      return callback(err);
     }
-      callback(null, certificate);
+    callback(null, certificate);
   });
 }
 
@@ -55,11 +44,9 @@ CertLogic.prototype.retrievePublicKeyPrivate = function( callback) {
   getPublicKeyPrivate(authUri, function (err, certificate) {
     if (err && err.status !== 404) {
       return callback(err);
-
     }
     if (err) {
       return callback(err);
-
     }
     callback(null, certificate);
   });
@@ -78,19 +65,9 @@ CertLogic.prototype.checkCertWithPassword = function(options, callback) {
   }, function(err, res) {
     err = translateError(err, res);
     if (err) {
-      if (callback) {
-        return callback(err);
-      } else {
-        return printError(err);
-      }
+      return callback(err);
     }
-
-    if (callback) {
-      callback(null, res.body);
-    } else {
-      console.log(res.body);
-    }
-
+    callback(null, res.body);
   });
 }
 
@@ -108,18 +85,10 @@ CertLogic.prototype.checkPrivateCert = function(options, callback) {
   }, function(err, res) {
     err = translateError(err, res);
     if (err) {
-      if (callback) {
-        return callback(err);
-      } else {
-        return printError(err);
-      }
+      return callback(err);
     }
 
-    if (callback) {
-      callback(null, res.body);
-    } else {
-      console.log(res.body);
-    }
+    callback(null, res.body);
 
   });
 }
@@ -161,19 +130,9 @@ CertLogic.prototype.installPrivateCert = function(options, callback) {
       ],
       function(err) {
         if (err) {
-          if (callback){
-            callback(err);
-          } else {
-            printError(err);
-          }
+          callback(err);
         } else {
-          if (callback) {
-            callback(null, publicKey);
-          } else {
-            console.log('Success!');
-            console.log('Public Key:');
-            console.log(publicKey);
-          }
+          callback(null, publicKey);
         }
       }
     );
@@ -187,11 +146,7 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
 
   createCert(function(err, keys) {
     if (err) {
-      if (callback) {
         return callback(err);
-      } else {
-        return console.log(err, err.stack);
-      }
     }
 
     const privateKey = keys.serviceKey;
@@ -206,7 +161,7 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
         },
         function(cb) {
           console.log('creating vault');
-          createVault(options.username, options.password, managementUri, options.org, options.env, vaultName, options, cb);
+          createVault(options.username, options.password, managementUri, options.org, options.env, vaultName, cb);
         },
         function(cb) {
           console.log('adding private_key');
@@ -219,19 +174,9 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
       ],
       function(err) {
         if (err) {
-          if (callback){
-            callback(err);
-          } else {
-            printError(err);
-          }
+          callback(err);
         } else {
-          if (callback) {
-            callback(null, publicKey);
-          } else {
-            console.log('Success!');
-            console.log('Public Key:');
-            console.log(publicKey);
-          }
+          callback(null, publicKey);
         }
       }
     );
@@ -282,11 +227,7 @@ CertLogic.prototype.generateKeysWithPassword = function generateKeysWithPassword
     }, function(err, res) {
       err = translateError(err, res);
       if (err) {
-        if (cb) {
-          return cb(err);
-        } else {
-          return printError(err);
-        }
+        return cb(err);
       }
 
       if (res.statusCode >= 200 && res.statusCode <= 202) {
@@ -301,14 +242,10 @@ CertLogic.prototype.generateKeysWithPassword = function generateKeysWithPassword
             password: secret
           },
           json: true
-        }, function(err, res) {
+        }, function (err, res) {
           err = translateError(err, res);
           if (err) {
-            if (cb) {
-              return cb(err);
-            } else {
-              return printError(err);
-            }
+            return cb(err);
           }
 
           if (res.statusCode >= 200 && res.statusCode <= 202) {
@@ -328,39 +265,19 @@ CertLogic.prototype.generateKeysWithPassword = function generateKeysWithPassword
             parsedUrl.host = res.body.host; // update to regional host
             var updatedUrl = url.format(parsedUrl); // reconstruct url with updated host
 
-            if (cb) {
-              return cb(null, {
-                bootstrap: updatedUrl,
-                key: key,
-                secret: secret
-              });
-            } else {
-              console.info(bootstrapMessage);
-              console.info('  bootstrap:', updatedUrl);
-              console.log();
-
-              console.log();
-              console.info(keySecretMessage);
-              console.info('  key:', key);
-              console.info('  secret:', secret);
-              console.log();
-            }
+            return cb(null, {
+              bootstrap: updatedUrl,
+              key: key,
+              secret: secret
+            });
 
 
           } else {
-            if (cb) {
-              cb(console.error('error retrieving region for org', res.statusCode, res.text));
-            } else {
-              console.error('error retrieving region for org', res.statusCode, res.text);
-            }
+            cb(console.error('error retrieving region for org', res.statusCode, res.text));
           }
         });
       } else {
-        if (cb) {
-          cb(console.error('error uploading credentials', res.statusCode, res.text));
-        } else {
-          console.error('error uploading credentials', res.statusCode, res.text);
-        }
+        cb(console.error('error uploading credentials', res.statusCode, res.text));
       }
     });
   });

@@ -16,11 +16,13 @@ const deployAuth = require('./deploy-auth')(defaultConfig.edge_config,null)
 
 module.exports = function configure(options,cb) {
   if (!options.username) { return optionError.bind(options)('username is required'); }
+  if (!options.password) { return optionError.bind(options)('password is required'); }
   if (!options.org) { return optionError.bind(options)('org is required'); }
   if (!options.env) { return optionError.bind(options)('env is required'); }
-  promptForPassword('org admin password: ', options, checkDeployedProxies,cb);
+  checkDeployedProxies(options,(err)=>{
+    cb && cb(err);
+  })
 };
-
 
 function checkDeployedProxies(options,cb) {
   const cache = configLocations.getCachePath(options.org,options.env);
