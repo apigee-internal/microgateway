@@ -1,2 +1,3 @@
 #private directories
-these files are for the cli private command
+these files are for the cli configure command
+they are deployed to create the edge-auth proxy
