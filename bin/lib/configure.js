@@ -42,9 +42,8 @@ function checkDeployedProxies(options,cb) {
     baseuri: defaultConfig.edge_config['managementUri'],
     username: options.username,
     password: options.password,
-    debug: options.debug,
-    overwrite: true
-  }
+    debug: options.debug
+  };
 
   apigeetool.listDeployments(opts, function(err, proxies) {
     if (err) { return printError(err); }
@@ -55,7 +54,9 @@ function checkDeployedProxies(options,cb) {
 }
 
 function configureEdgemicroWithCreds(options,cb) {
-  var tasks = [], authUri, agentConfigPath;
+  var tasks = [], 
+  authUri = defaultConfig.edge_config.authUri, 
+  agentConfigPath;
 
   options.proxyName = 'edgemicro-auth';
 
@@ -64,8 +65,6 @@ function configureEdgemicroWithCreds(options,cb) {
       options.url = 'https://' + options.url;
     }
     authUri = options.url + '/edgemicro-auth';
-  } else {
-    authUri = defaultConfig.edge_config.authUri
   }
 
   const jwtSearch = _.find(options.deployments, function(proxy) {

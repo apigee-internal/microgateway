@@ -10,7 +10,14 @@ const async = require('async');
 const util = require('util');
 const configLocations = require('../../config/locations');
 
-module.exports.installCert = function(options,cb) {
+const Cert = function(){
+};
+
+module.exports = function(){
+  return new Cert();
+};
+
+Cert.prototype.installCert = function(options,cb) {
   if (!options.username) {
     return optionError.bind(options)('username is required');
   }
@@ -36,7 +43,7 @@ module.exports.installCert = function(options,cb) {
   promptForPassword('org admin password: ', options, fx);
 };
 
-module.exports.checkCert = function(options) {
+Cert.prototype.checkCert = function(options) {
 
   if (!options.username) { return optionError.bind(options)('username is required'); }
   if (!options.org) { return optionError.bind(options)('org is required'); }
@@ -57,7 +64,7 @@ module.exports.checkCert = function(options) {
 
 }
 
-module.exports.deleteCert = function(options) {
+Cert.prototype.deleteCert = function(options) {
 
   if (!options.username) { return optionError.bind(options)('username is required'); }
   if (!options.org) { return optionError.bind(options)('org is required'); }
@@ -73,7 +80,7 @@ module.exports.deleteCert = function(options) {
   });
 };
 
-module.exports.retrievePublicKey = function(options) {
+Cert.prototype.retrievePublicKey = function(options) {
 
   if (!options.org) { return optionError.bind(options)('org is required'); }
   if (!options.env) { return optionError.bind(options)('env is required'); }
@@ -89,7 +96,7 @@ module.exports.retrievePublicKey = function(options) {
 };
 
 
-module.exports.retrievePublicKeyPrivate = function(options) {
+Cert.prototype.retrievePublicKeyPrivate = function(options) {
 
   if (!options.org) { return optionError.bind(options)('org is required'); }
   if (!options.env) { return optionError.bind(options)('env is required'); }
