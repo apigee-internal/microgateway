@@ -4,7 +4,7 @@ const request = require('request');
 const url = require('url');
 const os = require('os');
 const agent = require('../bin/lib/gateway');
-const configure = require('../bin/lib/configure');
+const configure = require('../bin/lib/configure')();
 const path = require('path');
 const configLocations = require('../config/locations');
 const thisPath = path.normalize(__dirname);
@@ -23,7 +23,7 @@ describe('test-cli', function() {
   restServer.listen(3000);
   before(function(done) {
     this.timeout(10000)
-    configure({ username: 'sfeldman+micro@apigee.com', password: 'P@ssw0rd1', org: 'sfeldmanmicro', env: 'test' },()=>{
+    configure.configure({ username: 'sfeldman+micro@apigee.com', password: 'P@ssw0rd1', org: 'sfeldmanmicro', env: 'test' },()=>{
         // initialize agent
       agent.start({ key: key, secret: secret, org: 'sfeldmanmicro', env: 'test' });
       setTimeout(done, 500)
@@ -44,7 +44,7 @@ describe('test-cli', function() {
       secret: 'DsOnAeAC9U4OGmg4'
     }, (err, token) => {
       err && done(err);
-      assert(token && token.token, "token is there")
+      assert(token && token.token, "token is came back empty "+JSON.stringify(token))
       request({
         method: 'GET',
         uri: target,

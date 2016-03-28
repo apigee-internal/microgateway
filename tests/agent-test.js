@@ -7,7 +7,7 @@ const agent = require('../lib/server')();
 const edgeConfig = require('microgateway-config');
 const restServer = require('./server/hello/hello.js')();
 const path = require('path');
-const configure = require('../bin/lib/configure');
+const configure = require('../bin/lib/configure')();
 const token = require('../bin/lib/token');
 
 const configLocations = require('../config/locations');
@@ -26,7 +26,7 @@ describe('configured agent/server address', function() {
   var config;
   before(function(done) {
     this.timeout(400000);
-    configure({ username: 'sfeldman+micro@apigee.com', password: 'P@ssw0rd1', org: 'sfeldmanmicro', env: 'test' }, () => {
+    configure.configure({ username: 'sfeldman+micro@apigee.com', password: 'P@ssw0rd1', org: 'sfeldmanmicro', env: 'test' }, () => {
       edgeConfig.get({ keys: keys, source: configLocations.getSourcePath('sfeldmanmicro', 'test') }, (err, configDownload) => {
         config = configDownload;
         delete config.edgemicro.plugins

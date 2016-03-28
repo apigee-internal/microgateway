@@ -13,8 +13,14 @@ const configLocations = require('../../config/locations');
 const defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath() });
 const cert = require('./cert')(defaultConfig)
 const deployAuth = require('./deploy-auth')(defaultConfig.edge_config,null)
+const Configure = function(){
+  
+}
+module.exports = function(){
+  return new Configure();
+} 
 
-module.exports = function configure(options,cb) {
+Configure.prototype.configure = function configure(options,cb) {
   if (!options.username) { return optionError.bind(options)('username is required'); }
   if (!options.password) { return optionError.bind(options)('password is required'); }
   if (!options.org) { return optionError.bind(options)('org is required'); }

@@ -1,7 +1,7 @@
 'use strict';
 
 const commander = require('commander');
-const configure = require('./lib/configure');
+const configure = require('./lib/configure')();
 const verify = require('./lib/verify');
 const run = require('./lib/gateway');
 
@@ -22,7 +22,9 @@ const setup = function setup() {
     .option('-p, --password <password>', 'password of the organization admin')
     .option('-r, --url <url>', 'organization\'s custom API URL (https://api.example.com)')
     .option('-d, --debug', 'execute with debug output')
-    .action(configure);
+    .action((options)=>{
+      configure.configure(options);
+    });
 
 
   commander
