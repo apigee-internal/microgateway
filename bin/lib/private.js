@@ -46,6 +46,7 @@ const mkdirp = require('mkdirp');
 const cpr = require('cpr');
 const edgeconfig = require('microgateway-config');
 const configLocations = require('../../config/locations');
+const deploymentFx = require('deploy-auth');
 
 const DEFAULT_HOSTS = 'default,secure';
 
@@ -90,6 +91,7 @@ privateLogic.prototype.configureEdgemicro = function(options) {
   this.baseUri = this.runtimeUrl + '/edgemicro/%s/organization/%s/environment/%s';
   this.vaultName = config.edge_config.vaultName;
   this.config.edge_config.baseUri = this.baseUri;
+  this.deployment = deploymentFx(config.edge_config,this.virtualHosts);
   
   const that = this;
   
@@ -126,7 +128,7 @@ privateLogic.prototype.checkDeployedProxies = function checkDeployedProxies(opti
 // configures Callout.xml & default.xml of apiproxy being deployed
 privateLogic.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroInternalProxy(options, callback) {
   const that = this;
-  const apipath = path.join(__dirname,'..','..','private', 'apiproxy');
+  const apipath = path.join(__dirname,'..','..','auth', 'apiproxy');
   var resPath;
   try {
     resPath = fs.realpathSync(apipath);
@@ -237,32 +239,7 @@ privateLogic.prototype.configureEdgeMicroInternalProxy = function configureEdgeM
   })
 }
 
-// deploys internal apiproxy to specified managementUrl
-privateLogic.prototype.deployEdgeMicroInternalProxy = function deployEdgeMicroInternalProxy(options, callback) {
-  const that= this;
-  const opts = {
-    organization: options.org,
-    environments: options.env,
-    baseuri: that.managementUri,
-    username: options.username,
-    password: options.password,
-    debug: options.debug,
-    verbose: options.debug,
-    api: 'edgemicro-internal',
-    directory:  path.join(__dirname),
-    'import-only': false,
-    'resolve-modules': false,
-    virtualhosts: that.virtualHosts || 'default'
-  };
 
-  apigeetool.deployProxy(opts, function(err, res) {
-    if (err) {
-      return callback(err);
-    }
-
-    callback(null, res);
-  });
-}
 
 // checks deployments, deploys proxies as necessary, checks/installs certs, generates keys
 privateLogic.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithCreds(options) {
@@ -287,7 +264,7 @@ privateLogic.prototype.configureEdgemicroWithCreds = function configureEdgemicro
 
     tasks.push(function(callback) {
       console.log('deploying edgemicro internal proxy');
-      that.deployEdgeMicroInternalProxy(options, callback);
+      that.deployment.deployEdgeMicroInternalProxy(options, callback);
     });
   } else {
     console.log('Proxy edgemicro-internal is already deployed');
@@ -296,7 +273,7 @@ privateLogic.prototype.configureEdgemicroWithCreds = function configureEdgemicro
   if (!jwtSearch) {
     tasks.push(function(callback) {
       console.log('deploying ', that.name, ' app');
-      that.deployWithLeanPayload(options, callback);
+      that.deployment.deployWithLeanPayload(options, callback);
     });
   } else {
     console.log(that.name, ' is already deployed');
@@ -373,163 +350,7 @@ privateLogic.prototype.configureEdgemicroWithCreds = function configureEdgemicro
     });
 };
 
-privateLogic.prototype.deployWithLeanPayload = function deployWithLeanPayload(options, callback) {
-  const tmpDir = tmp.dirSync({keep: true, dir: path.resolve(__dirname, '..', '..')});
 
-  const tasks = [];
-  const that = this;
-
-  // copy bin folder into tmp
-  tasks.push(function(cb) {
-    console.log('preparing edgemicro-auth app to be deployed to your Edge instance');
-    cpr(path.resolve(__dirname, '..','..','auth','app'), tmpDir.name, cb);
-  });
-
-  // delete extraneous node modules
-  tasks.push(function(cb) {
-    async.each(EXTRA_MODULES, function(mod, eachCb) {
-        rimraf(path.join(tmpDir.name, 'node_modules', mod), eachCb);
-      },
-      function(err) {
-        if (err) { return cb(err); }
-
-        return cb(null);
-      });
-  });
-
-  // deploy lean payload
-  tasks.push(function(cb) {
-    options.dir = tmpDir.name;
-    that.deployProxyWithPassword(options, cb);
-  });
-
-  // delete tmp dir
-  tasks.push(function(cb) {
-    rimraf(tmpDir.name, cb);
-  })
-
-  async.series(tasks, function(err, res) {
-    if (err) { return callback(err); }
-
-    callback(null, res[3]);
-  })
-}
-
-// deploy JWT app
-privateLogic.prototype.deployProxyWithPassword = function deployProxyWithPassword(options, callback) {
-  const that= this;
-  const opts = {
-    organization: options.org,
-    environments: options.env,
-    baseuri: that.managementUri,
-    username: options.username,
-    password: options.password,
-    debug: options.debug,
-    verbose: options.debug,
-    api: that.name,
-    main: 'app.js',
-    directory: options.dir ? options.dir : path.resolve(__dirname, '..','..'),
-    'base-path': that.basePath,
-    'import-only': false,
-    'resolve-modules': false,
-    virtualhosts: that.virtualHosts || 'default'
-  };
-
-  console.log('Give me a minute or two... this can take a while...');
-
-  apigeetool.deployNodeApp(opts, function(err) {
-    if (err) {
-      if (err.code === 'ECONNRESET' && err.message === 'socket hang up') {
-        err.message = 'Deployment timeout. Please try again or use the --upload option.'
-      } else if (err.message === 'Get API info returned status 401') {
-        err.message = 'Invalid credentials. Please correct and try again.'
-      }
-
-      if (callback) {
-        return callback(err);
-      } else {
-        return printError(err);
-      }
-    }
-
-    console.log('App %s added to your org. Now adding resources.', that.name);
-    opts.password = options.password; // override a apigeetool side-effect bug
-    that.installJavaCallout(opts, function(err) {
-      if (err) {
-        if (callback) {
-          return callback(err);
-        } else {
-          return printError(err);
-        }
-      }
-
-      console.log('App %s deployed.', that.name);
-      if (callback) {
-        callback(null, that.authUri + '/publicKey')
-      } else {
-        console.log();
-        console.log('Please copy following property to your edgemicro config:');
-        console.log('jwt_public_key: ' + that.authUri + '/publicKey');
-      }
-    });
-  });
-}
-
-privateLogic.prototype.installJavaCallout = function installJavaCallout(opts, cb) {
-
-  const that = this;
-  const jarName = 'micro-gateway-products-javacallout-1.0.0.jar';
-  // todo: revision?
-  const addResourceUri = '%s/v1/organizations/%s/apis/%s/revisions/1/resources?name=%s&type=java';
-  const uri = util.format(addResourceUri, that.managementUri, opts.organization, opts.api, jarName);
-
-  const httpReq = request({
-    uri: uri,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/octet-stream' },
-    auth: {
-      username: opts.username,
-      password: opts.password
-    }
-  }, function(err, res) {
-    err = translateError(err, res);
-    if (err) { return cb(err); }
-
-    const addStepDefinitionUri = '%s/v1/organizations/%s/apis/%s/revisions/1/stepdefinitions';
-    const uri = util.format(addStepDefinitionUri, that.managementUri, opts.organization, opts.api);
-    const data = '<JavaCallout name=\'JavaCallout\'><ResourceURL>java://%s</ResourceURL><ClassName>io.apigee.microgateway.javacallout.Callout</ClassName></JavaCallout>';
-
-    request({
-      uri: uri,
-      method: 'POST',
-      headers: { 'Content-Type': 'application/xml' },
-      auth: {
-        username: opts.username,
-        password: opts.password
-      },
-      body: util.format(data, jarName)
-    }, function(err) {
-      if (err) { return cb(err); }
-
-      const addStepUri = '%s/v1/organizations/%s/apis/%s/revisions/1/proxies/default/steps?name=JavaCallout&flow=PostFlow&enforcement=response';
-      const uri = util.format(addStepUri, that.managementUri, opts.organization, opts.api);
-
-      request({
-        uri: uri,
-        method: 'POST',
-        auth: {
-          username: opts.username,
-          password: opts.password
-        }
-      }, function(err, res) {
-        cb(err, res)
-      });
-    });
-  });
-
-  const fileStream = fs.createReadStream(path.resolve(__dirname, jarName));
-  fileStream.pipe(httpReq);
-}
 
 privateLogic.prototype.generateKeysWithPassword = function generateKeysWithPassword(options, continuation) {
 

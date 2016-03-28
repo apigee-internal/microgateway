@@ -8,12 +8,11 @@ const _ = require('lodash');
 const async = require('async')
 const util = require('util')
 const fs = require('fs')
-const deployAuth = require('./deploy-auth')
 
 const configLocations = require('../../config/locations');
 const defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath() });
-
 const cert = require('./cert')(defaultConfig)
+const deployAuth = require('./deploy-auth')(defaultConfig.edge_config,null)
 
 module.exports = function configure(options,cb) {
   if (!options.username) { return optionError.bind(options)('username is required'); }
@@ -73,7 +72,7 @@ function configureEdgemicroWithCreds(options,cb) {
 
   if (!jwtSearch) {
     tasks.push(function(callback) {
-      deployAuth(defaultConfig,options, callback);
+      deployAuth.deployWithLeanPayload(options, callback);
     });
   } else {
     console.log('App ', options.proxyName, ' is already deployed!');

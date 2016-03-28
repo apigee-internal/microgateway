@@ -5,20 +5,52 @@ const rimraf = require('rimraf');
 const apigeetool = require('apigeetool');
 const request = require('request');
 const assert = require('assert');
-
+const path = require('path');
+const async = require('async')
+const util = require('util')
+const fs = require('fs')
 const DEFAULT_HOSTS = 'default,secure';
 
-const EXTRA_MODULES = ['apigeetool', 'cli-prompt', 'commander', 'cpr', 'mkdirp', 'rimraf', 'should', 'supertest', 'tmp', 'xml2js'];
+const Deployment = function(edge_config,virtualHosts ) {
+  this.managementUri = edge_config.managementUri;
+  this.authUri = edge_config.authUri;
+  this.virtualHosts = virtualHosts;
+  assert(this.authUri);
+  assert(this.managementUri);
+}
+module.exports = function(edge_config,virtualHosts){
+  return new Deployment(edge_config,virtualHosts);
+}
+// deploys internal apiproxy to specified managementUrl
+Deployment.prototype.deployEdgeMicroInternalProxy = function deployEdgeMicroInternalProxy(options, callback) {
+  const opts = {
+    organization: options.org,
+    environments: options.env,
+    baseuri: this.managementUri,
+    username: options.username,
+    password: options.password,
+    debug: options.debug,
+    verbose: options.debug,
+    api: 'edgemicro-internal',
+    directory:  path.join(__dirname,'..','..','auth'),
+    'import-only': false,
+    'resolve-modules': false,
+    virtualhosts: this.virtualHosts || 'default'
+  };
 
-module.exports = function(config, options, cb) {
-  const managementUri = config.edge_config.managementUri;
-  const authUri = config.edge_config.authUri;
-  assert(authUri);
-  assert(managementUri);
-  return deployWithLeanPayload(managementUri,authUri, options, cb)
+  apigeetool.deployProxy(opts, function(err, res) {
+    if (err) {
+      return callback(err);
+    }
+
+    callback(null, res);
+  });
 }
 
-function deployWithLeanPayload(managementUri,authUri, options, callback) {
+Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( options, callback) {
+  const authUri = this.authUri;
+  const managementUri = this.managementUri;
+  
   var tmpDir = tmp.dirSync({ keep: true, dir: path.resolve(__dirname, '..', '..') });
   var tasks = [];
   var deployResultNdx = 5; // if files are added to exclusion this might need changing
@@ -27,33 +59,6 @@ function deployWithLeanPayload(managementUri,authUri, options, callback) {
   tasks.push(function(cb) {
     console.log('preparing edgemicro-auth app to be deployed to your Edge instance');
     cpr(path.resolve(__dirname, '..', '..', 'auth', 'app'), tmpDir.name, cb);
-  });
-
-  // delete bin
-  tasks.push(function(cb) {
-    rimraf(path.join(tmpDir.name, 'bin'), cb);
-  });
-
-  // delete lib
-  tasks.push(function(cb) {
-    rimraf(path.join(tmpDir.name, 'lib'), cb);
-  });
-
-  // delete tests
-  tasks.push(function(cb) {
-    rimraf(path.join(tmpDir.name, 'test'), cb);
-  });
-
-  // delete extraneous node modules
-  tasks.push(function(cb) {
-    async.each(EXTRA_MODULES, function(mod, eachCb) {
-      rimraf(path.join(tmpDir.name, 'node_modules', mod), eachCb);
-    },
-      function(err) {
-        if (err) { return cb(err); }
-
-        return cb(null);
-      });
   });
 
   // deploy lean payload
@@ -92,7 +97,7 @@ function deployProxyWithPassword(managementUri,authUri, options, dir, callback) 
     'base-path': '/edgemicro-auth',
     'import-only': false,
     'resolve-modules': false,
-    virtualhosts: options.virtualHosts || 'default,secure'
+    virtualhosts: options.virtualHosts || DEFAULT_HOSTS
   };
 
   console.log('Give me a minute or two... this can take a while...');
