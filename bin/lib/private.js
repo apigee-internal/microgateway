@@ -382,7 +382,7 @@ privateLogic.prototype.deployWithLeanPayload = function deployWithLeanPayload(op
   // copy bin folder into tmp
   tasks.push(function(cb) {
     console.log('preparing edgemicro-auth app to be deployed to your Edge instance');
-    cpr(path.resolve(__dirname, '..','..','private','app'), tmpDir.name, cb);
+    cpr(path.resolve(__dirname, '..','..','auth','app'), tmpDir.name, cb);
   });
 
   // delete extraneous node modules
