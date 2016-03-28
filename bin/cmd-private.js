@@ -14,8 +14,6 @@ module.exports = function() {
     .option('-u, --username <user>', 'username of the organization admin')
     .option('-p, --password <password>', 'password of the organization admin')
     .option('-v, --virtual-hosts <virtualHosts>', 'comma separated virtual hosts to deploy with')
-    .option('-k, --key <key>', 'key for authenticating with Edge')
-    .option('-s, --secret <secret>', 'secret for authenticating with Edge')
     .action((options)=>{
       logic.configureEdgemicro(options)
     });

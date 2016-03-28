@@ -1,0 +1,83 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Apigee Edge-Micro Server
+host: localhost:10010
+basePath: /
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+  - text/plain
+x-a127-config:
+  RemoteProxy.key: &apigeeProxyKey CONFIGURED
+  RemoteProxy.uri: &apigeeProxyUri CONFIGURED
+x-a127-services:
+  oauth:
+    provider: volos-oauth-apigee
+    options:
+      key: *apigeeProxyKey
+      uri: *apigeeProxyUri
+      validGrantTypes:
+        - client_credentials
+        - password
+      passwordCheck:
+        helper: password_check
+        function: passwordCheck
+      tokenPaths: # added to your paths at runtime
+        token: /token
+paths:
+  /publicKey:
+    x-swagger-router-controller: public_key
+    get:
+      description: Returns the public key to the caller
+      operationId: getPublicKey
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/PublicKeyResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+  /verifyApiKey:
+    x-swagger-router-controller: verify_api_key
+    post:
+      description: Returns key details
+      operationId: verifyApiKey
+      parameters:
+        - name: body
+          in: body
+          description: apiKey key-value
+          schema:
+            $ref: "#/definitions/Generic"
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Generic"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+
+definitions:
+
+  Generic: {}
+
+  PublicKeyResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string

@@ -8,20 +8,21 @@ const homeDir =  path.join(os.homedir(), '.edgemicro');
 const sourceFile = 'config.yaml';
 const defaultFile = 'default.yaml';
 const cacheFile =  'cache-config.yaml';
-const defaultPath = path.join(configDir,defaultFile);
 
 module.exports = {
-  default: defaultPath,
+  getDefaultPath: function(){
+     return  path.join(this.defaultDir,defaultFile);
+  },
   defaultFile: defaultFile,
   getSourcePath: function getSource(org,env){
-    return path.join(homeDir, this.getSourceFile(org,env));
+    return path.join(this.homeDir, this.getSourceFile(org,env));
   },
   getSourceFile: function getSourceFile(org,env){
     return org + "-" + env + "-" + sourceFile;
   },
   getCachePath: function getCachePath(org,env){
-    return path.join(homeDir, org + "-" + env + "-" + cacheFile);
+    return path.join(this.homeDir, org + "-" + env + "-" + cacheFile);
   },
-  initDir: configDir,
+  defaultDir: configDir,
   homeDir: homeDir
 }

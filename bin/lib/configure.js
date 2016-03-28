@@ -11,7 +11,7 @@ const fs = require('fs')
 
 const configLocations = require('../../config/locations');
 
-const defaultConfig = edgeconfig.load({ source: configLocations.default });
+const defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath() });
 
 const cert = require('./cert')(defaultConfig)
 
@@ -38,7 +38,7 @@ function checkDeployedProxies(options,cb) {
     organization: options.org,
     environments: options.env,
     environment: options.env,
-    baseuri: defaultConfig['managementUri'],
+    baseuri: defaultConfig.edge_config['managementUri'],
     username: options.username,
     password: options.password,
     debug: options.debug,
@@ -64,7 +64,7 @@ function configureEdgemicroWithCreds(options,cb) {
     }
     authUri = options.url + '/edgemicro-auth';
   } else {
-    authUri = defaultConfig.authUri
+    authUri = defaultConfig.edge_config.authUri
   }
 
   const jwtSearch = _.find(options.deployments, function(proxy) {
@@ -107,7 +107,7 @@ function configureEdgemicroWithCreds(options,cb) {
     console.log('updating agent configuration');
     const targetFile = configLocations.getSourceFile(options.org,options.env);
     edgeconfig.init({
-      source: configLocations.default,
+      source: configLocations.getDefaultPath(),
       targetDir: configLocations.homeDir,
       targetFile: targetFile,
       overwrite: true
@@ -139,7 +139,7 @@ function configureEdgemicroWithCreds(options,cb) {
       }
       console.log();
 
-      console.info(defaultConfig.keySecretMessage);
+      console.info(defaultConfig.edge_config.keySecretMessage);
       console.info('  key:', results[2] ? results[2].key : results[1].key);
       console.info('  secret:', results[2] ? results[2].secret : results[1].secret);
       console.log();

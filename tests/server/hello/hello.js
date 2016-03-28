@@ -33,10 +33,36 @@ module.exports = function (useRoot) {
   server.del({
     path: '/echo/:key'
   }, respond);
+  
+   server.get('/hello/:key', respond);
 
-  if(useRoot) {
+  server.post({
+    path: '/hello/:key'
+  }, respond);
+  server.put({
+    path: '/hello/:key'
+  }, respond);
+
+  server.del({
+    path: '/hello/:key'
+  }, respond);
+  
+  
+  
+   server.get('/hello', respond);
+
+  server.post({
+    path: '/hello'
+  }, respond);
+  server.put({
+    path: '/hello'
+  }, respond);
+
+  server.del({
+    path: '/hello'
+  }, respond);
+
     server.get('/', respond);
-  }
 
 
 

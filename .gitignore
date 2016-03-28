@@ -40,3 +40,4 @@ config/cache-config.yaml
 tests/cache-config.yaml
 tmp-*
 default.yaml.bak
+*-*-*config.yaml

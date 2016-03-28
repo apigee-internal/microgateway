@@ -1,9 +1,3 @@
-managementUri: 'https://api.enterprise.apigee.com'
-vaultName: microgateway
-authUri: 'https://%s-%s.apigee.net/edgemicro-auth'
-baseUri: 'https://edgemicroservices.apigee.net/edgemicro/%s/organization/%s/environment/%s'
-bootstrapMessage: Please copy the following property to the edge micro agent config
-keySecretMessage: The following credentials are required to start edge micro
 agent:
   max_times: 300
   min_uptime: 1000
@@ -12,6 +6,12 @@ agent:
 edge_config:
   bootstrap: 'https://edgemicroservices-us-east-1.apigee.net/edgemicro/bootstrap/organization/sfeldmanmicro/environment/test'
   jwt_public_key: 'https://sfeldmanmicro-test.apigee.net/edgemicro-auth/publicKey'
+  managementUri: 'https://api.enterprise.apigee.com'
+  vaultName: microgateway
+  authUri: 'https://%s-%s.apigee.net/edgemicro-auth'
+  baseUri: 'https://edgemicroservices.apigee.net/edgemicro/%s/organization/%s/environment/%s'
+  bootstrapMessage: Please copy the following property to the edge micro agent config
+  keySecretMessage: The following credentials are required to start edge micro
 edgemicro:
   home: ../gateway
   port: 8000

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<APIProxy revision="34" name="EdgeMicro">
+    <ConfigurationVersion majorVersion="4" minorVersion="0"/>
+    <CreatedAt>1437159946043</CreatedAt>
+    <CreatedBy>adminui@apigee.com</CreatedBy>
+    <Description></Description>
+    <DisplayName>EdgeMicro</DisplayName>
+    <LastModifiedAt>1437163826987</LastModifiedAt>
+    <LastModifiedBy>adminui@apigee.com</LastModifiedBy>
+    <Policies>
+        <Policy>Authenticate</Policy>
+        <Policy>Callout</Policy>
+        <Policy>Credential</Policy>
+        <Policy>DistributedQuota</Policy>
+        <Policy>JSSetupVariables</Policy>
+        <Policy>NoOrgOrEnv</Policy>
+        <Policy>Return200</Policy>
+        <Policy>Return401</Policy>
+        <Policy>Return404</Policy>
+        <Policy>SetQuotaResponse</Policy>
+    </Policies>
+    <ProxyEndpoints>
+        <ProxyEndpoint>default</ProxyEndpoint>
+    </ProxyEndpoints>
+    <Resources>
+        <Resource>jsc://JSSetupVariables.js</Resource>
+        <Resource>java://edge-micro-javacallout-1.0.0.jar</Resource>
+    </Resources>
+    <TargetServers/>
+    <TargetEndpoints/>
+    <validate>false</validate>
+</APIProxy>
