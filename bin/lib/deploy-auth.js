@@ -57,8 +57,14 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
 
   // copy bin folder into tmp
   tasks.push(function(cb) {
-    console.log('preparing edgemicro-auth app to be deployed to your Edge instance');
+    console.log('copy auth app into tmp dir');
     cpr(path.resolve(__dirname, '..', '..', 'auth', 'app'), tmpDir.name, cb);
+  });
+
+  // copy bin folder into tmp
+  tasks.push(function(cb) {
+    console.log('copy config into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'config'), tmpDir.name+'/config', cb);
   });
 
   // deploy lean payload
@@ -73,7 +79,9 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
   })
 
   async.series(tasks, function(err, results) {
-    if (err) { return callback(err); }
+    if (err) { 
+      return callback(err); 
+    }
 
     // pass JWT public key URL through callback
     callback(null, results[deployResultNdx]);
@@ -117,17 +125,10 @@ function deployProxyWithPassword(managementUri,authUri, options, dir, callback) 
     installJavaCallout(managementUri, opts, function(err) {
       if (err) {
         return callback(err);
-
       }
-
       console.log('App %s deployed.', options.proxyName);
-      if (callback) {
-        callback(null, options.url ? authUri + '/publicKey' : util.format(authUri + '/publicKey', options.org, options.env));
-      } else {
-        console.log();
-        console.log('Please copy following property to your edgemicro config:');
-        console.log('jwt_public_key: ' + authUri + '/publicKey', options.org, options.env);
-      }
+      callback(null, options.url ? authUri + '/publicKey' : util.format(authUri + '/publicKey', options.org, options.env));
+
     });
   });
 }
@@ -150,7 +151,9 @@ function installJavaCallout(managementUri, opts, cb) {
     }
   }, function(err, res) {
     err = translateError(err, res);
-    if (err) { return cb(err); }
+    if (err) {
+      return cb(err);
+    }
 
     var addStepDefinitionUri = '%s/v1/organizations/%s/apis/%s/revisions/1/stepdefinitions';
     uri = util.format(addStepDefinitionUri, managementUri, opts.organization, opts.api);
@@ -166,7 +169,9 @@ function installJavaCallout(managementUri, opts, cb) {
       },
       body: util.format(data, jarName)
     }, function(err) {
-      if (err) { return cb(err); }
+      if (err) {
+        return cb(err);
+      }
 
       var addStepUri = '%s/v1/organizations/%s/apis/%s/revisions/1/proxies/default/steps?name=JavaCallout&flow=PostFlow&enforcement=response';
       uri = util.format(addStepUri, managementUri, opts.organization, opts.api);

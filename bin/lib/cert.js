@@ -495,7 +495,9 @@ function getPublicKey(organization, environment, authUri,cb) {
     uri: uri,
   }, function(err, res) {
     err = translateError(err, res);
-    if (err) { return cb(err); }
+    if (err) {
+      return cb(err);
+    }
     cb(null, res.body);
   });
 }
@@ -507,7 +509,9 @@ function getPublicKeyPrivate(authUri, cb) {
     uri: runtimeUri,
   }, function(err, res) {
     err = translateError(err, res);
-    if (err) { return cb(err); }
+    if (err) {
+      return cb(err);
+    }
     cb(null, res.body);
   });
 }
