@@ -45,6 +45,6 @@ function vaultValue(key, cb) {
 }
 
 function vault() {
-  var vaultName = global.config['edge_config']['vaultName'];
+  var vaultName = global.config['vaultName'];
   return apigee.getVault(vaultName, VAULT_TYPE);
 }

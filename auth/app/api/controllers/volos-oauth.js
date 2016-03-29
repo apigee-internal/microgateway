@@ -129,7 +129,7 @@ function sendError(err, res) {
       res.setHeader(name, err.headers[name]);
     });
   }
-  res.json(res, err.statusCode, rb);
+  res.json(err.statusCode, rb);
 }
 
 function getRequestBody(req, cb) {
