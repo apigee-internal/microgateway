@@ -11,7 +11,7 @@ const fs = require('fs')
 
 const configLocations = require('../../config/locations');
 const defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath() });
-const cert = require('./cert')(defaultConfig)
+const cert = require('./cert-lib')(defaultConfig)
 const deployAuth = require('./deploy-auth')(defaultConfig.edge_config,null)
 const Configure = function(){
   

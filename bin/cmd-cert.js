@@ -1,7 +1,7 @@
 'use strict';
 
 const commander = require('commander');
-const cert = require('./lib/cert-cmd')();
+const cert = require('./lib/cert')();
 
 const setup = function setup() {
 

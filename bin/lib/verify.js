@@ -11,8 +11,12 @@ const configLocations = require('../../config/locations');
 const agentLib = require('../../lib/agent-config');
 const util = require('util');
 
+const Verify = function(){}
+module.exports = function(){
+  return new Verify();
+} 
 
-module.exports = function verify(options) {
+Verify.prototype.verify = function verify(options) {
   if (!options.org) { return optionError.bind(options)('org is required'); }
   if (!options.env) { return optionError.bind(options)('env is required'); }
   if (!options.key) { return optionError.bind(options)('key is required'); }

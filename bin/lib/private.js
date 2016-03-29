@@ -52,13 +52,16 @@ const DEFAULT_HOSTS = 'default,secure';
 
 const EXTRA_MODULES = ['apigeetool', 'cli-prompt', 'commander', 'cpr', 'mkdirp', 'rimraf', 'should', 'supertest', 'tmp', 'xml2js'];
 
-const privateLogic =  function(){
+const Private =  function(){
 
+};
+module.exports = function(){
+  return new Private();
 };
 
 
 // begins edgemicro configuration process
-privateLogic.prototype.configureEdgemicro = function(options) {
+Private.prototype.configureEdgemicro = function(options) {
   if (!options.username) {
     return optionError.bind(options)('username is required');
   }
@@ -104,7 +107,7 @@ privateLogic.prototype.configureEdgemicro = function(options) {
 }
 
 // checks for previously deployed edgemicro proxies
-privateLogic.prototype.checkDeployedProxies = function checkDeployedProxies(options) {
+Private.prototype.checkDeployedProxies = function checkDeployedProxies(options) {
   console.log('checking for previously deployed proxies')
   const opts = {
     organization: options.org,
@@ -126,7 +129,7 @@ privateLogic.prototype.checkDeployedProxies = function checkDeployedProxies(opti
 }
 
 // configures Callout.xml & default.xml of apiproxy being deployed
-privateLogic.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroInternalProxy(options, callback) {
+Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroInternalProxy(options, callback) {
   const that = this;
   const apipath = path.join(__dirname,'..','..','auth', 'apiproxy');
   var resPath;
@@ -242,7 +245,7 @@ privateLogic.prototype.configureEdgeMicroInternalProxy = function configureEdgeM
 
 
 // checks deployments, deploys proxies as necessary, checks/installs certs, generates keys
-privateLogic.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithCreds(options) {
+Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithCreds(options) {
   const that = this;
   const sourcePath = that.sourcePath;
   
@@ -352,7 +355,7 @@ privateLogic.prototype.configureEdgemicroWithCreds = function configureEdgemicro
 
 
 
-privateLogic.prototype.generateKeysWithPassword = function generateKeysWithPassword(options, continuation) {
+Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(options, continuation) {
 
   const that = this;
   function genkey(cb) {
@@ -516,6 +519,3 @@ function promptForPassword(message, options, continuation) {
     });
   }
 }
-module.exports = function(){
-  return new privateLogic();
-};

@@ -2,8 +2,8 @@
 
 const commander = require('commander');
 const configure = require('./lib/configure')();
-const verify = require('./lib/verify');
-const run = require('./lib/gateway');
+const verify = require('./lib/verify')();
+const run = require('./lib/gateway')();
 
 const setup = function setup() {
   commander
@@ -34,7 +34,9 @@ const setup = function setup() {
     .option('-e, --env <env>', 'the environment')
     .option('-k, --key <key>', 'key for authenticating with Edge')
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
-    .action(verify);
+    .action((options)=>{
+      verify.verify(options);
+    });
 
 
   commander
