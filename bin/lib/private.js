@@ -39,14 +39,14 @@ const _ = require('lodash');
 const parser = new (require('xml2js')).Parser();
 const builder = new (require('xml2js')).Builder();
 const assert = require('assert');
-const cert = require('./cert');
+const cert = require('./cert-lib');
 const tmp = require('tmp');
 const rimraf = require('rimraf');
 const mkdirp = require('mkdirp');
 const cpr = require('cpr');
 const edgeconfig = require('microgateway-config');
 const configLocations = require('../../config/locations');
-const deploymentFx = require('deploy-auth');
+const deploymentFx = require('./deploy-auth');
 
 const DEFAULT_HOSTS = 'default,secure';
 
