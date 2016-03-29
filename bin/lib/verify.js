@@ -30,7 +30,7 @@ Verify.prototype.verify = function verify(options) {
 
   const agentConfig = edgeconfig.load({ source: sourcePath });
 
-  const authUri = agentConfig['authUri']
+  const authUri = agentConfig['edge_config']['authUri']
 
   options.bootstrap = agentConfig['edge_config'].bootstrap;
   options['jwt_path'] = agentConfig['edge_config']['jwt_public_key'];

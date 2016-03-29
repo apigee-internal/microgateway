@@ -12,26 +12,37 @@ const fs = require('fs')
 const configLocations = require('../../config/locations');
 const defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath() });
 const cert = require('./cert-lib')(defaultConfig)
-const deployAuth = require('./deploy-auth')(defaultConfig.edge_config,null)
-const Configure = function(){
-  
-}
-module.exports = function(){
-  return new Configure();
-} 
+const deployAuth = require('./deploy-auth')(defaultConfig.edge_config, null)
+const Configure = function() {
 
-Configure.prototype.configure = function configure(options,cb) {
+}
+module.exports = function() {
+  return new Configure();
+}
+
+Configure.prototype.configure = function configure(options, cb) {
   if (!options.username) { return optionError.bind(options)('username is required'); }
   if (!options.password) { return optionError.bind(options)('password is required'); }
   if (!options.org) { return optionError.bind(options)('org is required'); }
   if (!options.env) { return optionError.bind(options)('env is required'); }
-  checkDeployedProxies(options,(err)=>{
-    cb && cb(err);
+  checkDeployedProxies(options, (err, options) => {
+    if (err) {
+      console.error(err);
+      cb ? cb(err) : process.exit(1);
+      return;
+    }
+    configureEdgemicroWithCreds(options, (err) => {
+      if (err) {
+        console.error(err);
+        cb ? cb(err) :process.exit(1);
+      }
+      cb ? cb(err) :process.exit(0)
+    });
   })
 };
 
-function checkDeployedProxies(options,cb) {
-  const cache = configLocations.getCachePath(options.org,options.env);
+function checkDeployedProxies(options, cb) {
+  const cache = configLocations.getCachePath(options.org, options.env);
   console.log('delete cache config');
   const exists = fs.existsSync(cache);
   if (exists) {
@@ -52,17 +63,17 @@ function checkDeployedProxies(options,cb) {
   };
 
   apigeetool.listDeployments(opts, function(err, proxies) {
-    if (err) { return printError(err); }
+    if (err) { return cb(err); }
 
     _.assign(options, proxies);
-    configureEdgemicroWithCreds(options,cb);
+    cb(null, options);
   })
 }
 
-function configureEdgemicroWithCreds(options,cb) {
-  var tasks = [], 
-  authUri = defaultConfig.edge_config.authUri, 
-  agentConfigPath;
+function configureEdgemicroWithCreds(options, cb) {
+  var tasks = [],
+    authUri = defaultConfig.edge_config.authUri,
+    agentConfigPath;
 
   options.proxyName = 'edgemicro-auth';
 
@@ -107,11 +118,11 @@ function configureEdgemicroWithCreds(options,cb) {
 
   async.series(tasks, function(err, results) {
     if (err) {
-      return printError(err);
+      return cb(err);
     }
 
     console.log('updating agent configuration');
-    const targetFile = configLocations.getSourceFile(options.org,options.env);
+    const targetFile = configLocations.getSourceFile(options.org, options.env);
     edgeconfig.init({
       source: configLocations.getDefaultPath(),
       targetDir: configLocations.homeDir,
@@ -119,7 +130,7 @@ function configureEdgemicroWithCreds(options,cb) {
       overwrite: true
     }, function(err, configPath) {
       if (err) {
-        process.exit(1)
+        return cb(err)
       }
       agentConfigPath = configPath;
       const agentConfig = edgeconfig.load({ source: configPath });
@@ -151,27 +162,12 @@ function configureEdgemicroWithCreds(options,cb) {
       console.log();
 
       console.log('edgemicro configuration complete!');
-      if(_.isFunction(cb)){
-        cb();
-      }else{
-        process.exit(0)        
-      }
+      cb();
     });
   });
 }
 
 
-// prompt for a password if it is not specified
-function promptForPassword(message, options, continuation,cb) {
-  if (options.password) {
-    continuation(options,cb);
-  } else {
-    prompt.password(message, function(pw) {
-      options.password = pw;
-      continuation(options,cb);
-    });
-  }
-}
 function optionError(message) {
   console.error(message);
   this.help();

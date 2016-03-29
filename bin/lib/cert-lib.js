@@ -25,12 +25,13 @@ const CertLogic = function(config){
   this.keySecretMessage = config.edge_config['keySecretMessage'];
 };
 
+module.exports = function(config){
+  return new CertLogic(config)
+};
+
 CertLogic.prototype.retrievePublicKey = function(options, callback) {
 
   getPublicKey(options.org, options.env, this.authUri, function(err, certificate) {
-    if (err && err.status !== 404) {
-        return callback(err);
-    }
     if (err) {
       return callback(err);
     }
@@ -42,9 +43,6 @@ CertLogic.prototype.retrievePublicKeyPrivate = function( callback) {
 
   const authUri = this.authUri;
   getPublicKeyPrivate(authUri, function (err, certificate) {
-    if (err && err.status !== 404) {
-      return callback(err);
-    }
     if (err) {
       return callback(err);
     }
@@ -138,7 +136,6 @@ CertLogic.prototype.installPrivateCert = function(options, callback) {
     );
   });
 }
-
 
 CertLogic.prototype.installCertWithPassword = function(options, callback) {
   const managementUri = this.managementUri ;
@@ -297,18 +294,8 @@ CertLogic.prototype.deleteCertWithPassword = function deleteCertWithPassword(opt
   });
 };
 
-function printError(err) {
-  if (err.response) {
-    console.log(err.response.error);
-  } else {
-    console.log(err);
-  }
-}
-
-
 // response: { certificate, csr, clientKey, serviceKey }
 function createCert(cb) {
-
 
   const options = {
     /*
@@ -327,7 +314,6 @@ function createCert(cb) {
 }
 
 function deleteVault(username, password, managementUri, organization, environment, vaultName, cb) {
-
   console.log('deleting vault');
   const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s', managementUri, organization, environment, vaultName);
   request({
@@ -339,7 +325,6 @@ function deleteVault(username, password, managementUri, organization, environmen
     }
   }, function(err, res) {
     err = translateError(err, res);
-
     if (isApigeeError(err, ERR_STORE_MISSING)) {
       err = undefined;
     }
@@ -433,6 +418,3 @@ function getPublicKeyPrivate(authUri, cb) {
   });
 }
 
-module.exports = function(config){
-  return new CertLogic(config)
-};

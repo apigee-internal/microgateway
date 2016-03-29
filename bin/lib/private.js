@@ -50,18 +50,15 @@ const deploymentFx = require('deploy-auth');
 
 const DEFAULT_HOSTS = 'default,secure';
 
-const EXTRA_MODULES = ['apigeetool', 'cli-prompt', 'commander', 'cpr', 'mkdirp', 'rimraf', 'should', 'supertest', 'tmp', 'xml2js'];
-
-const Private =  function(){
-
+const Private = function() {
 };
-module.exports = function(){
+module.exports = function() {
   return new Private();
 };
 
 
 // begins edgemicro configuration process
-Private.prototype.configureEdgemicro = function(options) {
+Private.prototype.configureEdgemicro = function(options, cb) {
   if (!options.username) {
     return optionError.bind(options)('username is required');
   }
@@ -78,15 +75,21 @@ Private.prototype.configureEdgemicro = function(options) {
     return optionError.bind(options)('mgmtUrl is required');
   }
 
-  this.sourcePath = configLocations.getSourcePath(options.org,options.env);
+  if (!options.password) {
+    return optionError.bind(options)('password is required');
+  }
+
+
+
+  this.sourcePath = configLocations.getSourcePath(options.org, options.env);
   this.name = 'edgemicro-auth';
   this.basePath = '/edgemicro-auth';
-  this.managementUri  = options.mgmtUrl;
+  this.managementUri = options.mgmtUrl;
   this.runtimeUrl = options.runtimeUrl;
   this.virtualHosts = options.virtualHosts || 'default';
 
-  
-  const config = edgeconfig.load({source: configLocations.getDefaultPath()});
+
+  const config = edgeconfig.load({ source: configLocations.getDefaultPath() });
 
   this.config = config;
   this.authUri = config.edge_config.authUri = this.runtimeUrl + this.basePath;
@@ -94,20 +97,32 @@ Private.prototype.configureEdgemicro = function(options) {
   this.baseUri = this.runtimeUrl + '/edgemicro/%s/organization/%s/environment/%s';
   this.vaultName = config.edge_config.vaultName;
   this.config.edge_config.baseUri = this.baseUri;
-  this.deployment = deploymentFx(config.edge_config,this.virtualHosts);
-  
+  this.deployment = deploymentFx(config.edge_config, this.virtualHosts);
+
   const that = this;
-  
-  promptForPassword('org admin password: ', options, (options)=> {
-    edgeconfig.save(that.config, that.sourcePath);
-    that.cert = cert(that.config);
-    that.checkDeployedProxies(options);
+
+  edgeconfig.save(that.config, that.sourcePath);
+  that.cert = cert(that.config);
+  that.checkDeployedProxies(options, (err, options) => {
+    if (err) {
+      console.error(err);
+      cb ? cb(err) : process.exit(1);
+      return;
+    }
+    that.configureEdgemicroWithCreds(options, (err) => {
+      if (err) {
+        console.error(err);
+        cb ? cb(err) : process.exit(1);
+        return;
+      }
+      cb ? cb(err) : process.exit(0)
+    });
   });
 
 }
 
 // checks for previously deployed edgemicro proxies
-Private.prototype.checkDeployedProxies = function checkDeployedProxies(options) {
+Private.prototype.checkDeployedProxies = function checkDeployedProxies(options, cb) {
   console.log('checking for previously deployed proxies')
   const opts = {
     organization: options.org,
@@ -118,24 +133,24 @@ Private.prototype.checkDeployedProxies = function checkDeployedProxies(options) 
     debug: options.debug
   };
   const that = this;
-  apigeetool.listDeployments(opts, function (err, proxies) {
+  apigeetool.listDeployments(opts, function(err, proxies) {
     if (err) {
-      return printError(err);
+      return cb(err);
     }
 
     _.assign(options, proxies);
-    that.configureEdgemicroWithCreds(options);
+    cb(err, options)
   })
 }
 
 // configures Callout.xml & default.xml of apiproxy being deployed
 Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroInternalProxy(options, callback) {
   const that = this;
-  const apipath = path.join(__dirname,'..','..','auth', 'apiproxy');
+  const apipath = path.join(__dirname, '..', '..', 'auth', 'apiproxy');
   var resPath;
   try {
     resPath = fs.realpathSync(apipath);
-  } catch(e) {
+  } catch (e) {
     return callback(e);
   }
 
@@ -148,7 +163,7 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
     },
     function(calloutObj, cb) {
       // change proxy url
-      calloutObj.JavaCallout.Properties[0].Property[1]['_'] = 'DN='+that.runtimeUrl;
+      calloutObj.JavaCallout.Properties[0].Property[1]['_'] = 'DN=' + that.runtimeUrl;
 
       // add management server location
       const mgmtSearch = _.findIndex(calloutObj.JavaCallout.Properties[0].Property, function(prop) {
@@ -245,10 +260,10 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
 
 
 // checks deployments, deploys proxies as necessary, checks/installs certs, generates keys
-Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithCreds(options) {
+Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithCreds(options, cb) {
   const that = this;
   const sourcePath = that.sourcePath;
-  
+
   const emSearch = _.find(options.deployments, function(proxy) {
     return proxy.name === 'edgemicro-internal';
   });
@@ -284,9 +299,9 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
 
   tasks.push(function(callback) {
     console.log('checking org for existing vault');
-    that.cert.checkPrivateCert(options, function(err, certs){
+    that.cert.checkPrivateCert(options, function(err, certs) {
       if (err) {
-        that.cert.installPrivateCert(options,  callback);
+        that.cert.installPrivateCert(options, callback);
       } else {
         console.log('vault already exists in your org');
         that.cert.retrievePublicKeyPrivate(callback);
@@ -302,54 +317,46 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
   async.series(tasks,
     function(err, results) {
       if (err) {
-        return printError(err);
+        return cb(err);
       }
 
-      const overwriteFn = function (prompt_message, answer_cb) {
-        console.log();
-        prompt(prompt_message, answer_cb);
-      };
 
-      const promptCb = function(overwrite) {
-        edgeconfig.init({
-            source: configLocations.getDefaultPath(),
-            targetDir: configLocations.homeDir,
-            targetFile: sourcePath,
-            overwrite:true
-          },
-          function (configPath) {
-            const agentConfigPath = configPath;
-            const agentConfig = that.config = edgeconfig.load({source:sourcePath});
+      edgeconfig.init({
+        source: configLocations.getDefaultPath(),
+        targetDir: configLocations.homeDir,
+        targetFile: sourcePath,
+        overwrite: true
+      },
+        function(configPath) {
+          const agentConfigPath = configPath;
+          const agentConfig = that.config = edgeconfig.load({ source: sourcePath });
 
-            if (!emSearch && !jwtSearch) {
-              agentConfig['edge_config']['jwt_public_key'] = results[2]; // get deploy results
-              agentConfig['edge_config'].bootstrap = results[4]; // get genkeys results
-            } else if (emSearch && !jwtSearch) {
-              agentConfig['edge_config']['jwt_public_key'] = results[0];
-              agentConfig['edge_config'].bootstrap = results[2];
-            } else {
-              agentConfig['edge_config']['jwt_public_key'] = that.authUri + '/publicKey';
-              agentConfig['edge_config'].bootstrap = results[1];
-            }
+          if (!emSearch && !jwtSearch) {
+            agentConfig['edge_config']['jwt_public_key'] = results[2]; // get deploy results
+            agentConfig['edge_config'].bootstrap = results[4]; // get genkeys results
+          } else if (emSearch && !jwtSearch) {
+            agentConfig['edge_config']['jwt_public_key'] = results[0];
+            agentConfig['edge_config'].bootstrap = results[2];
+          } else {
+            agentConfig['edge_config']['jwt_public_key'] = that.authUri + '/publicKey';
+            agentConfig['edge_config'].bootstrap = results[1];
+          }
 
-            console.log();
-            console.log('saving configuration information to:', agentConfigPath);
-            edgeconfig.save(agentConfig, agentConfigPath);
-            console.log();
+          console.log();
+          console.log('saving configuration information to:', agentConfigPath);
+          edgeconfig.save(agentConfig, agentConfigPath);
+          console.log();
 
-            if (!emSearch && !jwtSearch) {
-              console.log('vault info:\n', results[3]);
-            } else if (emSearch && !jwtSearch) {
-              console.log('vault info:\n', results[1]);
-            }
+          if (!emSearch && !jwtSearch) {
+            console.log('vault info:\n', results[3]);
+          } else if (emSearch && !jwtSearch) {
+            console.log('vault info:\n', results[1]);
+          }
 
-            console.log('edgemicro configuration complete!');
-          });
-      };
-      overwriteFn('overwrite exisiting configuration? (y/n) ', function (ans) {
-        ans = ans.match(/^(yes|ok|true|y)$/i) ? true : false;
-        promptCb(ans)
-      });
+          console.log('edgemicro configuration complete!');
+          cb();
+        });
+
     });
 };
 
@@ -505,17 +512,5 @@ function printError(err) {
     console.log(err.response.error);
   } else {
     console.log(err);
-  }
-}
-
-// prompt for a password if it is not specified
-function promptForPassword(message, options, continuation) {
-  if (options.password) {
-    continuation(options);
-  } else {
-    prompt.password(message, function(pw) {
-      options.password = pw;
-      continuation(options);
-    });
   }
 }
