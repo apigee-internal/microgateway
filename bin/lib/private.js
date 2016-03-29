@@ -40,10 +40,6 @@ const parser = new (require('xml2js')).Parser();
 const builder = new (require('xml2js')).Builder();
 const assert = require('assert');
 const cert = require('./cert-lib');
-const tmp = require('tmp');
-const rimraf = require('rimraf');
-const mkdirp = require('mkdirp');
-const cpr = require('cpr');
 const edgeconfig = require('microgateway-config');
 const configLocations = require('../../config/locations');
 const deploymentFx = require('./deploy-auth');
@@ -87,7 +83,7 @@ Private.prototype.configureEdgemicro = function(options, cb) {
   this.managementUri = options.mgmtUrl;
   this.runtimeUrl = options.runtimeUrl;
   this.virtualHosts = options.virtualHosts || 'default';
-
+  deleteCached();
 
   const config = edgeconfig.load({ source: configLocations.getDefaultPath() });
 
@@ -362,7 +358,7 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
 
 
 
-Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(options, continuation) {
+Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(options, cb) {
 
   const that = this;
   function genkey(cb) {
@@ -405,11 +401,7 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
     }, function(err, res) {
       err = translateError(err, res);
       if (err) {
-        if (continuation) {
-          return continuation(err);
-        } else {
-          return printError(err);
-        }
+        return cb(err);
       }
 
       if (res.statusCode >= 200 && res.statusCode <= 202) {
@@ -427,21 +419,12 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
         }, function(err, res) {
           err = translateError(err, res);
           if (err) {
-            if (continuation) {
-              return continuation(err);
-            } else {
-              return printError(err);
-            }
+            return cb(err);
           }
 
           if (res.statusCode >= 200 && res.statusCode <= 202) {
             if (!res.body.region || !res.body.host) {
-              if (continuation) {
-                continuation(console.error('invalid response from region api', regionUrl, res.text));
-              } else {
-                console.error('invalid response from region api', regionUrl, res.text);
-              }
-
+              cb(console.error('invalid response from region api', regionUrl, res.text));
               return;
             }
 
@@ -453,39 +436,23 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
             parsedUrl.host = parsedRes.host; // update to regional host
             const updatedUrl = url.format(parsedUrl); // reconstruct url with updated host
 
-            if (continuation) {
-              console.log();
-              console.info(config.edge_config.keySecretMessage);
-              console.info('  key:', key);
-              console.info('  secret:', secret);
-              console.log();
-              return continuation(null, updatedUrl);
-            } else {
-              console.info(config.edge_config.bootstrapMessage);
-              console.info('  bootstrap:', updatedUrl);
-            }
-            console.log();
-
             console.log();
             console.info(config.edge_config.keySecretMessage);
             console.info('  key:', key);
             console.info('  secret:', secret);
             console.log();
+            return cb(null, updatedUrl);
 
           } else {
-            if (continuation) {
-              continuation(console.error('error retrieving region for org', res.statusCode, res.text));
-            } else {
-              console.error('error retrieving region for org', res.statusCode, res.text);
-            }
+
+            cb(console.error('error retrieving region for org', res.statusCode, res.text));
+
           }
         });
       } else {
-        if (continuation) {
-          continuation(console.error('error uploading credentials', res.statusCode, res.text));
-        } else {
-          console.error('error uploading credentials', res.statusCode, res.text);
-        }
+
+        cb(console.error('error uploading credentials', res.statusCode, res.text));
+
       }
     });
   });
@@ -507,10 +474,3 @@ function optionError(message) {
   this.help();
 }
 
-function printError(err) {
-  if (err.response) {
-    console.log(err.response.error);
-  } else {
-    console.log(err);
-  }
-}

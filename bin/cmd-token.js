@@ -1,7 +1,7 @@
 'use strict';
 
 const commander = require('commander');  
-const token = require('./lib/token')
+const token = require('./lib/token')();
 
 const setup = function setup() {
 

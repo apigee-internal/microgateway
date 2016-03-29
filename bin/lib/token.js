@@ -13,12 +13,11 @@ const configLocations = require('../../config/locations');
  
 
 const Token = function() {
-
-
-
 };
 
-
+module.exports = function(){
+  return new Token();
+}
 Token.prototype.decodeToken = function(options) {
   if (!options.file) { return optionError.bind(options)('file is required'); }
 
@@ -122,5 +121,4 @@ function optionError(message) {
   console.error(message);
   this.help();
 }
-var token = new Token();
-module.exports = token;
+

@@ -10,7 +10,7 @@ const configLocations = require('../config/locations');
 const thisPath = path.normalize(__dirname);
 configLocations.homeDir = thisPath;
 configLocations.defaultDir = thisPath;
-const token = require('../bin/lib/token');
+const token = require('../bin/lib/token')();
 
 const edgeConfig = require('microgateway-config');
 const restServer = require('./server/hello/hello.js')(true);

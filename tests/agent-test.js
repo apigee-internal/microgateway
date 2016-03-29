@@ -8,7 +8,7 @@ const edgeConfig = require('microgateway-config');
 const restServer = require('./server/hello/hello.js')();
 const path = require('path');
 const configure = require('../bin/lib/configure')();
-const token = require('../bin/lib/token');
+const token = require('../bin/lib/token')();
 
 const configLocations = require('../config/locations');
 const thisPath = path.normalize(__dirname);
