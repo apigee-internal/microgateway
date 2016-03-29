@@ -17,6 +17,11 @@ const restServer = require('./server/hello/hello.js')(true);
 const password = process.env.MOCHA_PASSWORD;
 const key = process.env.MOCHA_KEY;
 const secret = process.env.MOCHA_SECRET;
+const user = process.env.MOCHA_USER;
+const org = process.env.MOCHA_ORG;
+const env = process.env.MOCHA_ENV;
+const tokenSecret = process.env.MOCHA_TOKEN_SECRET;
+const tokenId = process.env.MOCHA_TOKEN_ID;
 
 describe('test-cli', function() {
   const config = edgeConfig.load({ source: configLocations.getDefaultPath() })
@@ -24,9 +29,9 @@ describe('test-cli', function() {
   restServer.listen(3000);
   before(function(done) {
     this.timeout(10000)
-    configure.configure({ username: 'sfeldman+micro@apigee.com', password: password, org: 'sfeldmanmicro', env: 'test' },()=>{
+    configure.configure({ username: user, password: password, org: org, env: env },()=>{
         // initialize agent
-      agent.start({ key: key, secret: secret, org: 'sfeldmanmicro', env: 'test' });
+      agent.start({ key: key, secret: secret, org: org, env: env });
       setTimeout(done, 500)
     });
   
@@ -39,10 +44,10 @@ describe('test-cli', function() {
 
   it('hit server', function(done) {
     token.getToken({
-      org: 'sfeldmanmicro',
-      env: 'test',
-      id: 'AK8oYG53vyAgKKtvazNaiAs42xwqYkZ4',
-      secret: 'DsOnAeAC9U4OGmg4'
+      org: org,
+      env: env,
+      id: tokenId,
+      secret: tokenSecret
     }, (err, token) => {
       err && done(err);
       assert(token && token.token, "token is came back empty "+JSON.stringify(token))

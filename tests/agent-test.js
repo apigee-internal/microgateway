@@ -17,7 +17,9 @@ configLocations.defaultDir = thisPath;
 const password = process.env.MOCHA_PASSWORD;
 const key = process.env.MOCHA_KEY;
 const secret = process.env.MOCHA_SECRET;
-
+const user = process.env.MOCHA_USER;
+const org = process.env.MOCHA_ORG;
+const env = process.env.MOCHA_ENV;
 describe('configured agent/server address', function() {
   const port = 3303;
   var target ;
@@ -27,8 +29,8 @@ describe('configured agent/server address', function() {
   var config;
   before(function(done) {
     this.timeout(400000);
-    configure.configure({ username: 'sfeldman+micro@apigee.com', password: password, org: 'sfeldmanmicro', env: 'test' }, () => {
-      edgeConfig.get({ keys: keys, source: configLocations.getSourcePath('sfeldmanmicro', 'test') }, (err, configDownload) => {
+    configure.configure({ username: user, password: password, org: org, env: env }, () => {
+      edgeConfig.get({ keys: keys, source: configLocations.getSourcePath(org, env) }, (err, configDownload) => {
         config = configDownload;
         delete config.edgemicro.plugins
         config.proxies[0].url = "http://localhost:" + port + "/";
