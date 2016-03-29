@@ -1,6 +1,4 @@
 
-agent:
-  max_times: 300
 edge_config:
   bootstrap: https://apigee.net/edgemicro/bootstrap/organization/org/environment/env...
   jwt_public_key: http://apigee.net/edgemicro/publicKey...
@@ -10,6 +8,7 @@ edge_config:
   baseUri: https://edgemicroservices.apigee.net/edgemicro/%s/organization/%s/environment/%s
   bootstrapMessage: Please copy the following property to the edge micro agent config
   keySecretMessage: The following credentials are required to start edge micro
+  
 edgemicro:
   home: ../gateway
   port: 8000
@@ -17,6 +16,7 @@ edgemicro:
   max_connections_hard: 5000
   restart_sleep: 500
   restart_max: 50
+  max_times: 300  
   logging:
     level: info
     dir: /var/tmp

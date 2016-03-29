@@ -22,8 +22,10 @@ const setup = function setup() {
     .option('-p, --password <password>', 'password of the organization admin')
     .option('-r, --url <url>', 'organization\'s custom API URL (https://api.example.com)')
     .option('-d, --debug', 'execute with debug output')
-    .action((options)=>{
-      configure.configure(options);
+    .action((options) => {
+      configure.configure(options, () => {
+        process.exit(0);
+      });
     });
 
 
@@ -34,7 +36,7 @@ const setup = function setup() {
     .option('-e, --env <env>', 'the environment')
     .option('-k, --key <key>', 'key for authenticating with Edge')
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
-    .action((options)=>{
+    .action((options) => {
       verify.verify(options);
     });
 
@@ -55,7 +57,7 @@ const setup = function setup() {
 
 
   var running = false;
-  commander.commands.forEach(function (command) {
+  commander.commands.forEach(function(command) {
     if (command._name == commander.rawArgs[2]) {
       running = true;
     }

@@ -1,0 +1,6 @@
+edge_config:
+  managementUri: https://api.e2e.apigee.net
+  vaultName: microgateway
+  authUri: https://%s-%s.e2e.apigee.net/jwt
+  genKeyMessage: Please copy the following bootstrap property to your edgemicro config
+  baseUri: http://edgemicro-internal-prod.e2e.apigee.net/edgemicro/%s/organization/%s/environment/%s
