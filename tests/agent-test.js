@@ -14,10 +14,11 @@ const configLocations = require('../config/locations');
 const thisPath = path.normalize(__dirname);
 configLocations.homeDir = thisPath;
 configLocations.defaultDir = thisPath;
+const password = process.env.MOCHA_PASSWORD;
+const key = process.env.MOCHA_KEY;
+const secret = process.env.MOCHA_SECRET;
 
 describe('configured agent/server address', function() {
-  const key = '7ef8d2c6d302a8db90981a5ae372e2fdceb156288538e528026bf43a4c4d67a7';
-  const secret = '62dde466dccc8790d385ec3a1765127d094a00136e5397bb0a89f5b64bacc17d';
   const port = 3303;
   var target ;
   restServer.listen(port)
@@ -26,7 +27,7 @@ describe('configured agent/server address', function() {
   var config;
   before(function(done) {
     this.timeout(400000);
-    configure.configure({ username: 'sfeldman+micro@apigee.com', password: 'P@ssw0rd1', org: 'sfeldmanmicro', env: 'test' }, () => {
+    configure.configure({ username: 'sfeldman+micro@apigee.com', password: password, org: 'sfeldmanmicro', env: 'test' }, () => {
       edgeConfig.get({ keys: keys, source: configLocations.getSourcePath('sfeldmanmicro', 'test') }, (err, configDownload) => {
         config = configDownload;
         delete config.edgemicro.plugins
