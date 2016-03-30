@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const yaml = require('js-yaml');
 const apigeetool = require('apigeetool');
 const util = require('util');
 const url = require('url');
@@ -10,7 +9,6 @@ const request = require('request');
 const debug = require('debug')('edgemicro');
 const async = require('async');
 const crypto = require('crypto');
-const prompt = require('cli-prompt');
 const _ = require('lodash');
 const parser = new (require('xml2js')).Parser();
 const builder = new (require('xml2js')).Builder();
@@ -59,7 +57,6 @@ Private.prototype.configureEdgemicro = function(options, cb) {
     console.log('deleted ' + cache);
   }
 
-  this.sourcePath = configLocations.getSourcePath(options.org, options.env);
   options.proxyName = this.name = 'edgemicro-auth';
   this.basePath = '/edgemicro-auth';
   this.managementUri = options.mgmtUrl;
@@ -68,7 +65,6 @@ Private.prototype.configureEdgemicro = function(options, cb) {
 
 
   const config = edgeconfig.load({ source: configLocations.getDefaultPath() });
-
   this.config = config;
   this.authUri = config.edge_config.authUri = this.runtimeUrl + this.basePath;
   this.config.edge_config.managementUri = this.managementUri;
@@ -76,50 +72,41 @@ Private.prototype.configureEdgemicro = function(options, cb) {
   this.vaultName = config.edge_config.vaultName;
   this.config.edge_config.baseUri = this.baseUri;
   this.deployment = deploymentFx(config.edge_config, this.virtualHosts);
+  // first: runtimeUri, second: credential, third: org, fourth: env
+  this.credentialUrl = util.format(this.baseUri, 'credential', options.org, options.env);
+  this.regionUrl = util.format(this.baseUri, 'region', options.org, options.env);
+  this.bootstrapUrl = util.format(this.baseUri, 'bootstrap', options.org, options.env);
+
+  this.cert = cert(this.config);
+  this.sourcePath = configLocations.getSourcePath(options.org, options.env);
 
   const that = this;
-
-  edgeconfig.save(that.config, that.sourcePath);
-  that.cert = cert(that.config);
-  that.checkDeployedProxies(options, (err, options) => {
-    if (err) {
-      console.error(err);
-      cb ? cb(err) : process.exit(1);
-      return;
-    }
-    that.configureEdgemicroWithCreds(options, (err) => {
+  edgeconfig.init({
+    source: configLocations.getDefaultPath(),
+    targetDir: configLocations.homeDir,
+    targetFile: configLocations.getSourceFile(options.org, options.env),
+    overwrite: true
+  }, function(err, configPath) {
+    edgeconfig.save(that.config,that.sourcePath);
+    that.deployment.checkDeployedProxies(options, (err, options) => {
       if (err) {
         console.error(err);
         cb ? cb(err) : process.exit(1);
         return;
       }
-      cb ? cb(err) : process.exit(0)
+      that.configureEdgemicroWithCreds(options, (err) => {
+        if (err) {
+          console.error(err);
+          cb ? cb(err) : process.exit(1);
+          return;
+        }
+        cb ? cb(err) : process.exit(0)
+      });
     });
   });
 
 }
 
-// checks for previously deployed edgemicro proxies
-Private.prototype.checkDeployedProxies = function checkDeployedProxies(options, cb) {
-  console.log('checking for previously deployed proxies')
-  const opts = {
-    organization: options.org,
-    environment: options.env,
-    baseuri: this.managementUri,
-    username: options.username,
-    password: options.password,
-    debug: options.debug
-  };
-  const that = this;
-  apigeetool.listDeployments(opts, function(err, proxies) {
-    if (err) {
-      return cb(err);
-    }
-
-    _.assign(options, proxies);
-    cb(err, options)
-  })
-}
 
 // configures Callout.xml & default.xml of apiproxy being deployed
 Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroInternalProxy(options, callback) {
@@ -298,42 +285,33 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
       if (err) {
         return cb(err);
       }
+      const agentConfigPath = sourcePath;
+      const agentConfig = that.config = edgeconfig.load({ source: agentConfigPath });
 
-      edgeconfig.init({
-        source: configLocations.getDefaultPath(),
-        targetDir: configLocations.homeDir,
-        targetFile: sourcePath,
-        overwrite: true
-      },
-        function(err,configPath) {
-          const agentConfigPath = configPath;
-          const agentConfig = that.config = edgeconfig.load({ source: sourcePath });
+      if (!emSearch && !jwtSearch) {
+        agentConfig['edge_config']['jwt_public_key'] = results[2]; // get deploy results
+        agentConfig['edge_config'].bootstrap = results[4]; // get genkeys results
+      } else if (emSearch && !jwtSearch) {
+        agentConfig['edge_config']['jwt_public_key'] = results[0];
+        agentConfig['edge_config'].bootstrap = results[2];
+      } else {
+        agentConfig['edge_config']['jwt_public_key'] = that.authUri + '/publicKey';
+        agentConfig['edge_config'].bootstrap = results[1];
+      }
 
-          if (!emSearch && !jwtSearch) {
-            agentConfig['edge_config']['jwt_public_key'] = results[2]; // get deploy results
-            agentConfig['edge_config'].bootstrap = results[4]; // get genkeys results
-          } else if (emSearch && !jwtSearch) {
-            agentConfig['edge_config']['jwt_public_key'] = results[0];
-            agentConfig['edge_config'].bootstrap = results[2];
-          } else {
-            agentConfig['edge_config']['jwt_public_key'] = that.authUri + '/publicKey';
-            agentConfig['edge_config'].bootstrap = results[1];
-          }
+      console.log();
+      console.log('saving configuration information to:', agentConfigPath);
+      edgeconfig.save(agentConfig, agentConfigPath);
+      console.log();
 
-          console.log();
-          console.log('saving configuration information to:', agentConfigPath);
-          edgeconfig.save(agentConfig, agentConfigPath);
-          console.log();
+      if (!emSearch && !jwtSearch) {
+        console.log('vault info:\n', results[3]);
+      } else if (emSearch && !jwtSearch) {
+        console.log('vault info:\n', results[1]);
+      }
 
-          if (!emSearch && !jwtSearch) {
-            console.log('vault info:\n', results[3]);
-          } else if (emSearch && !jwtSearch) {
-            console.log('vault info:\n', results[1]);
-          }
-
-          console.log('edgemicro configuration complete!');
-          cb();
-        });
+      console.log('edgemicro configuration complete!');
+      cb();
 
     });
 };
@@ -343,6 +321,13 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
 Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(options, cb) {
 
   const that = this;
+  // first: runtimeUri, second: credential, third: org, fourth: env
+  const credentialUrl = that.credentialUrl;
+  const regionUrl = that.regionUrl;
+  const bootstrapUrl = that.bootstrapUrl;
+  const parsedUrl = url.parse(bootstrapUrl);
+  const updatedUrl = url.format(parsedUrl); // reconstruct url with updated host
+
   function genkey(cb) {
     const byteLength = 256;
     const hash = crypto.createHash('sha256');
@@ -367,9 +352,6 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
       secret: secret
     };
 
-    // first: runtimeUri, second: credential, third: org, fourth: env
-    const credentialUrl = util.format(that.baseUri, 'credential', options.org, options.env);
-
     // NOTE: getting classification failure
     debug('sending', JSON.stringify(keys), 'to', credentialUrl);
     request({
@@ -387,9 +369,6 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
       }
 
       if (res.statusCode >= 200 && res.statusCode <= 202) {
-
-        const regionUrl = util.format(that.baseUri, 'region', options.org, options.env);
-
         debug('getting region from', regionUrl);
         request({
           uri: regionUrl,
@@ -411,39 +390,27 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
             }
 
             console.log('configuring host', res.body.host, 'for region', res.body.region);
-            const bootstrapUrl = util.format(that.baseUri, 'bootstrap', options.org, options.env);
-            const parsedUrl = url.parse(bootstrapUrl);
             const parsedRes = url.parse(res.body.host);
-
             parsedUrl.host = parsedRes.host; // update to regional host
-            const updatedUrl = url.format(parsedUrl); // reconstruct url with updated host
-
             console.log();
             console.info(that.config.edge_config.keySecretMessage);
             console.info('  key:', key);
             console.info('  secret:', secret);
             console.log();
             return cb(null, updatedUrl);
-
           } else {
-
             cb(console.error('error retrieving region for org', res.statusCode, res.text));
-
           }
         });
       } else {
-
         cb(console.error('error uploading credentials', res.statusCode, res.text));
-
       }
     });
   });
-
 }
 
 function translateError(err, res) {
   if (!err && res.statusCode >= 400) {
-
     const msg = 'cannot ' + res.request.method + ' ' + url.format(res.request.uri) + ' (' + res.statusCode + ')';
     err = new Error(msg);
     err.text = res.body;
@@ -451,6 +418,7 @@ function translateError(err, res) {
   }
   return err;
 }
+
 function optionError(message) {
   console.error(message);
   this.help();

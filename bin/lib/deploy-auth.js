@@ -11,6 +11,7 @@ const util = require('util')
 const fs = require('fs')
 const DEFAULT_HOSTS = 'default,secure';
 const url = require('url');
+const _ =require('lodash')
 
 const Deployment = function(edge_config,virtualHosts ) {
   this.managementUri = edge_config.managementUri;
@@ -88,6 +89,28 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
     callback(null, results[deployResultNdx]);
   })
 }
+
+// checks for previously deployed edgemicro proxies
+Deployment.prototype.checkDeployedProxies = function checkDeployedProxies(options, cb) {
+  console.log('checking for previously deployed proxies')
+  const opts = {
+    organization: options.org,
+    environment: options.env,
+    baseuri: this.managementUri,
+    username: options.username,
+    password: options.password,
+    debug: options.debug
+  };
+  const that = this;
+  apigeetool.listDeployments(opts, function(err, proxies) {
+    if (err) {
+      return cb(err);
+    }
+    _.assign(options, proxies);
+    cb(err, options)
+  })
+}
+
 
 function deployProxyWithPassword(managementUri,authUri, options, dir, callback) {
   assert(dir, 'dir must be configured')
