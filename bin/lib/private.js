@@ -75,15 +75,21 @@ Private.prototype.configureEdgemicro = function(options, cb) {
     return optionError.bind(options)('password is required');
   }
 
-
+  const cache = configLocations.getCachePath(options.org, options.env);
+  console.log('delete cache config');
+  const exists = fs.existsSync(cache);
+  if (exists) {
+    fs.unlinkSync(cache);
+    console.log('deleted ' + cache);
+  }
 
   this.sourcePath = configLocations.getSourcePath(options.org, options.env);
-  this.name = 'edgemicro-auth';
+  options.proxyName = this.name = 'edgemicro-auth';
   this.basePath = '/edgemicro-auth';
   this.managementUri = options.mgmtUrl;
   this.runtimeUrl = options.runtimeUrl;
   this.virtualHosts = options.virtualHosts || 'default';
-  deleteCached();
+
 
   const config = edgeconfig.load({ source: configLocations.getDefaultPath() });
 
@@ -143,6 +149,7 @@ Private.prototype.checkDeployedProxies = function checkDeployedProxies(options, 
 Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroInternalProxy(options, callback) {
   const that = this;
   const apipath = path.join(__dirname, '..', '..', 'auth', 'apiproxy');
+  options.proxyName = 'edgemicro-auth';
   var resPath;
   try {
     resPath = fs.realpathSync(apipath);
@@ -316,14 +323,13 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
         return cb(err);
       }
 
-
       edgeconfig.init({
         source: configLocations.getDefaultPath(),
         targetDir: configLocations.homeDir,
         targetFile: sourcePath,
         overwrite: true
       },
-        function(configPath) {
+        function(err,configPath) {
           const agentConfigPath = configPath;
           const agentConfig = that.config = edgeconfig.load({ source: sourcePath });
 
@@ -437,7 +443,7 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
             const updatedUrl = url.format(parsedUrl); // reconstruct url with updated host
 
             console.log();
-            console.info(config.edge_config.keySecretMessage);
+            console.info(that.config.edge_config.keySecretMessage);
             console.info('  key:', key);
             console.info('  secret:', secret);
             console.log();

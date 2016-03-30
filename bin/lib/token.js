@@ -10,16 +10,18 @@ const jwt = require('jsonwebtoken');
 const assert = require('assert')
 
 const configLocations = require('../../config/locations');
- 
 
 const Token = function() {
 };
 
-module.exports = function(){
+module.exports = function() {
   return new Token();
-}
-Token.prototype.decodeToken = function(options) {
-  if (!options.file) { return optionError.bind(options)('file is required'); }
+};
+
+Token.prototype.decodeToken = function( options ) {
+  if (!options.file) {
+    return optionError.bind(options)( 'file is required' );
+  }
 
   const jtw = require('../api/helpers/jwt');
   const token = fs.readFileSync(path.resolve(options.file), 'utf8').trim();
@@ -29,13 +31,13 @@ Token.prototype.decodeToken = function(options) {
   });
 }
 
-Token.prototype.verifyToken = function(options,cb) {
+Token.prototype.verifyToken = function(options, cb) {
 
   if (!options.file) { return optionError.bind(options)('file is required'); }
   if (!options.org) { return optionError.bind(options)('org is required'); }
   if (!options.env) { return optionError.bind(options)('env is required'); }
-  const targetPath = configLocations.getSourcePath(options.org,options.env);
-  cb = cb || function(){}
+  const targetPath = configLocations.getSourcePath(options.org, options.env);
+  cb = cb || function() { }
 
   const key = options.key;
   const secret = options.secret;
@@ -50,8 +52,8 @@ Token.prototype.verifyToken = function(options,cb) {
 
   getPublicKey(options.org, options.env, authUri, this.isPublicCloud, function(err, certificate) {
     if (err) {
-      cb(err); 
-      return printError(err); 
+      cb(err);
+      return printError(err);
     }
 
     const opts = {
@@ -61,8 +63,8 @@ Token.prototype.verifyToken = function(options,cb) {
 
     jwt.verify(token, certificate, opts, function(err, result) {
       if (err) {
-        cb(err) 
-        return printError(err); 
+        cb(err)
+        return printError(err);
       }
       console.log(result);
       cb(result)
@@ -78,7 +80,7 @@ Token.prototype.getToken = function(options, cb) {
   if (!options.env) { return optionError.bind(options)('env is required'); }
   if (!options.id) { return optionError.bind(options)('client id is required'); }
   if (!options.secret) { return optionError.bind(options)('client secret is required'); }
-  const targetPath = configLocations.getSourcePath(options.org,options.env);
+  const targetPath = configLocations.getSourcePath(options.org, options.env);
 
   const key = options.key;
   const secret = options.secret;

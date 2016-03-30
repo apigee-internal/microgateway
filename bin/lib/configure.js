@@ -25,6 +25,13 @@ Configure.prototype.configure = function configure(options, cb) {
   if (!options.password) { return optionError.bind(options)('password is required'); }
   if (!options.org) { return optionError.bind(options)('org is required'); }
   if (!options.env) { return optionError.bind(options)('env is required'); }
+  const cache = configLocations.getCachePath(options.org, options.env);
+  console.log('delete cache config');
+  const exists = fs.existsSync(cache);
+  if (exists) {
+    fs.unlinkSync(cache);
+    console.log('deleted ' + cache);
+  }
   checkDeployedProxies(options, (err, options) => {
     if (err) {
       console.error(err);
@@ -42,13 +49,7 @@ Configure.prototype.configure = function configure(options, cb) {
 };
 
 function checkDeployedProxies(options, cb) {
-  const cache = configLocations.getCachePath(options.org, options.env);
-  console.log('delete cache config');
-  const exists = fs.existsSync(cache);
-  if (exists) {
-    fs.unlinkSync(cache);
-    console.log('deleted ' + cache);
-  }
+
 
   console.log();
   console.log('checking for previously deployed proxies')

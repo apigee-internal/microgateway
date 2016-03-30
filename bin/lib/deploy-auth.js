@@ -10,6 +10,7 @@ const async = require('async')
 const util = require('util')
 const fs = require('fs')
 const DEFAULT_HOSTS = 'default,secure';
+const url = require('url');
 
 const Deployment = function(edge_config,virtualHosts ) {
   this.managementUri = edge_config.managementUri;
@@ -50,7 +51,7 @@ Deployment.prototype.deployEdgeMicroInternalProxy = function deployEdgeMicroInte
 Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( options, callback) {
   const authUri = this.authUri;
   const managementUri = this.managementUri;
-  
+
   var tmpDir = tmp.dirSync({ keep: true, dir: path.resolve(__dirname, '..', '..') });
   var tasks = [];
   var deployResultNdx = 5; // if files are added to exclusion this might need changing
@@ -79,8 +80,8 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
   })
 
   async.series(tasks, function(err, results) {
-    if (err) { 
-      return callback(err); 
+    if (err) {
+      return callback(err);
     }
 
     // pass JWT public key URL through callback
