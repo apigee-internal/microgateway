@@ -5,6 +5,8 @@ const url = require('url');
 const os = require('os');
 const agent = require('../bin/lib/gateway')();
 const configure = require('../bin/lib/configure')();
+const cert = require('../bin/lib/cert')();
+
 const path = require('path');
 const configLocations = require('../config/locations');
 const thisPath = path.normalize(__dirname);
@@ -29,12 +31,12 @@ describe('test-cli', function() {
   restServer.listen(3000);
   before(function(done) {
     this.timeout(10000)
-    configure.configure({ username: user, password: password, org: org, env: env },()=>{
-        // initialize agent
+    configure.configure({ username: user, password: password, org: org, env: env }, () => {
+      // initialize agent
       agent.start({ key: key, secret: secret, org: org, env: env });
       setTimeout(done, 500)
     });
-  
+
   });
   after(function(done) {
     // close agent server before finishing
@@ -50,7 +52,7 @@ describe('test-cli', function() {
       secret: tokenSecret
     }, (err, token) => {
       err && done(err);
-      assert(token && token.token, "token is came back empty "+JSON.stringify(token))
+      assert(token && token.token, "token is came back empty " + JSON.stringify(token))
       request({
         method: 'GET',
         uri: target,
@@ -64,5 +66,31 @@ describe('test-cli', function() {
       });
     })
 
+  });
+
+  it('test check cert', function(done) {
+    const options = { org: org, env: env, username: user, password: password };
+    cert.deleteCert(options, (err) => {
+      assert(!err, err);
+      cert.installCert(options, (err, res) => {
+        assert(!err, err);
+        assert(res, "res was empty")
+        assert(res.startsWith("-----BEGIN CERTIFICATE-----"))
+        assert(res.endsWith("-----END CERTIFICATE-----"))
+        cert.checkCert(options, (err) => {
+          assert(!err, err);
+          done();
+        })
+      })
+    })
+  });
+
+  it('test cert', function(done) {
+    cert.retrievePublicKey({ org: org, env: env, username: user, password: password }, (err, certificate) => {
+      assert(!err, err);
+      assert(certificate, "no certificate");
+
+      done();
+    })
   });
 });
