@@ -18,16 +18,16 @@ module.exports = function() {
 };
 
 Cert.prototype.installCert = function(options, cb) {
-  if (!options.username) {
+  if ( !options.username ){
     return optionError.bind(options)('username is required');
   }
-  if (!options.org) {
+  if ( !options.org ) {
     return optionError.bind(options)('org is required');
   }
-  if (!options.env) {
+  if ( !options.env ) {
     return optionError.bind(options)('env is required');
   }
-  if (!options.password) {
+  if ( !options.password ) {
     return optionError.bind(options)('password is required');
   }
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });

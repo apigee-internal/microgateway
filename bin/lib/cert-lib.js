@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 const request = require('request');
 const util = require('util');
 const fs = require('fs');

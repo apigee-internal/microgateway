@@ -39,6 +39,11 @@
     "mocha": "^2.2.5",
     "run-sequence": "^1.1.0"
   },
+  "eslintConfig": {
+        "env": {
+            "es6": true
+        }
+    },
   "scripts": {
     "package": "node bin/package.js",
     "test": "mocha tests",
