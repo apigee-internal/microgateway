@@ -29,12 +29,13 @@ Token.prototype.decodeToken = function(options) {
   });
 }
 
-Token.prototype.verifyToken = function(options) {
+Token.prototype.verifyToken = function(options,cb) {
 
   if (!options.file) { return optionError.bind(options)('file is required'); }
   if (!options.org) { return optionError.bind(options)('org is required'); }
   if (!options.env) { return optionError.bind(options)('env is required'); }
   const targetPath = configLocations.getSourcePath(options.org,options.env);
+  cb = cb || function(){}
 
   const key = options.key;
   const secret = options.secret;
@@ -48,7 +49,10 @@ Token.prototype.verifyToken = function(options) {
   this.isPublicCloud = config.edge_config['managementUri'] === 'https://api.enterprise.apigee.com';
 
   getPublicKey(options.org, options.env, authUri, this.isPublicCloud, function(err, certificate) {
-    if (err) { return printError(err); }
+    if (err) {
+      cb(err); 
+      return printError(err); 
+    }
 
     const opts = {
       algorithms: ['RS256'],
@@ -56,8 +60,12 @@ Token.prototype.verifyToken = function(options) {
     };
 
     jwt.verify(token, certificate, opts, function(err, result) {
-      if (err) { return printError(err); }
+      if (err) {
+        cb(err) 
+        return printError(err); 
+      }
       console.log(result);
+      cb(result)
     });
   });
 
