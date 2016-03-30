@@ -47,6 +47,6 @@
   "scripts": {
     "package": "node bin/package.js",
     "test": "mocha tests",
-    "preinstall": "pushd private;pushd app;npm i;popd;popd;"
+    "preinstall": "pushd auth;pushd app;npm i;popd;popd;"
   }
 }
