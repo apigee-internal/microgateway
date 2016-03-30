@@ -77,8 +77,10 @@ describe('test-cli', function() {
         assert(res, "res was empty")
         assert(res.startsWith("-----BEGIN CERTIFICATE-----"))
         assert(res.endsWith("-----END CERTIFICATE-----"))
-        cert.checkCert(options, (err) => {
+        cert.checkCert(options, (err, res) => {
           assert(!err, err);
+          assert(res, "res was empty")
+          assert(res.startsWith('[ "private_key", "public_key" ]'))
           done();
         })
       })

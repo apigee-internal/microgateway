@@ -59,7 +59,7 @@ Cert.prototype.checkCert = function(options, cb) {
       return console.error(err, 'failed to update cert')
     }
     console.log('checked cert successfully');
-    cb && cb();
+    cb && cb(null,res);
     !cb && process.exit(0);    
   });
 
