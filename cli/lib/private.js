@@ -111,7 +111,7 @@ Private.prototype.configureEdgemicro = function(options, cb) {
 // configures Callout.xml & default.xml of apiproxy being deployed
 Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroInternalProxy(options, callback) {
   const that = this;
-  const apipath = path.join(__dirname, '..', '..', 'auth', 'apiproxy');
+  const apipath = path.join(__dirname, '..', '..', 'edge', 'apiproxy');
   options.proxyName = 'edgemicro-auth';
   var resPath;
   try {

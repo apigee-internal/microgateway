@@ -47,8 +47,8 @@
     }
   },
   "scripts": {
-    "package": "node bin/package.js",
+    "package": "node cli/package.js",
     "test": "mocha tests",
-    "preinstall": "pushd auth;pushd app;npm i;popd;popd;"
+    "preinstall": "pushd edge;pushd auth;npm i;popd;popd;"
   }
 }

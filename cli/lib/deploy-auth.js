@@ -34,7 +34,7 @@ Deployment.prototype.deployEdgeMicroInternalProxy = function deployEdgeMicroInte
     debug: options.debug,
     verbose: options.debug,
     api: 'edgemicro-internal',
-    directory:  path.join(__dirname,'..','..','auth'),
+    directory:  path.join(__dirname,'..','..','edge'),
     'import-only': false,
     'resolve-modules': false,
     virtualhosts: this.virtualHosts || 'default'
@@ -60,7 +60,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
   // copy bin folder into tmp
   tasks.push(function(cb) {
     console.log('copy auth app into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'auth', 'app'), tmpDir.name, cb);
+    cpr(path.resolve(__dirname, '..', '..', 'edge', 'auth'), tmpDir.name, cb);
   });
 
   // copy bin folder into tmp
