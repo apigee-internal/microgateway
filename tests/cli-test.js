@@ -76,6 +76,35 @@ describe('test-cli', function() {
 
   });
 
+ it('hit server no token', function(done) {
+    this.timeout(10000)
+    token.getToken({
+      org: org,
+      env: env,
+      id: tokenId,
+      secret: tokenSecret
+    }, (err, token) => {
+      err && done(err);
+      assert(token && token.token, "token is came back empty " + JSON.stringify(token))
+      async.times(20, function(n, next) {
+        request({
+          method: 'GET',
+          uri: target,
+          headers: {
+            "Authorization": "Bearer " + "bad"
+          }
+        }, function(err, res, body) {
+          assert(!err, err);
+          assert.equal(res.statusCode,401);
+          next(err,res);
+        });
+      },function(err,responses){
+        assert(!err,err);
+        done()
+      })
+    })
+
+  });
   it('test check cert', function(done) {
     const options = { org: org, env: env, username: user, password: password };
     cert.deleteCert(options, (err) => {
