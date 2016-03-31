@@ -26,7 +26,8 @@ const org = process.env.MOCHA_ORG;
 const env = process.env.MOCHA_ENV;
 const tokenSecret = process.env.MOCHA_TOKEN_SECRET;
 const tokenId = process.env.MOCHA_TOKEN_ID;
-
+var analyticsMiddleware;
+var analyticsCount = 0;
 describe('test-cli', function() {
   const config = edgeConfig.load({ source: configLocations.getDefaultPath() })
   const target = "http://localhost:" + config.edgemicro.port + "/hello";
@@ -35,8 +36,24 @@ describe('test-cli', function() {
     this.timeout(10000)
     configure.configure({ username: user, password: password, org: org, env: env }, () => {
       // initialize agent
-      agent.start({ key: key, secret: secret, org: org, env: env });
-      setTimeout(done, 500)
+      agent.start({ key: key, secret: secret, org: org, env: env },(err,s)=>{
+        const server = s.gatewayServer;
+        if(server && server.plugins && server.plugins.length){
+          const plugin = server.plugins.find((plugin)=>{
+            return plugin.id === "analytics";
+          });
+          if(plugin){
+            const middleware = plugin.onrequest;
+            analyticsMiddleware = plugin.onrequest = function(req,res,next){
+              analyticsCount++;
+              middleware(req,res,next);
+            };
+          }
+        }
+        done(err);
+
+      });
+
     });
 
   });
@@ -47,6 +64,7 @@ describe('test-cli', function() {
   });
 
   it('hit server', function(done) {
+    analyticsCount = 0;
     this.timeout(10000)
     token.getToken({
       org: org,
@@ -70,6 +88,7 @@ describe('test-cli', function() {
         });
       },function(err,responses){
         assert(!err,err);
+        assert(analyticsCount===20);
         done()
       })
     })

@@ -14,7 +14,8 @@ module.exports = function() {
   return new Gateway();
 }
 
-Gateway.prototype.start = function start(options) {
+Gateway.prototype.start = function start(options,cb) {
+  const that = this;
   const defaultKey = process.env.EDGEMICRO_KEY
   const defaultSecret = process.env.EDGEMICRO_SECRET
   if (!options.key && !defaultKey) {
@@ -44,6 +45,8 @@ Gateway.prototype.start = function start(options) {
         process.exit(1);
       }
       console.log('edge micro started');
+      that.agent = agent;
+      cb(null,agent);
     });
   }
 
