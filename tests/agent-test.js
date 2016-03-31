@@ -29,7 +29,7 @@ describe('configured agent/server address', function() {
   var config;
   before(function(done) {
     this.timeout(400000);
-    configure.configure({ username: user, password: password, org: org, env: env }, () => {
+    configure.configure({ username: user, password: password, org: org, env: env, error:(msg)=>{done(msg)}}, () => {
       edgeConfig.get({ keys: keys, source: configLocations.getSourcePath(org, env) }, (err, configDownload) => {
         config = configDownload;
         delete config.edgemicro.plugins

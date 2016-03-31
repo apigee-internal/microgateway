@@ -34,7 +34,7 @@ describe('test-cli', function() {
   restServer.listen(3000);
   before(function(done) {
     this.timeout(10000)
-    configure.configure({ username: user, password: password, org: org, env: env }, () => {
+    configure.configure({ username: user, password: password, org: org, env: env, error:(msg)=>{done(msg)} }, () => {
       // initialize agent
       agent.start({ key: key, secret: secret, org: org, env: env },(err,s)=>{
         const server = s.gatewayServer;
