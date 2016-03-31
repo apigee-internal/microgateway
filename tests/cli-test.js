@@ -8,7 +8,7 @@ const configure = require('../bin/lib/configure')();
 const cert = require('../bin/lib/cert')();
 const fs = require('fs')
 const async = require('async')
-
+const _ = require('lodash')
 const path = require('path');
 const configLocations = require('../config/locations');
 const thisPath = path.normalize(__dirname);
@@ -27,7 +27,7 @@ const env = process.env.MOCHA_ENV;
 const tokenSecret = process.env.MOCHA_TOKEN_SECRET;
 const tokenId = process.env.MOCHA_TOKEN_ID;
 var analyticsMiddleware;
-var analyticsCount = 0;
+var analyticsCount = 0;//count calls to analytics
 describe('test-cli', function() {
   const config = edgeConfig.load({ source: configLocations.getDefaultPath() })
   const target = "http://localhost:" + config.edgemicro.port + "/hello";
@@ -38,6 +38,7 @@ describe('test-cli', function() {
       // initialize agent
       agent.start({ key: key, secret: secret, org: org, env: env },(err,s)=>{
         const server = s.gatewayServer;
+        //find analytics plugin and stub it, so you can prove it is counted against
         if(server && server.plugins && server.plugins.length){
           const plugin = server.plugins.find((plugin)=>{
             return plugin.id === "analytics";
@@ -46,6 +47,9 @@ describe('test-cli', function() {
             const middleware = plugin.onrequest;
             analyticsMiddleware = plugin.onrequest = function(req,res,next){
               analyticsCount++;
+              assert(_.isFunction(next) && next.length==2)
+              assert(_.isObject(req) && req.reqUrl)
+              assert(_.isObject(res) && !res.finished)
               middleware(req,res,next);
             };
           }
