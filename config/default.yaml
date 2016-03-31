@@ -10,7 +10,6 @@ edge_config:
   keySecretMessage: The following credentials are required to start edge micro
 
 edgemicro:
-  home: ../gateway
   port: 8000
   max_connections: 1000
   max_connections_hard: 5000
