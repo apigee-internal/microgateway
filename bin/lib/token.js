@@ -67,7 +67,7 @@ Token.prototype.verifyToken = function(options, cb) {
         return printError(err);
       }
       console.log(result);
-      cb(result)
+      cb(null,result)
     });
   });
 

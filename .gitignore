@@ -41,3 +41,4 @@ tests/cache-config.yaml
 tmp-*
 default.yaml.bak
 *-*-*config.yaml
+test-token.txt

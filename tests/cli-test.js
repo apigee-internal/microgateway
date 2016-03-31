@@ -6,6 +6,7 @@ const os = require('os');
 const agent = require('../bin/lib/gateway')();
 const configure = require('../bin/lib/configure')();
 const cert = require('../bin/lib/cert')();
+const fs = require('fs')
 
 const path = require('path');
 const configLocations = require('../config/locations');
@@ -94,5 +95,31 @@ describe('test-cli', function() {
 
       done();
     })
+  });
+
+  const dir = __dirname;
+  it('verify token', function(done) {
+    token.getToken({
+      org: org,
+      env: env,
+      id: tokenId,
+      secret: tokenSecret
+    }, (err, t) => {
+      err && done(err);
+      assert(t && t.token, "token is came back empty " + JSON.stringify(t))
+      const file = 'test-token.txt';
+      const filePath = path.join(dir, file);
+
+      fs.writeFile(filePath, t.token, (err) => {
+        assert(!err, err);
+        const filePath = path.join(dir, file);
+        token.verifyToken({ org: org, env: env, file: filePath }, (err) => {
+          assert(!err, err);
+          fs.unlinkSync(filePath);
+          done();
+        });
+      })
+    })
+
   });
 });
