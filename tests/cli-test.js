@@ -7,6 +7,7 @@ const agent = require('../bin/lib/gateway')();
 const configure = require('../bin/lib/configure')();
 const cert = require('../bin/lib/cert')();
 const fs = require('fs')
+const async = require('async')
 
 const path = require('path');
 const configLocations = require('../config/locations');
@@ -46,6 +47,7 @@ describe('test-cli', function() {
   });
 
   it('hit server', function(done) {
+    this.timeout(10000)
     token.getToken({
       org: org,
       env: env,
@@ -54,17 +56,22 @@ describe('test-cli', function() {
     }, (err, token) => {
       err && done(err);
       assert(token && token.token, "token is came back empty " + JSON.stringify(token))
-      request({
-        method: 'GET',
-        uri: target,
-        headers: {
-          "Authorization": "Bearer " + token.token
-        }
-      }, function(err, res, body) {
-        assert(!err, err);
-        assert.equal(res.statusCode, 200);
-        done(err);
-      });
+      async.times(20, function(n, next) {
+        request({
+          method: 'GET',
+          uri: target,
+          headers: {
+            "Authorization": "Bearer " + token.token
+          }
+        }, function(err, res, body) {
+          assert(!err, err);
+          assert.equal(res.statusCode, 200);
+          next(err,res);
+        });
+      },function(err,responses){
+        assert(!err,err);
+        done()
+      })
     })
 
   });
