@@ -14,14 +14,14 @@ const util = require('util');
 const Verify = function(){}
 module.exports = function(){
   return new Verify();
-} 
+}
 
 Verify.prototype.verify = function verify(options) {
-  if (!options.org) { return optionError.bind(options)('org is required'); }
-  if (!options.env) { return optionError.bind(options)('env is required'); }
-  if (!options.key) { return optionError.bind(options)('key is required'); }
-  if (!options.secret) { return optionError.bind(options)('secret is required'); }
- 
+  if (!options.org) { return  options.error('org is required'); }
+  if (!options.env) { return  options.error('env is required'); }
+  if (!options.key) { return  options.error('key is required'); }
+  if (!options.secret) { return  options.error('secret is required'); }
+
   const key = options.key;
   const secret = options.secret;
   const keys = { key: key, secret: secret };
@@ -234,13 +234,6 @@ Verify.prototype.verify = function verify(options) {
 
 
 }
-
-
-function optionError(message) {
-  console.error(message);
-  this.help();
-}
-
 function printError(err) {
   if (err.response) {
     console.log(err.response.error);

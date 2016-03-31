@@ -19,16 +19,16 @@ module.exports = function() {
 
 Cert.prototype.installCert = function(options, cb) {
   if ( !options.username ){
-    return optionError.bind(options)('username is required');
+    return  options.error('username is required');
   }
   if ( !options.org ) {
-    return optionError.bind(options)('org is required');
+    return  options.error('org is required');
   }
   if ( !options.env ) {
-    return optionError.bind(options)('env is required');
+    return  options.error('env is required');
   }
   if ( !options.password ) {
-    return optionError.bind(options)('password is required');
+    return  options.error('password is required');
   }
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
   cert(config).installCertWithPassword(options, (err, res) => {
@@ -44,10 +44,10 @@ Cert.prototype.installCert = function(options, cb) {
 
 Cert.prototype.checkCert = function(options, cb) {
 
-  if (!options.username) { return optionError.bind(options)('username is required'); }
-  if (!options.org) { return optionError.bind(options)('org is required'); }
-  if (!options.env) { return optionError.bind(options)('env is required'); }
-  if (!options.password) { return optionError.bind(options)('password is required'); }
+  if (!options.username) { return  options.error('username is required'); }
+  if (!options.org) { return  options.error('org is required'); }
+  if (!options.env) { return  options.error('env is required'); }
+  if (!options.password) { return  options.error('password is required'); }
 
 
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
@@ -60,17 +60,17 @@ Cert.prototype.checkCert = function(options, cb) {
     }
     console.log('checked cert successfully');
     cb && cb(null,res);
-    !cb && process.exit(0);    
+    !cb && process.exit(0);
   });
 
 }
 
 Cert.prototype.deleteCert = function(options,cb) {
 
-  if (!options.username) { return optionError.bind(options)('username is required'); }
-  if (!options.org) { return optionError.bind(options)('org is required'); }
-  if (!options.env) { return optionError.bind(options)('env is required'); }
-  if (!options.password) { return optionError.bind(options)('password is required'); }
+  if (!options.username) { return  options.error('username is required'); }
+  if (!options.org) { return  options.error('org is required'); }
+  if (!options.env) { return  options.error('env is required'); }
+  if (!options.password) { return  options.error('password is required'); }
 
 
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
@@ -79,15 +79,15 @@ Cert.prototype.deleteCert = function(options,cb) {
     err && console.error(err);
     msg && console.log(msg);
     cb && cb(err,msg);
-    !cb && process.exit(0);    
+    !cb && process.exit(0);
   })
 
 };
 
 Cert.prototype.retrievePublicKey = function(options,cb) {
 
-  if (!options.org) { return optionError.bind(options)('org is required'); }
-  if (!options.env) { return optionError.bind(options)('env is required'); }
+  if (!options.org) { return  options.error('org is required'); }
+  if (!options.env) { return  options.error('env is required'); }
 
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
   cert(config).retrievePublicKey(options, (err, certificate) => {
@@ -98,15 +98,15 @@ Cert.prototype.retrievePublicKey = function(options,cb) {
     console.log('succeeded');
     console.log(certificate);
     cb(null,certificate);
-    !cb && process.exit(0);    
+    !cb && process.exit(0);
   })
 };
 
 
 Cert.prototype.retrievePublicKeyPrivate = function(options) {
 
-  if (!options.org) { return optionError.bind(options)('org is required'); }
-  if (!options.env) { return optionError.bind(options)('env is required'); }
+  if (!options.org) { return  options.error('org is required'); }
+  if (!options.env) { return  options.error('env is required'); }
 
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
   cert(config).retrievePublicKeyPrivate((err, certificate) => {

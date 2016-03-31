@@ -18,13 +18,13 @@ Gateway.prototype.start = function start(options) {
   const defaultKey = process.env.EDGEMICRO_KEY
   const defaultSecret = process.env.EDGEMICRO_SECRET
   if (!options.key && !defaultKey) {
-    return optionError.bind(options)('key is required');
+    return  options.error('key is required');
   }
   if (!options.secret && !defaultSecret) {
-    return optionError.bind(options)('secret is required');
+    return  options.error('secret is required');
   }
-  if (!options.org) { return optionError.bind(options)('org is required'); }
-  if (!options.env) { return optionError.bind(options)('env is required'); }
+  if (!options.org) { return  options.error('org is required'); }
+  if (!options.env) { return  options.error('env is required'); }
   if (defaultKey) {
     options.key = options.key || defaultKey;
   }

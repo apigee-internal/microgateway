@@ -23,6 +23,7 @@ const setup = function setup() {
     .option('-r, --url <url>', 'organization\'s custom API URL (https://api.example.com)')
     .option('-d, --debug', 'execute with debug output')
     .action((options) => {
+      options.error = optionError;
       configure.configure(options, () => {
         process.exit(0);
       });
@@ -37,6 +38,7 @@ const setup = function setup() {
     .option('-k, --key <key>', 'key for authenticating with Edge')
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
     .action((options) => {
+      options.error = optionError;
       verify.verify(options);
     });
 
@@ -50,7 +52,10 @@ const setup = function setup() {
     .option('-i, --ignorecachedconfig', 'bypass cached config')
     .option('-f, --forever', 'will ensure the server will restart in case of exceptions')
     .description('control agent processes')
-    .action(run.start);
+    .action((options)=>{
+      options.error = optionError;
+      run.start(options);
+    });
 
 
   commander.parse(process.argv);
@@ -66,5 +71,11 @@ const setup = function setup() {
     commander.help();
   }
 };
+
+function optionError(message) {
+  console.error(message);
+  this.help();
+}
+
 
 module.exports = setup;

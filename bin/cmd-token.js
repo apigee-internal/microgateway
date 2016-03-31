@@ -1,6 +1,6 @@
 'use strict';
 
-const commander = require('commander');  
+const commander = require('commander');
 const token = require('./lib/token')();
 
 const setup = function setup() {
@@ -12,6 +12,7 @@ const setup = function setup() {
     .option('-f, --file <file>', 'file containing jwt')
     .description('decode a token without verifying it')
     .action((options)=>{
+      options.error = optionError;
       token.decodeToken(options)
     });
 
@@ -22,6 +23,7 @@ const setup = function setup() {
     .option('-e, --env <env>', 'the environment')
     .description('verify a jwt token against the public key')
     .action((options)=> {
+      options.error = optionError;
       token.verifyToken(options)
     });
 
@@ -33,6 +35,7 @@ const setup = function setup() {
     .option('-s, --secret <secret>', 'the client secret')
     .description('create a client_credentials oauth token')
     .action((options)=>{
+      options.error = optionError;
       token.getToken(options)
     });
 
@@ -49,5 +52,10 @@ const setup = function setup() {
     commander.help();
   }
 };
+
+function optionError(message) {
+  console.error(message);
+  this.help();
+}
 
 module.exports = setup;

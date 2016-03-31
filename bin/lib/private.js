@@ -30,23 +30,23 @@ module.exports = function() {
 // begins edgemicro configuration process
 Private.prototype.configureEdgemicro = function(options, cb) {
   if (!options.username) {
-    return optionError.bind(options)('username is required');
+    return  options.error('username is required');
   }
   if (!options.org) {
-    return optionError.bind(options)('org is required');
+    return  options.error('org is required');
   }
   if (!options.env) {
-    return optionError.bind(options)('env is required');
+    return  options.error('env is required');
   }
   if (!options.runtimeUrl) {
-    return optionError.bind(options)('runtimeUrl is required');
+    return  options.error('runtimeUrl is required');
   }
   if (!options.mgmtUrl) {
-    return optionError.bind(options)('mgmtUrl is required');
+    return  options.error('mgmtUrl is required');
   }
 
   if (!options.password) {
-    return optionError.bind(options)('password is required');
+    return  options.error('password is required');
   }
 
   const cache = configLocations.getCachePath(options.org, options.env);

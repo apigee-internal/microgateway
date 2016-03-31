@@ -1,7 +1,7 @@
 'use strict';
 
 var app = require('commander');
-var logic = require('./lib/private')();
+var privateOperations = require('./lib/private')();
 
 module.exports = function() {
   app
@@ -14,15 +14,16 @@ module.exports = function() {
     .option('-u, --username <user>', 'username of the organization admin')
     .option('-p, --password <password>', 'password of the organization admin')
     .option('-v, --virtual-hosts <virtualHosts>', 'comma separated virtual hosts to deploy with')
-    .action((options)=>{
-      logic.configureEdgemicro(options)
+    .action((options) => {
+      options.error = optionError;
+      privateOperations.configureEdgemicro(options)
     });
 
 
   app.parse(process.argv);
 
   var running = false;
-  app.commands.forEach(function (command) {
+  app.commands.forEach(function(command) {
     if (command._name == app.rawArgs[2]) {
       running = true;
     }
@@ -30,4 +31,8 @@ module.exports = function() {
   if (!running) {
     app.help();
   }
+}
+function optionError(message) {
+  console.error(message);
+  this.help();
 }

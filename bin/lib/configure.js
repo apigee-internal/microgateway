@@ -27,10 +27,10 @@ module.exports = function() {
 }
 
 Configure.prototype.configure = function configure(options, cb) {
-  if (!options.username) { return optionError.bind(options)('username is required'); }
-  if (!options.password) { return optionError.bind(options)('password is required'); }
-  if (!options.org) { return optionError.bind(options)('org is required'); }
-  if (!options.env) { return optionError.bind(options)('env is required'); }
+  if (!options.username) { return options.error('username is required'); }
+  if (!options.password) { return options.error('password is required'); }
+  if (!options.org) { return options.error('org is required'); }
+  if (!options.env) { return options.error('env is required'); }
 
   options.proxyName = 'edgemicro-auth';
   if (options.url) {

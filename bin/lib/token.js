@@ -20,7 +20,7 @@ module.exports = function() {
 
 Token.prototype.decodeToken = function( options ) {
   if (!options.file) {
-    return optionError.bind(options)( 'file is required' );
+    return  options.error( 'file is required' );
   }
 
   const jtw = require('../api/helpers/jwt');
@@ -33,9 +33,9 @@ Token.prototype.decodeToken = function( options ) {
 
 Token.prototype.verifyToken = function(options, cb) {
 
-  if (!options.file) { return optionError.bind(options)('file is required'); }
-  if (!options.org) { return optionError.bind(options)('org is required'); }
-  if (!options.env) { return optionError.bind(options)('env is required'); }
+  if (!options.file) { return  options.error('file is required'); }
+  if (!options.org) { return  options.error('org is required'); }
+  if (!options.env) { return  options.error('env is required'); }
   const targetPath = configLocations.getSourcePath(options.org, options.env);
   cb = cb || function() { }
 
@@ -76,10 +76,10 @@ Token.prototype.verifyToken = function(options, cb) {
 
 Token.prototype.getToken = function(options, cb) {
 
-  if (!options.org) { return optionError.bind(options)('org is required'); }
-  if (!options.env) { return optionError.bind(options)('env is required'); }
-  if (!options.id) { return optionError.bind(options)('client id is required'); }
-  if (!options.secret) { return optionError.bind(options)('client secret is required'); }
+  if (!options.org) { return  options.error('org is required'); }
+  if (!options.env) { return  options.error('env is required'); }
+  if (!options.id) { return  options.error('client id is required'); }
+  if (!options.secret) { return  options.error('client secret is required'); }
   const targetPath = configLocations.getSourcePath(options.org, options.env);
 
   const key = options.key;
