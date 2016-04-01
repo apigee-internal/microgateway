@@ -154,12 +154,6 @@ function configureEdgemicroWithCreds(options, cb) {
   });
 }
 
-
-function optionError(message) {
-  console.error(message);
-  this.help();
-}
-
 function printError(err) {
   if (err.response) {
     console.log(err.response.error);
