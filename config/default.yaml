@@ -22,7 +22,6 @@ edgemicro:
     stats_log_interval: 60
     rotate_interval: 24
   plugins:
-    dir: ./plugins
     sequence:
       - oauth
 

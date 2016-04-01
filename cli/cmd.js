@@ -4,6 +4,8 @@ const commander = require('commander');
 const configure = require('./lib/configure')();
 const verify = require('./lib/verify')();
 const run = require('./lib/gateway')();
+const keyGenerator = require('./lib/key-gen')();
+const prompt = require('cli-prompt');
 
 const setup = function setup() {
   commander
@@ -23,10 +25,12 @@ const setup = function setup() {
     .option('-r, --url <url>', 'organization\'s custom API URL (https://api.example.com)')
     .option('-d, --debug', 'execute with debug output')
     .action((options) => {
-      options.error = optionError;
-      configure.configure(options, () => {
-        process.exit(0);
-      });
+      promptForPassword(options,(options)=>{
+        options.error = optionError;
+        configure.configure(options, () => {
+          process.exit(0);
+        });
+      })
     });
 
 
@@ -59,6 +63,23 @@ const setup = function setup() {
     });
 
 
+commander
+  .command('genkeys')
+  .option('-o, --org <org>', 'the organization')
+  .option('-e, --env <env>', 'the environment')
+  .option('-u, --username <user>', 'username of the organization admin')
+  .option('-p, --password <password>', 'password of the organization admin')
+  .description('generate authentication keys')
+  .action((options)=>{
+    options.error = optionError;
+    promptForPassword(options,(options)=>{
+      keyGenerator.generate(options,(err)=>{
+        err ? process.exit(1) : process.exit(0);
+      });
+    })
+
+  });
+
   commander.parse(process.argv);
 
 
@@ -76,6 +97,19 @@ const setup = function setup() {
 function optionError(message) {
   console.error(message);
   this.help();
+}
+
+// prompt for a password if it is not specified
+function promptForPassword( options, cb) {
+
+  if (options.password) {
+    cb(options);
+  } else {
+    prompt.password("password:", function(pw) {
+      options.password = pw;
+      cb(options);
+    });
+  }
 }
 
 
