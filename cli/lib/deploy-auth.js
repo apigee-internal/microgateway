@@ -55,31 +55,33 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
 
   var tmpDir = tmp.dirSync({ keep: true, dir: path.resolve(__dirname, '..', '..') });
   var tasks = [];
-  var deployResultNdx = 0; // if files are added to exclusion this might need changing
+  var publicKeyUri;
 
   // copy bin folder into tmp
   tasks.push(function(cb) {
     console.log('copy auth app into tmp dir');
     cpr(path.resolve(__dirname, '..', '..', 'edge', 'auth'), tmpDir.name, cb);
-    deployResultNdx++;
   });
 
   // copy bin folder into tmp
   tasks.push(function(cb) {
     console.log('copy config into tmp dir');
     cpr(path.resolve(__dirname, '..', '..', 'config'), tmpDir.name+'/config', cb);
-    deployResultNdx++;
   });
 
   // deploy lean payload
   tasks.push(function(cb) {
     const dir = tmpDir.name;
-    deployProxyWithPassword(managementUri,authUri, options, dir, cb);
+    deployProxyWithPassword(managementUri,authUri, options, dir, (err,uri)=>{
+      publicKeyUri = uri;
+      cb(err,uri)
+    });
   });
 
   // delete tmp dir
   tasks.push(function(cb) {
-    rimraf(tmpDir.name, cb);
+    cb();
+    //rimraf(tmpDir.name, cb);
   })
 
   async.series(tasks, function(err, results) {
@@ -88,7 +90,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
     }
 
     // pass JWT public key URL through callback
-    callback(null, results[deployResultNdx]);
+    callback(null, publicKeyUri);
   })
 }
 

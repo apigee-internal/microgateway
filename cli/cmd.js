@@ -54,7 +54,8 @@ const setup = function setup() {
     .description('control agent processes')
     .action((options)=>{
       options.error = optionError;
-      run.start(options);
+      run.start(options,(err)=>{
+      });
     });
 
 

@@ -45,9 +45,13 @@ function handleAccessToken() {
     getRequestBody(req, function(body) {
       req.body = body;
 
+      console.log(body)
+      console.log( req.headers.authorization)
+      console.log(req);
       oauth(req).generateToken(body, { authorizeHeader: req.headers.authorization, request: req },
         function(err, result) {
           if (err) {
+            console.log(err)
             debug('Access token error: %s', err);
             sendError(err, res);
           } else {
