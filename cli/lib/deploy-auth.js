@@ -80,8 +80,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
 
   // delete tmp dir
   tasks.push(function(cb) {
-    cb();
-    //rimraf(tmpDir.name, cb);
+    rimraf(tmpDir.name, cb);
   })
 
   async.series(tasks, function(err, results) {
