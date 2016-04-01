@@ -24,6 +24,12 @@ KeyGen.prototype.generate = function generate(options, cb) {
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org,options.env) });
   this.baseUri = config.edge_config.baseUri;
   this._generate(options, (err, result) => {
+    if(err){
+      console.error("failed")
+      console.error(err)
+
+      cb(err);
+    }
     console.info(config.edge_config.bootstrapMessage);
     console.info('  bootstrap:', result.bootstrap);
     console.log();
@@ -32,6 +38,7 @@ KeyGen.prototype.generate = function generate(options, cb) {
     console.info('  secret:', result.secret);
     console.log();
     console.log('finished');
+    cb(err,result)
   });
 };
 

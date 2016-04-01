@@ -5,6 +5,8 @@ const url = require('url');
 const os = require('os');
 const agent = require('../cli/lib/gateway')();
 const configure = require('../cli/lib/configure')();
+const keyGen = require('../cli/lib/key-gen')();
+
 const cert = require('../cli/lib/cert')();
 const fs = require('fs')
 const async = require('async')
@@ -152,6 +154,17 @@ describe('test-cli', function() {
       assert(!err, err);
       assert(certificate, "no certificate");
 
+      done();
+    })
+  });
+
+   it('key gen', function(done) {
+    keyGen.generate({ org: org, env: env, username: user, password: password }, (err, result) => {
+      assert(!err, err);
+      assert(result, "no result");
+      assert(result.key);
+      assert(result.secret);
+      assert(result.bootstrap)
       done();
     })
   });
