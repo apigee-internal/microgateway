@@ -55,18 +55,20 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
 
   var tmpDir = tmp.dirSync({ keep: true, dir: path.resolve(__dirname, '..', '..') });
   var tasks = [];
-  var deployResultNdx = 5; // if files are added to exclusion this might need changing
+  var deployResultNdx = 0; // if files are added to exclusion this might need changing
 
   // copy bin folder into tmp
   tasks.push(function(cb) {
     console.log('copy auth app into tmp dir');
     cpr(path.resolve(__dirname, '..', '..', 'edge', 'auth'), tmpDir.name, cb);
+    deployResultNdx++;
   });
 
   // copy bin folder into tmp
   tasks.push(function(cb) {
     console.log('copy config into tmp dir');
     cpr(path.resolve(__dirname, '..', '..', 'config'), tmpDir.name+'/config', cb);
+    deployResultNdx++;
   });
 
   // deploy lean payload
