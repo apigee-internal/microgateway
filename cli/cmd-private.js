@@ -2,6 +2,7 @@
 
 var app = require('commander');
 var privateOperations = require('./lib/private')();
+var prompt = require('cli-prompt');
 
 module.exports = function() {
   app
@@ -15,8 +16,11 @@ module.exports = function() {
     .option('-p, --password <password>', 'password of the organization admin')
     .option('-v, --virtual-hosts <virtualHosts>', 'comma separated virtual hosts to deploy with')
     .action((options) => {
-      options.error = optionError;
-      privateOperations.configureEdgemicro(options)
+      promptForPassword(options, (options) => {
+
+        options.error = optionError;
+        privateOperations.configureEdgemicro(options)
+      });
     });
 
 
