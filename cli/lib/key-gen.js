@@ -4,6 +4,8 @@ const debug = require('debug')('edgemicro');
 const async = require('async');
 const crypto = require('crypto');
 const _ = require('lodash');
+const request = require('request');
+const url = require('url')
 const util = require('util');
 const assert = require('assert')
 const edgeconfig = require('microgateway-config');
@@ -19,15 +21,13 @@ KeyGen.prototype.generate = function generate(options, cb) {
   if (!options.org) { return options.error('org is required'); }
   if (!options.env) { return options.error('env is required'); }
 
-  const config = edgeconfig.load({ source: configLocations.getSourcePath() });
+  const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org,options.env) });
   this.baseUri = config.edge_config.baseUri;
   this._generate(options, (err, result) => {
-    console.info(config.bootstrapMessage);
+    console.info(config.edge_config.bootstrapMessage);
     console.info('  bootstrap:', result.bootstrap);
     console.log();
-
-    console.log();
-    console.info(config.keySecretMessage);
+    console.info(config.edge_config.keySecretMessage);
     console.info('  key:', result.key);
     console.info('  secret:', result.secret);
     console.log();
@@ -135,6 +135,19 @@ KeyGen.prototype._generate = function _generate(options, cb) {
 
 
 }
+
+
+function translateError(err, res) {
+  if (!err && res.statusCode >= 400) {
+
+    var msg = 'cannot ' + res.request.method + ' ' + url.format(res.request.uri) + ' (' + res.statusCode + ')';
+    err = new Error(msg);
+    err.text = res.body;
+    res.error = err;
+  }
+  return err;
+}
+
 module.exports = function() {
   return new KeyGen();
 }
