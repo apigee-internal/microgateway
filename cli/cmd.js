@@ -9,14 +9,14 @@ const prompt = require('cli-prompt');
 
 const setup = function setup() {
   commander
-    .command('token [action]', 'token commands, see: "edgemicro token -h"')
-    .command('cert [action]', 'cert commands, see: "edgemicro cert -h"')
-    .command('private [action]', 'private commands, see: "edgemicro private -h"')
+    .command('token [action]', 'JWT token commands, see: "edgemicro token -h"')
+    .command('cert [action]', 'ssh cert commands to store on Apigee Vault, see: "edgemicro cert -h"')
+    .command('private [action]', 'Automated, one-time configuration with Edge On-Premises, see: "edgemicro private -h"')
 
 
   commander
     .command('configure')
-    .description('automated, one-time setup for a new edgemicro instance')
+    .description('Automated, one-time configuration with Edge Cloud')
     .option('-o, --org <org>', 'the organization')
     .option('-e, --env <env>', 'the environment')
     .option('-v, --virtualHosts <virtualHosts>', 'override virtualHosts (default: "default,secure")')
@@ -55,7 +55,7 @@ const setup = function setup() {
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
     .option('-i, --ignorecachedconfig', 'bypass cached config')
     .option('-f, --forever', 'will ensure the server will restart in case of exceptions')
-    .description('control agent processes')
+    .description('start the gateway based on configuration')
     .action((options)=>{
       options.error = optionError;
       run.start(options,(err)=>{
@@ -69,7 +69,7 @@ commander
   .option('-e, --env <env>', 'the environment')
   .option('-u, --username <user>', 'username of the organization admin')
   .option('-p, --password <password>', 'password of the organization admin')
-  .description('generate authentication keys')
+  .description('generate authentication keys for runtime auth between Microgateway and Edge')
   .action((options)=>{
     options.error = optionError;
     promptForPassword(options,(options)=>{
