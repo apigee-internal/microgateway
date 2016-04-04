@@ -27,10 +27,10 @@ const setup = function setup() {
     .action((options) => {
       options.error = optionError;
       if (!options.username) { return options.error('username is required'); }
-      if (!options.password) { return options.error('password is required'); }
       if (!options.org) { return options.error('org is required'); }
       if (!options.env) { return options.error('env is required'); }
       promptForPassword(options,(options)=>{
+        if (!options.password) { return options.error('password is required'); }
         configure.configure(options, () => {
           process.exit(0);
         });
@@ -68,12 +68,8 @@ const setup = function setup() {
       options.error = optionError;
       const defaultKey = process.env.EDGEMICRO_KEY
       const defaultSecret = process.env.EDGEMICRO_SECRET
-      if (!options.key && !defaultKey) {
-        return  options.error('key is required');
-      }
-      if (!options.secret && !defaultSecret) {
-        return  options.error('secret is required');
-      }
+      if (!options.key && !defaultKey) {return  options.error('key is required');}
+      if (!options.secret && !defaultSecret) {return  options.error('secret is required');}
       if (!options.org) { return  options.error('org is required'); }
       if (!options.env) { return  options.error('env is required'); }
       if (defaultKey) {
@@ -98,10 +94,10 @@ commander
   .action((options)=>{
     options.error = optionError;
     if (!options.username) { return options.error('username is required'); }
-    if (!options.password) { return options.error('password is required'); }
     if (!options.org) { return options.error('org is required'); }
     if (!options.env) { return options.error('env is required'); }
     promptForPassword(options,(options)=>{
+      if (!options.password) { return options.error('password is required'); }
       keyGenerator.generate(options,(err)=>{
         err ? process.exit(1) : process.exit(0);
       });
