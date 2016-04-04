@@ -49,6 +49,6 @@
   "scripts": {
     "package": "node cli/package.js",
     "test": "mocha tests",
-    "prepackage": "pushd edge;pushd auth;npm i;popd;popd;"
+    "preinstall": "cd edge;cd auth;npm i;cd ..;cd ..;"
   }
 }
