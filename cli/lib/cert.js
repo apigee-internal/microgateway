@@ -9,7 +9,7 @@ const _ = require('lodash');
 const async = require('async');
 const util = require('util');
 const configLocations = require('../../config/locations');
-
+const assert = require('assert')
 const Cert = function() {
 };
 
@@ -44,11 +44,13 @@ Cert.prototype.installCert = function(options, cb) {
 
 Cert.prototype.checkCert = function(options, cb) {
 
-  if (!options.username) { return  options.error('username is required'); }
-  if (!options.org) { return  options.error('org is required'); }
-  if (!options.env) { return  options.error('env is required'); }
-  if (!options.password) { return  options.error('password is required'); }
 
+
+  assert(options.org,"org is required");
+  assert(options.env,"env is required")
+
+  assert(options.username,"username is required");
+  assert(options.password,"password is required")
 
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
   cert(config).checkCertWithPassword(options, (err, res) => {
@@ -67,10 +69,12 @@ Cert.prototype.checkCert = function(options, cb) {
 
 Cert.prototype.deleteCert = function(options,cb) {
 
-  if (!options.username) { return  options.error('username is required'); }
-  if (!options.org) { return  options.error('org is required'); }
-  if (!options.env) { return  options.error('env is required'); }
-  if (!options.password) { return  options.error('password is required'); }
+  assert(options.org,"org is required");
+  assert(options.env,"env is required")
+
+  assert(options.username,"username is required");
+  assert(options.password,"password is required")
+
 
 
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
@@ -86,8 +90,8 @@ Cert.prototype.deleteCert = function(options,cb) {
 
 Cert.prototype.retrievePublicKey = function(options,cb) {
 
-  if (!options.org) { return  options.error('org is required'); }
-  if (!options.env) { return  options.error('env is required'); }
+ assert(options.org,"org is required");
+ assert(options.env,"env is required")
 
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
   cert(config).retrievePublicKey(options, (err, certificate) => {
@@ -105,8 +109,8 @@ Cert.prototype.retrievePublicKey = function(options,cb) {
 
 Cert.prototype.retrievePublicKeyPrivate = function(options) {
 
-  if (!options.org) { return  options.error('org is required'); }
-  if (!options.env) { return  options.error('env is required'); }
+  assert(options.org,"org is required");
+  assert(options.env,"env is required")
 
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
   cert(config).retrievePublicKeyPrivate((err, certificate) => {

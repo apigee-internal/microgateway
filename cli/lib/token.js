@@ -19,10 +19,7 @@ module.exports = function() {
 };
 
 Token.prototype.decodeToken = function( options ) {
-  if (!options.file) {
-    return  options.error( 'file is required' );
-  }
-
+  assert(options.file,"file is required")
   const jtw = require('../api/helpers/jwt');
   const token = fs.readFileSync(path.resolve(options.file), 'utf8').trim();
   jtw.decode(token, function(err, result) {
@@ -33,9 +30,9 @@ Token.prototype.decodeToken = function( options ) {
 
 Token.prototype.verifyToken = function(options, cb) {
 
-  if (!options.file) { return  options.error('file is required'); }
-  if (!options.org) { return  options.error('org is required'); }
-  if (!options.env) { return  options.error('env is required'); }
+  assert(options.file);
+  assert(options.org)
+  assert(options.env)
   const targetPath = configLocations.getSourcePath(options.org, options.env);
   cb = cb || function() { }
 
@@ -76,10 +73,11 @@ Token.prototype.verifyToken = function(options, cb) {
 
 Token.prototype.getToken = function(options, cb) {
 
-  if (!options.org) { return  options.error('org is required'); }
-  if (!options.env) { return  options.error('env is required'); }
-  if (!options.id) { return  options.error('client id is required'); }
-  if (!options.secret) { return  options.error('client secret is required'); }
+  assert(options.org);
+  assert(options.env);
+  assert(options.id);
+  assert(options.secret);
+
   const targetPath = configLocations.getSourcePath(options.org, options.env);
 
   const key = options.key;

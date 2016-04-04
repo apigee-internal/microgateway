@@ -17,10 +17,7 @@ module.exports = function(){
 }
 
 Verify.prototype.verify = function verify(options) {
-  if (!options.org) { return  options.error('org is required'); }
-  if (!options.env) { return  options.error('env is required'); }
-  if (!options.key) { return  options.error('key is required'); }
-  if (!options.secret) { return  options.error('secret is required'); }
+ 
 
   const key = options.key;
   const secret = options.secret;

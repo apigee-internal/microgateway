@@ -16,13 +16,18 @@ module.exports = function() {
     .option('-p, --password <password>', 'password of the organization admin')
     .option('-v, --virtual-hosts <virtualHosts>', 'comma separated virtual hosts to deploy with')
     .action((options) => {
-      promptForPassword(options, (options) => {
+      options.error = optionError;
+      if (!options.username) { return  options.error('username is required');}
+      if (!options.org) {return  options.error('org is required');}
+      if (!options.env) {return  options.error('env is required');}
+      if (!options.runtimeUrl) {return  options.error('runtimeUrl is required');}
+      if (!options.mgmtUrl) {return  options.error('mgmtUrl is required');}
 
-        options.error = optionError;
+      promptForPassword(options, (options) => {
+        if (!options.password) {return  options.error('password is required');}
         privateOperations.configureEdgemicro(options)
       });
     });
-
 
   app.parse(process.argv);
 

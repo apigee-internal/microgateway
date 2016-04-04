@@ -16,22 +16,7 @@ module.exports = function() {
 
 Gateway.prototype.start = function start(options,cb) {
   const that = this;
-  const defaultKey = process.env.EDGEMICRO_KEY
-  const defaultSecret = process.env.EDGEMICRO_SECRET
-  if (!options.key && !defaultKey) {
-    return  options.error('key is required');
-  }
-  if (!options.secret && !defaultSecret) {
-    return  options.error('secret is required');
-  }
-  if (!options.org) { return  options.error('org is required'); }
-  if (!options.env) { return  options.error('env is required'); }
-  if (defaultKey) {
-    options.key = options.key || defaultKey;
-  }
-  if (defaultSecret) {
-    options.secret = options.secret || defaultSecret;
-  }
+ 
   const source = configLocations.getSourcePath(options.org, options.env);
   const cache = configLocations.getCachePath(options.org, options.env);
   if (options.forever) {
