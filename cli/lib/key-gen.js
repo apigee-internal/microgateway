@@ -16,11 +16,6 @@ const KeyGen = function() {
 
 };
 KeyGen.prototype.generate = function generate(options, cb) {
-  if (!options.username) { return options.error('username is required'); }
-  if (!options.password) { return options.error('password is required'); }
-  if (!options.org) { return options.error('org is required'); }
-  if (!options.env) { return options.error('env is required'); }
-
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org,options.env) });
   this.baseUri = config.edge_config.baseUri;
   this._generate(options, (err, result) => {

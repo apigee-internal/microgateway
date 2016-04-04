@@ -7,12 +7,11 @@ const setup = function setup() {
 
   commander
     .command('decode')
-    .option('-k, --key <key>', 'key for authenticating with Edge')
-    .option('-s, --secret <secret>', 'secret for authenticating with Edge')
     .option('-f, --file <file>', 'file containing jwt')
     .description('decode a token without verifying it')
     .action((options)=>{
       options.error = optionError;
+      if (!options.file) {return  options.error( 'file is required' );}
       token.decodeToken(options)
     });
 
@@ -24,6 +23,9 @@ const setup = function setup() {
     .description('verify a jwt token against the public key')
     .action((options)=> {
       options.error = optionError;
+      if (!options.file) { return  options.error('file is required'); }
+      if (!options.org) { return  options.error('org is required'); }
+      if (!options.env) { return  options.error('env is required'); }
       token.verifyToken(options)
     });
 
@@ -36,6 +38,10 @@ const setup = function setup() {
     .description('create a client_credentials oauth token')
     .action((options)=>{
       options.error = optionError;
+      if (!options.org) { return  options.error('id is required'); }
+      if (!options.secret) { return  options.error('client secret is required'); }
+      if (!options.org) { return  options.error('org is required'); }
+      if (!options.env) { return  options.error('env is required'); }
       token.getToken(options)
     });
 

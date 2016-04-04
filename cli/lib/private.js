@@ -29,25 +29,13 @@ module.exports = function() {
 
 // begins edgemicro configuration process
 Private.prototype.configureEdgemicro = function(options, cb) {
-  if (!options.username) {
-    return  options.error('username is required');
-  }
-  if (!options.org) {
-    return  options.error('org is required');
-  }
-  if (!options.env) {
-    return  options.error('env is required');
-  }
-  if (!options.runtimeUrl) {
-    return  options.error('runtimeUrl is required');
-  }
-  if (!options.mgmtUrl) {
-    return  options.error('mgmtUrl is required');
-  }
+  assert(options.username,'username is required');
+  assert (options.org,'org is required');
+  assert(options.env,'env is required');
+  assert (options.runtimeUrl,'runtimeUrl is required');
+  assert (options.mgmtUrl,'mgmtUrl is required');
+  assert(options.password,'password is required');
 
-  if (!options.password) {
-    return  options.error('password is required');
-  }
 
   const cache = configLocations.getCachePath(options.org, options.env);
   console.log('delete cache config');

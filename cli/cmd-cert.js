@@ -2,6 +2,7 @@
 
 const commander = require('commander');
 const cert = require('./lib/cert')();
+const prompt = require('cli-prompt');
 
 const setup = function setup() {
 
@@ -15,7 +16,13 @@ const setup = function setup() {
     .description('install a certificate for your organization')
     .action((options) => {
       options.error = optionError;
-      cert.installCert(options)
+      if (!options.username) { return  options.error('username is required'); }
+      if (!options.org) { return  options.error('org is required'); }
+      if (!options.env) { return  options.error('env is required'); }
+      promptForPassword(options,(options)=>{
+        if (!options.password) { return  options.error('password is required'); }
+        cert.installCert(options)
+      });
     });
 
   commander
@@ -27,7 +34,13 @@ const setup = function setup() {
     .description('delete the certificate for your organization')
     .action((options) => {
       options.error = optionError;
-      cert.deleteCert(options)
+      if (!options.username) { return  options.error('username is required'); }
+      if (!options.org) { return  options.error('org is required'); }
+      if (!options.env) { return  options.error('env is required'); }
+      promptForPassword(options,(options)=>{
+        if (!options.password) { return  options.error('password is required'); }
+        cert.deleteCert(options)
+      });
     });
 
   commander
@@ -39,7 +52,13 @@ const setup = function setup() {
     .description('check that your organization has a certificate installed')
     .action((options) => {
       options.error = optionError;
-      cert.checkCert(options)
+      if (!options.username) { return  options.error('username is required'); }
+      if (!options.org) { return  options.error('org is required'); }
+      if (!options.env) { return  options.error('env is required'); }
+      promptForPassword(options,(options)=>{
+        if (!options.password) { return  options.error('password is required'); }
+        cert.checkCert(options)
+      });
     });
 
   commander
@@ -49,6 +68,8 @@ const setup = function setup() {
     .description('retrieve the public key')
     .action((options) => {
       options.error = optionError;
+      if (!options.org) { return  options.error('org is required'); }
+      if (!options.env) { return  options.error('env is required'); }
       cert.retrievePublicKey(options)
     });
 
@@ -67,6 +88,18 @@ const setup = function setup() {
 function optionError(message) {
   console.error(message);
   this.help();
+}
+// prompt for a password if it is not specified
+function promptForPassword( options, cb) {
+
+  if (options.password) {
+    cb(options);
+  } else {
+    prompt.password("password:", function(pw) {
+      options.password = pw;
+      cb(options);
+    });
+  }
 }
 
 module.exports = setup;

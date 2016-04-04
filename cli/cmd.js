@@ -25,8 +25,12 @@ const setup = function setup() {
     .option('-r, --url <url>', 'organization\'s custom API URL (https://api.example.com)')
     .option('-d, --debug', 'execute with debug output')
     .action((options) => {
+      options.error = optionError;
+      if (!options.username) { return options.error('username is required'); }
+      if (!options.password) { return options.error('password is required'); }
+      if (!options.org) { return options.error('org is required'); }
+      if (!options.env) { return options.error('env is required'); }
       promptForPassword(options,(options)=>{
-        options.error = optionError;
         configure.configure(options, () => {
           process.exit(0);
         });
@@ -43,6 +47,10 @@ const setup = function setup() {
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
     .action((options) => {
       options.error = optionError;
+      if (!options.org) { return  options.error('org is required'); }
+      if (!options.env) { return  options.error('env is required'); }
+      if (!options.key) { return  options.error('key is required'); }
+      if (!options.secret) { return  options.error('secret is required'); }
       verify.verify(options);
     });
 
@@ -58,7 +66,24 @@ const setup = function setup() {
     .description('control agent processes')
     .action((options)=>{
       options.error = optionError;
+      const defaultKey = process.env.EDGEMICRO_KEY
+      const defaultSecret = process.env.EDGEMICRO_SECRET
+      if (!options.key && !defaultKey) {
+        return  options.error('key is required');
+      }
+      if (!options.secret && !defaultSecret) {
+        return  options.error('secret is required');
+      }
+      if (!options.org) { return  options.error('org is required'); }
+      if (!options.env) { return  options.error('env is required'); }
+      if (defaultKey) {
+        options.key = options.key || defaultKey;
+      }
+      if (defaultSecret) {
+        options.secret = options.secret || defaultSecret;
+      }
       run.start(options,(err)=>{
+        console.log("command started successfully.")
       });
     });
 
@@ -72,6 +97,10 @@ commander
   .description('generate authentication keys')
   .action((options)=>{
     options.error = optionError;
+    if (!options.username) { return options.error('username is required'); }
+    if (!options.password) { return options.error('password is required'); }
+    if (!options.org) { return options.error('org is required'); }
+    if (!options.env) { return options.error('env is required'); }
     promptForPassword(options,(options)=>{
       keyGenerator.generate(options,(err)=>{
         err ? process.exit(1) : process.exit(0);
