@@ -1,6 +1,6 @@
 {
   "name": "microgateway",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Management Agent for Edge Micro",
   "author": "shawnfeldman",
   "main": "lib/agent.js",
