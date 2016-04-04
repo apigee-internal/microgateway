@@ -14,20 +14,23 @@ const _ = require('lodash')
 const path = require('path');
 const configLocations = require('../config/locations');
 const thisPath = path.normalize(__dirname);
-configLocations.homeDir = thisPath;
-configLocations.defaultDir = thisPath;
 const token = require('../cli/lib/token')();
-
+const envVars = require('./env')
 const edgeConfig = require('microgateway-config');
 const restServer = require('./server/hello/hello.js')(true);
-const password = process.env.MOCHA_PASSWORD;
-const key = process.env.MOCHA_KEY;
-const secret = process.env.MOCHA_SECRET;
-const user = process.env.MOCHA_USER;
-const org = process.env.MOCHA_ORG;
-const env = process.env.MOCHA_ENV;
-const tokenSecret = process.env.MOCHA_TOKEN_SECRET;
-const tokenId = process.env.MOCHA_TOKEN_ID;
+
+configLocations.homeDir = thisPath;
+configLocations.defaultDir = thisPath;
+
+const password = envVars.password;
+const key = envVars.key;
+const secret = envVars.secret;
+const user = envVars.user;
+const org = envVars.org;
+const env = envVars.env;
+const tokenSecret = envVars.tokenSecret;
+const tokenId = envVars.tokenId;
+
 var analyticsMiddleware;
 var analyticsCount = 0;//count calls to analytics
 describe('test-cli', function() {
