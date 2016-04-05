@@ -1922,8 +1922,8 @@
       }
     },
     "microgateway-config": {
-      "version": "2.0.2",
-      "from": "microgateway-config@>=2.0.2 <3.0.0",
+      "version": "2.0.3",
+      "from": "microgateway-config@>=2.0.3 <3.0.0",
       "dependencies": {
         "fs-extra": {
           "version": "0.26.7",
@@ -1936,9 +1936,9 @@
           "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.3.tgz"
         },
         "lodash": {
-          "version": "4.8.1",
+          "version": "4.8.2",
           "from": "lodash@>=4.6.1 <5.0.0",
-          "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.8.1.tgz"
+          "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.8.2.tgz"
         }
       }
     },
@@ -1968,7 +1968,7 @@
     },
     "microgateway-plugins": {
       "version": "2.0.1",
-      "from": "microgateway-plugins@>=2.0.1 <3.0.0"
+      "from": "microgateway-plugins@2.0.1"
     },
     "micromatch": {
       "version": "2.3.7",
@@ -2003,7 +2003,14 @@
     "mkdirp": {
       "version": "0.5.1",
       "from": "mkdirp@>=0.5.0 <0.6.0",
-      "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz"
+      "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
+      "dependencies": {
+        "minimist": {
+          "version": "0.0.8",
+          "from": "minimist@0.0.8",
+          "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz"
+        }
+      }
     },
     "moment": {
       "version": "2.12.0",
@@ -2137,7 +2144,14 @@
     "optimist": {
       "version": "0.6.0",
       "from": "optimist@0.6.0",
-      "resolved": "https://registry.npmjs.org/optimist/-/optimist-0.6.0.tgz"
+      "resolved": "https://registry.npmjs.org/optimist/-/optimist-0.6.0.tgz",
+      "dependencies": {
+        "minimist": {
+          "version": "0.0.10",
+          "from": "minimist@>=0.0.1 <0.1.0",
+          "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.10.tgz"
+        }
+      }
     },
     "orchestrator": {
       "version": "0.3.7",
