@@ -20,7 +20,7 @@
     "jsonwebtoken": "^5.7.0",
     "lodash": "^3.9.3",
     "log-symbols": "^1.0.2",
-    "microgateway-config": "^2.0.2",
+    "microgateway-config": "^2.0.3",
     "microgateway-core": "^2.0.0",
     "microgateway-plugins": "^v2.0.1",
     "pem": "^1.8.1",
