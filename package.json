@@ -3,7 +3,7 @@
   "version": "2.0.1",
   "description": "Management Agent for Edge Micro",
   "author": "shawnfeldman",
-  "main": "lib/agent.js",
+  "main": "lib/agent-config.js",
   "dependencies": {
     "apigeetool": "^0.6.3",
     "async": "^1.5.2",
