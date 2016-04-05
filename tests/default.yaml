@@ -1,8 +1,3 @@
-agent:
-  max_times: 300
-  min_uptime: 1000
-  spin_sleep_time: 1000
-  port: 9000
 edge_config:
   bootstrap: 'https://edgemicroservices-us-east-1.apigee.net/edgemicro/bootstrap/organization/sfeldmanmicro/environment/test'
   jwt_public_key: 'https://sfeldmanmicro-test.apigee.net/edgemicro-auth/publicKey'
