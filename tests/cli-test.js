@@ -6,6 +6,7 @@ const os = require('os');
 const agent = require('../cli/lib/gateway')();
 const configure = require('../cli/lib/configure')();
 const keyGen = require('../cli/lib/key-gen')();
+const samplePlugin = require('../plugins/sample');
 
 const cert = require('../cli/lib/cert')();
 const fs = require('fs')
@@ -34,6 +35,7 @@ const tokenId = envVars.tokenId;
 var analyticsMiddleware;
 var analyticsCount = 0;//count calls to analytics
 describe('test-cli', function() {
+  configLocations.defaultDir =  "./tests/";
   const config = edgeConfig.load({ source: configLocations.getDefaultPath() })
   const target = "http://localhost:" + config.edgemicro.port + "/hello";
   restServer.listen(3000);
@@ -133,6 +135,44 @@ describe('test-cli', function() {
     })
 
   });
+
+ it('hit server no token', function(done) {
+    var count = 0;
+    var cb = (req,res)=>{
+      count++;
+    };
+    samplePlugin.setCb(cb)
+    this.timeout(10000)
+    token.getToken({
+      org: org,
+      env: env,
+      id: tokenId,
+      secret: tokenSecret
+    }, (err, token) => {
+      err && done(err);
+      assert(token && token.token, "token is came back empty " + JSON.stringify(token))
+      async.times(20, function(n, next) {
+        request({
+          method: 'GET',
+          uri: target,
+          headers: {
+            "Authorization": "Bearer " + token.token
+          }
+        }, function(err, res, body) {
+          assert(!err, err);
+          assert.equal(res.statusCode,200);
+          next(err,res);
+        });
+      },function(err,responses){
+        assert(!err,err);
+        assert(count==20,"count not 20 was "+count);
+        samplePlugin.setCb(null);
+        done()
+      })
+    })
+
+  });
+
   it('test check cert', function(done) {
     const options = { org: org, env: env, username: user, password: password };
     cert.deleteCert(options, (err) => {
