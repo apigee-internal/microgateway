@@ -61,23 +61,19 @@ const setup = function setup() {
     .option('-e, --env <env>', 'the environment')
     .option('-k, --key <key>', 'key for authenticating with Edge')
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
-    .option('-i, --ignorecachedconfig', 'bypass cached config')
     .option('-f, --forever', 'will ensure the server will restart in case of exceptions')
     .description('start the gateway based on configuration')
     .action((options)=>{
       options.error = optionError;
-      const defaultKey = process.env.EDGEMICRO_KEY
-      const defaultSecret = process.env.EDGEMICRO_SECRET
-      if (!options.key && !defaultKey) {return  options.error('key is required');}
-      if (!options.secret && !defaultSecret) {return  options.error('secret is required');}
-      if (!options.org) { return  options.error('org is required'); }
-      if (!options.env) { return  options.error('env is required'); }
-      if (defaultKey) {
-        options.key = options.key || defaultKey;
-      }
-      if (defaultSecret) {
-        options.secret = options.secret || defaultSecret;
-      }
+      options.secret = process.env.EDGEMICRO_SECRET || options.secret
+      options.key = process.env.EDGEMICRO_KEY || options.key;
+      options.org = process.env.EDGEMICRO_ORG || options.org;
+      options.env = process.env.EDGEMICRO_ENV || options.env;
+      options.forever = process.env.FOREVER || options.forever;
+      if (!options.key ) {return  options.error('key is required');}
+      if (!options.secret ) {return  options.error('secret is required');}
+      if (!options.org ) { return  options.error('org is required'); }
+      if (!options.env ) { return  options.error('env is required'); }
       run.start(options,(err)=>{
         console.log("command started successfully.")
       });

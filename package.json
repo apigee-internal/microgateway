@@ -47,6 +47,7 @@
     }
   },
   "scripts": {
+    "start": "./cli/edgemicro start",
     "package": "node cli/package.js",
     "test": "mocha tests",
     "preinstall": "cd edge;cd auth;npm i;cd ..;cd ..;"
