@@ -41,6 +41,18 @@ module.exports = function() {
     app.help();
   }
 }
+// prompt for a password if it is not specified
+function promptForPassword( options, cb) {
+
+  if (options.password) {
+    cb(options);
+  } else {
+    prompt.password("password:", function(pw) {
+      options.password = pw;
+      cb(options);
+    });
+  }
+}
 function optionError(message) {
   console.error(message);
   this.help();
