@@ -17,14 +17,20 @@ module.exports = function() {
     .option('-v, --virtual-hosts <virtualHosts>', 'comma separated virtual hosts to deploy with')
     .action((options) => {
       options.error = optionError;
-      if (!options.username) { return  options.error('username is required');}
-      if (!options.org) {return  options.error('org is required');}
-      if (!options.env) {return  options.error('env is required');}
-      if (!options.runtimeUrl) {return  options.error('runtimeUrl is required');}
-      if (!options.mgmtUrl) {return  options.error('mgmtUrl is required');}
+      if (!options.username) { return options.error('username is required'); }
+      if (!options.org) { return options.error('org is required'); }
+      if (!options.env) { return options.error('env is required'); }
+      if (!options.runtimeUrl) { return options.error('runtimeUrl is required'); }
+      if (!options.mgmtUrl) { return options.error('mgmtUrl is required'); }
+      if (!options.runtimeUrl.includes('http')) {
+        return options.error('runtimeUrl requires a prototcol http or https')
+      }
+      if (!options.mgmtUrl.includes('http')) {
+        return options.error('runtimeUrl requires a prototcol http or https')
+      }
 
       promptForPassword(options, (options) => {
-        if (!options.password) {return  options.error('password is required');}
+        if (!options.password) { return options.error('password is required'); }
         privateOperations.configureEdgemicro(options)
       });
     });
@@ -42,7 +48,7 @@ module.exports = function() {
   }
 }
 // prompt for a password if it is not specified
-function promptForPassword( options, cb) {
+function promptForPassword(options, cb) {
 
   if (options.password) {
     cb(options);
