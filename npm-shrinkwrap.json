@@ -1943,8 +1943,8 @@
       }
     },
     "microgateway-core": {
-      "version": "2.0.6",
-      "from": "microgateway-core@>=2.0.5 <3.0.0",
+      "version": "2.0.7",
+      "from": "microgateway-core@>=2.0.6 <3.0.0",
       "dependencies": {
         "lodash": {
           "version": "3.9.3",
