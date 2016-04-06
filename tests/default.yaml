@@ -25,6 +25,10 @@ edgemicro:
     sequence:
       - oauth
       - sample
+spikearrest:
+  timeUnit: minute
+  allow: 100000
+  buffersize: 0
 
 headers:
   x-forwarded-for: true

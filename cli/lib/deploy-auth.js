@@ -154,7 +154,7 @@ function deployProxyWithPassword(managementUri,authUri, options, dir, callback) 
         return callback(err);
       }
       console.log('App %s deployed.', options.proxyName);
-      callback(null, options.url ? authUri + '/publicKey' : util.format(authUri + '/publicKey', options.org, options.env));
+      callback(null, options.runtimeUrl ? authUri + '/publicKey' : util.format(authUri + '/publicKey', options.org, options.env));
 
     });
   });
