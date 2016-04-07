@@ -71,6 +71,7 @@ Private.prototype.configureEdgemicro = function(options, cb) {
   this.sourcePath = configLocations.getSourcePath(options.org, options.env);
 
   const that = this;
+  console.log('init config');
   edgeconfig.init({
     source: configLocations.getDefaultPath(),
     targetDir: configLocations.homeDir,

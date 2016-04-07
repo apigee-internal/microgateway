@@ -51,6 +51,7 @@ Configure.prototype.configure = function configure(options, cb) {
     fs.unlinkSync(targetPath);
     console.log('deleted ' + targetPath);
   }
+  console.log('init config');
   edgeconfig.init({
     source: configLocations.getDefaultPath(),
     targetDir: configLocations.homeDir,
