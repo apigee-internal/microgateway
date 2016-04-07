@@ -39,13 +39,17 @@ Configure.prototype.configure = function configure(options, cb) {
     }
     authUri = options.url + '/edgemicro-auth';
   }
+
   targetFile = configLocations.getSourceFile(options.org, options.env);
   const cache = configLocations.getCachePath(options.org, options.env);
-  console.log('delete cache config');
-  const exists = fs.existsSync(cache);
-  if (exists) {
+  if (fs.existsSync(cache)) {
     fs.unlinkSync(cache);
     console.log('deleted ' + cache);
+  }
+  const targetPath = configLocations.getSourcePath(options.org, options.env);
+  if (fs.existsSync(targetPath)) {
+    fs.unlinkSync(targetPath);
+    console.log('deleted ' + targetPath);
   }
   edgeconfig.init({
     source: configLocations.getDefaultPath(),
