@@ -65,11 +65,11 @@ const setup = function setup() {
     .description('start the gateway based on configuration')
     .action((options)=>{
       options.error = optionError;
-      options.secret = process.env.EDGEMICRO_SECRET || options.secret
-      options.key = process.env.EDGEMICRO_KEY || options.key;
-      options.org = process.env.EDGEMICRO_ORG || options.org;
-      options.env = process.env.EDGEMICRO_ENV || options.env;
-      options.forever = process.env.FOREVER || options.forever;
+      options.secret = options.secret || process.env.EDGEMICRO_SECRET ;
+      options.key =  options.key || process.env.EDGEMICRO_KEY;
+      options.org = options.org || process.env.EDGEMICRO_ORG;
+      options.env = options.env || process.env.EDGEMICRO_ENV;
+      options.forever =  options.forever || process.env.FOREVER ;
       if (!options.key ) {return  options.error('key is required');}
       if (!options.secret ) {return  options.error('secret is required');}
       if (!options.org ) { return  options.error('org is required'); }
