@@ -388,6 +388,8 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
             console.info('  key:', key);
             console.info('  secret:', secret);
             console.log();
+            process.env.EDGEMICRO_KEY = key;
+            process.env.EDGEMICRO_SECRET = secret;
             return cb(null, updatedUrl);
           } else {
             cb(console.error('error retrieving region for org', res.statusCode, res.text));

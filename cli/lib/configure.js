@@ -150,9 +150,16 @@ function configureEdgemicroWithCreds(options, cb) {
     console.log();
 
     console.info(keySecretMessage);
-    console.info('  key:', results[2] ? results[2].key : results[1].key);
-    console.info('  secret:', results[2] ? results[2].secret : results[1].secret);
+    const key = results[2] ? results[2].key : results[1].key;
+    const secret = results[2] ? results[2].secret : results[1].secret;
+    assert(key,'must have a key');
+    assert(secret,'must have a secret');
+    console.info('  key:', key);
+    console.info('  secret:', secret);
     console.log();
+
+    process.env.EDGEMICRO_KEY = key;
+    process.env.EDGEMICRO_SECRET = secret;
 
     console.log('edgemicro configuration complete!');
     cb();
