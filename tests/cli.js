@@ -43,7 +43,7 @@ describe('test-cli', function() {
     restServer.listen(3000);
     configure.configure({ username: user, password: password, org: org, env: env, error:(msg)=>{done(msg)} }, () => {
       // initialize agent
-      agent.start({ key: key, secret: secret, org: org, env: env },(err,s)=>{
+      agent.start({ key: key, secret: secret, org: org, env: env,cluster:true,processes:2  },(err,s)=>{
         server = s.gatewayServer;
         agentServer = s;
         //find analytics plugin and stub it, so you can prove it is counted against
@@ -162,7 +162,7 @@ describe('test-cli', function() {
           }
         }, function(err, res, body) {
           assert(!err, err);
-          assert.equal(res.statusCode,200);
+          assert.equal(res.statusCode,200,'count:'+count);
           next(err,res);
         });
       },function(err,responses){

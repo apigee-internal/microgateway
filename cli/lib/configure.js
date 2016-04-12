@@ -41,16 +41,9 @@ Configure.prototype.configure = function configure(options, cb) {
   }
 
   targetFile = configLocations.getSourceFile(options.org, options.env);
-  const cache = configLocations.getCachePath(options.org, options.env);
-  if (fs.existsSync(cache)) {
-    fs.unlinkSync(cache);
-    console.log('deleted ' + cache);
-  }
+
   const targetPath = configLocations.getSourcePath(options.org, options.env);
-  if (fs.existsSync(targetPath)) {
-    fs.unlinkSync(targetPath);
-    console.log('deleted ' + targetPath);
-  }
+
   console.log('init config');
   edgeconfig.init({
     source: configLocations.getDefaultPath(),
