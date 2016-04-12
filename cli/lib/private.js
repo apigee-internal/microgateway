@@ -38,15 +38,9 @@ Private.prototype.configureEdgemicro = function(options, cb) {
 
   const cache = configLocations.getCachePath(options.org, options.env);
   console.log('delete cache config');
-  if (fs.existsSync(cache)) {
-    fs.unlinkSync(cache);
-    console.log('deleted ' + cache);
-  }
+
   const targetPath = configLocations.getSourcePath(options.org, options.env);
-  if (fs.existsSync(targetPath)) {
-    fs.unlinkSync(targetPath);
-    console.log('deleted ' + targetPath);
-  }
+
   options.proxyName = this.name = 'edgemicro-auth';
   this.basePath = '/edgemicro-auth';
   this.managementUri = options.mgmtUrl;
