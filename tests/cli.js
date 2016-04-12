@@ -31,20 +31,21 @@ const org = envVars.org;
 const env = envVars.env;
 const tokenSecret = envVars.tokenSecret;
 const tokenId = envVars.tokenId;
-
+var server,agentServer;
 var analyticsMiddleware;
 var analyticsCount = 0;//count calls to analytics
 describe('test-cli', function() {
   configLocations.defaultDir =  "./tests/";
   const config = edgeConfig.load({ source: configLocations.getDefaultPath() })
   const target = "http://localhost:" + config.edgemicro.port + "/hello";
-  restServer.listen(3000);
   before(function(done) {
     this.timeout(10000)
+    restServer.listen(3000);
     configure.configure({ username: user, password: password, org: org, env: env, error:(msg)=>{done(msg)} }, () => {
       // initialize agent
       agent.start({ key: key, secret: secret, org: org, env: env },(err,s)=>{
-        const server = s.gatewayServer;
+        server = s.gatewayServer;
+        agentServer = s;
         //find analytics plugin and stub it, so you can prove it is counted against
         if(server && server.plugins && server.plugins.length){
           const plugin = server.plugins.find((plugin)=>{
@@ -70,8 +71,9 @@ describe('test-cli', function() {
   });
   after(function(done) {
     // close agent server before finishing
-    restServer.close();
-    done()
+    restServer.close(()=>{
+      agentServer.close(done)
+    });
   });
 
   it('hit server', function(done) {
@@ -174,6 +176,7 @@ describe('test-cli', function() {
   });
 
   it('test check cert', function(done) {
+    this.timeout(5000)
     const options = { org: org, env: env, username: user, password: password };
     cert.deleteCert(options, (err) => {
       assert(!err, err);
