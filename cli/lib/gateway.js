@@ -22,7 +22,7 @@ Gateway.prototype.start = function start(options, cb) {
   const cache = configLocations.getCachePath(options.org, options.env);
 
   if (options.cluster && cluster.isMaster) {
-    const numCPUs = Number(options.processes || require('os').cpus().length);
+    const numWorkers = Number(options.processes || require('os').cpus().length);
     cluster.setupMaster();
     const argv = cluster.settings ? cluster.settings.execArgv || [] : [];
     var j = 0;
@@ -32,14 +32,18 @@ Gateway.prototype.start = function start(options, cb) {
       }
       j++;
     })
+    console.log("starting in cluster mode: number workers: "+numWorkers)
+
     // Fork workers.
-    for (var i = 0; i < numCPUs; i++) {
+    for (var i = 0; i < numWorkers; i++) {
       cluster.fork();
     }
 
     cluster.on('death', function(worker) {
       console.log('worker ' + worker.pid + ' died');
     });
+  }else{
+    console.log("starting in non-cluster mode")
   }
   const keys = { key: options.key, secret: options.secret };
   const args = { source: source, target: cache, keys: keys, ignorecachedconfig: options.ignorecachedconfig };
