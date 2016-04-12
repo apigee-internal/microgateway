@@ -23,6 +23,15 @@ Gateway.prototype.start = function start(options, cb) {
 
   if (options.cluster && cluster.isMaster) {
     const numCPUs = Number(options.processes || require('os').cpus().length);
+    cluster.setupMaster();
+    const argv = cluster.settings ? cluster.settings.execArgv || [] : [];
+    var j = 0;
+    argv && argv.forEach((arg)=>{
+      if(arg.includes('--debug-brk=')){
+        argv[j] = arg.replace('--debug-brk','--debug')
+      }
+      j++;
+    })
     // Fork workers.
     for (var i = 0; i < numCPUs; i++) {
       cluster.fork();
@@ -31,7 +40,6 @@ Gateway.prototype.start = function start(options, cb) {
     cluster.on('death', function(worker) {
       console.log('worker ' + worker.pid + ' died');
     });
-    return;
   }
   const keys = { key: options.key, secret: options.secret };
   const args = { source: source, target: cache, keys: keys, ignorecachedconfig: options.ignorecachedconfig };
