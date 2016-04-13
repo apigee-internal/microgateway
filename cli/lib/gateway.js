@@ -4,6 +4,7 @@ const assert = require('assert');
 const cluster = require('cluster');
 const os = require('os');
 const edgeconfig = require('microgateway-config');
+const gateway = require('microgateway-core');
 
 const configLocations = require('../../config/locations');
 const agentConfig = require('../../lib/agent-config');
@@ -26,7 +27,7 @@ Gateway.prototype.start = function start(options, cb) {
       if (err) {
         console.error("failed to retieve config from gateway. continuing, will try cached copy..");
         console.error(err);
-      }else{
+      } else {
         edgeconfig.save(config, cache);
       }
       if (options.cluster) {
@@ -41,11 +42,11 @@ Gateway.prototype.start = function start(options, cb) {
           j++;
         })
         console.log("starting in cluster mode: number workers: " + numWorkers)
-
         // Fork workers.
         for (var i = 0; i < numWorkers; i++) {
           cluster.fork();
         }
+        gateway(config);
 
         cluster.on('death', function (worker) {
           console.log('worker ' + worker.pid + ' died');
