@@ -1923,7 +1923,7 @@
     },
     "microgateway-config": {
       "version": "2.0.4",
-      "from": "microgateway-config@>=2.0.3 <3.0.0",
+      "from": "microgateway-config@2.0.4",
       "dependencies": {
         "fs-extra": {
           "version": "0.26.7",
@@ -1943,8 +1943,8 @@
       }
     },
     "microgateway-core": {
-      "version": "2.0.11",
-      "from": "microgateway-core@>=2.0.10 <3.0.0",
+      "version": "2.0.14",
+      "from": "microgateway-core@>=2.0.13 <3.0.0",
       "dependencies": {
         "lodash": {
           "version": "3.9.3",

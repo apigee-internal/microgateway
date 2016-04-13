@@ -6,6 +6,7 @@ const verify = require('./lib/verify')();
 const run = require('./lib/gateway')();
 const keyGenerator = require('./lib/key-gen')();
 const prompt = require('cli-prompt');
+const cluster = require('cluster')
 
 const setup = function setup() {
   commander
@@ -77,7 +78,7 @@ const setup = function setup() {
       if (!options.org ) { return  options.error('org is required'); }
       if (!options.env ) { return  options.error('env is required'); }
       run.start(options,(err)=>{
-        !err && console.log("command started successfully.")
+        cluster.isMaster && !err && console.log("command started successfully.")
       });
     });
 

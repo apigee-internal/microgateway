@@ -17,7 +17,7 @@ var count = 0;
 var server, token;
 describe('test-cli', function () {
   before(function (done) {
-    this.timeout(400000);
+    this.timeout(5000);
     // initialize agent
     tokenService.getToken({
       org: org,
@@ -31,13 +31,12 @@ describe('test-cli', function () {
     });
 
   });
-  after(function (done) {
-    // close agent server before finishing
-    done();
-  });
+
   it('load test-ish', function (done) {
-    this.timeout(100000)
+    this.timeout(400 * 1000)
     count = 0;
+    var not200count = 0;
+    var now = Date.now();
     async.times(1000, function (n, next) {
       request({
         method: 'GET',
@@ -46,14 +45,16 @@ describe('test-cli', function () {
           "Authorization": "Bearer " + token.token
         }
       }, function (err, res, body) {
-        assert(res, err);
-        assert.equal(res.statusCode, 200, body);
-        count++;
-        next(err, res);
+        if(!err && res &&  res.statusCode == 200){
+          count++;
+        }else{
+          not200count++;
+        }
+        next();
       });
     }, function (err, responses) {
-      assert(!err, err);
-      console.log('finished with %s requests', count);
+      console.log('finished with %s good requests %s bad requests', count,not200count);
+      console.log('took %s',Date.now() - now)
       done();
     })
 
