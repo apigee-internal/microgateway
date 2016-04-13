@@ -24,26 +24,31 @@ describe('test-cli', function () {
   configLocations.defaultDir = "./tests/";
   const config = edgeConfig.load({ source: configLocations.getDefaultPath() })
   const target = "http://localhost:" + config.edgemicro.port + "/hello";
-  before( (done) => {
-    restServer.listen(3000);
+
+  before(function (done) {
+    this.timeout(400000);
+
     configure.configure({ username: user, password: password, org: org, env: env, error: (msg) => { done(msg) } }, () => {
       // initialize agent
       agent.start({ key: key, secret: secret, org: org, env: env, cluster: true, processes: 2 }, (err, s) => {
         server = s;
+        setTimeout(function () {
+          restServer.listen(3021);
           done(err);
+        },5000)
 
       });
 
     });
 
   });
-  after( (done) => {
+  after(function (done) {
     // close agent server before finishing
     restServer.close(() => {
       server.close(done)
     });
   });
-  it('load test-ish', (done) => {
+  it('load test-ish', function(done)  {
     this.timeout(100000)
     token.getToken({
       org: org,
