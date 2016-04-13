@@ -76,16 +76,10 @@ function startServer(that, args, cb) {
       console.error('edge micro failed to start', e);
       cb(e);
     }
-    console.log('edge micro started');
+    cluster.isMaster && console.log('edge micro started');
     that.agent = agent;
     cb(null, agent);
   });
 }
 
-function optionError(message) {
-  console.error(message);
-  if (this.help) {
-    this.help();
-  }
-}
 
