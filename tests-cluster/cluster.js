@@ -42,7 +42,7 @@ describe('test-cli', function () {
   it('load test-ish', function (done) {
     this.timeout(100000)
     count = 0;
-    async.times(200, function (n, next) {
+    async.times(300, function (n, next) {
       request({
         method: 'GET',
         uri: target,
@@ -57,7 +57,7 @@ describe('test-cli', function () {
       });
     }, function (err, responses) {
       assert(!err, err);
-      console.log('finished with %s requests',200);
+      console.log('finished with %s requests',count);
       done();
     })
 
