@@ -3,6 +3,7 @@ const path = require('path');
 const assert = require('assert');
 const cluster = require('cluster');
 const os = require('os');
+const fs = require('fs');
 const edgeconfig = require('microgateway-config');
 const gateway = require('microgateway-core');
 
@@ -25,8 +26,12 @@ Gateway.prototype.start = function start(options, cb) {
   if (cluster.isMaster) {
     edgeconfig.get({ source: source, keys: keys }, function (err, config) {
       if (err) {
+        const exists = fs.existsSync(cache);
         console.error("failed to retieve config from gateway. continuing, will try cached copy..");
         console.error(err);
+        if(!exists){
+          return cb('cache '+cache+' does not exists failing.');
+        }
       } else {
         edgeconfig.save(config, cache);
       }
