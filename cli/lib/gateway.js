@@ -41,7 +41,7 @@ Gateway.prototype.start = function start(options, cb) {
           }
           j++;
         })
-        console.log("starting in cluster mode: number workers: " + numWorkers)
+        cluster.isMaster && console.log("starting in cluster mode: number workers: " + numWorkers)
         // Fork workers.
         for (var i = 0; i < numWorkers; i++) {
           cluster.fork();
@@ -57,7 +57,7 @@ Gateway.prototype.start = function start(options, cb) {
           }
         });
       } else {
-        console.log("starting in non-cluster mode")
+        cluster.isMaster &&  console.log("starting in non-cluster mode")
         startServer(that, args, cb);
       }
     });
