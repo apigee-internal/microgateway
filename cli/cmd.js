@@ -78,7 +78,13 @@ const setup = function setup() {
       if (!options.org ) { return  options.error('org is required'); }
       if (!options.env ) { return  options.error('env is required'); }
       run.start(options,(err)=>{
-        cluster.isMaster && !err && console.log("command started successfully.")
+        if(cluster.isMaster){
+          if(!err) {
+            console.log("edgemicro started successfully.")
+          }else{
+            console.error(err);
+          }
+        }
       });
     });
 

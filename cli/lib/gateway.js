@@ -30,7 +30,9 @@ Gateway.prototype.start = function start(options, cb) {
         console.error("failed to retieve config from gateway. continuing, will try cached copy..");
         console.error(err);
         if(!exists){
-          return cb('cache '+cache+' does not exists failing.');
+          return cb('cache configuration '+cache+' does not exist. exiting.');
+        }else{
+          console.log('using cached configuration from %s',cache);
         }
       } else {
         edgeconfig.save(config, cache);
@@ -68,7 +70,6 @@ Gateway.prototype.start = function start(options, cb) {
     });
     return;
   } else {
-    console.log("starting fork")
     startServer(that, args, cb);
   }
 }
