@@ -5,7 +5,6 @@ const async = require('async');
 const request = require('request');
 const envVars = require('../tests/env')
 const tokenService = require('../cli/lib/token')();
-const restServer = require('../tests/server/hello/hello.js')(true);
 const edgeConfig = require('microgateway-config');
 const configLocations = require('../config/locations');
 const org = envVars.org;
@@ -20,7 +19,6 @@ describe('test-cli', function () {
   before(function (done) {
     this.timeout(400000);
     // initialize agent
-    restServer.listen(3000);
     tokenService.getToken({
       org: org,
       env: env,
@@ -35,14 +33,12 @@ describe('test-cli', function () {
   });
   after(function (done) {
     // close agent server before finishing
-    restServer.close(function () {
-      done();
-    });
+    done();
   });
   it('load test-ish', function (done) {
     this.timeout(100000)
     count = 0;
-    async.times(300, function (n, next) {
+    async.times(1000, function (n, next) {
       request({
         method: 'GET',
         uri: target,
@@ -52,12 +48,12 @@ describe('test-cli', function () {
       }, function (err, res, body) {
         assert(res, err);
         assert.equal(res.statusCode, 200, body);
-        count ++;
+        count++;
         next(err, res);
       });
     }, function (err, responses) {
       assert(!err, err);
-      console.log('finished with %s requests',count);
+      console.log('finished with %s requests', count);
       done();
     })
 
