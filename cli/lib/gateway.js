@@ -33,6 +33,7 @@ Gateway.prototype.start = function start(options, cb) {
           return cb('cache configuration '+cache+' does not exist. exiting.');
         }else{
           console.log('using cached configuration from %s',cache);
+          config = edgeconfig.load({source:cache})
         }
       } else {
         edgeconfig.save(config, cache);
