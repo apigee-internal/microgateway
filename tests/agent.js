@@ -44,8 +44,9 @@ describe('configured agent/server address', function() {
   });
   after(function(done) {
     // close agent server before finishing
-    restServer.close();
-    agent.close(done);
+    restServer.close(()=>{
+      agent.close(done);
+    });;
   });
   beforeEach(function(done) {
     done();

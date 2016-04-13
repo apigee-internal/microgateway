@@ -61,7 +61,8 @@ const setup = function setup() {
     .option('-e, --env <env>', 'the environment')
     .option('-k, --key <key>', 'key for authenticating with Edge')
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
-    .option('-f, --forever', 'will ensure the server will restart in case of exceptions')
+    .option('-c, --cluster', 'will cluster the server')
+    .option('-p, --processes <processes>', 'number of processes to start, defaults to # of cores')
     .description('start the gateway based on configuration')
     .action((options)=>{
       options.error = optionError;
@@ -69,13 +70,14 @@ const setup = function setup() {
       options.key =  options.key || process.env.EDGEMICRO_KEY;
       options.org = options.org || process.env.EDGEMICRO_ORG;
       options.env = options.env || process.env.EDGEMICRO_ENV;
-      options.forever =  options.forever || process.env.FOREVER ;
+      options.cluster =  options.cluster || process.env.EDGEMICRO_CLUSTER ;
+      options.processes =  options.processes || process.env.EDGEMICRO_PROCESSES ;
       if (!options.key ) {return  options.error('key is required');}
       if (!options.secret ) {return  options.error('secret is required');}
       if (!options.org ) { return  options.error('org is required'); }
       if (!options.env ) { return  options.error('env is required'); }
       run.start(options,(err)=>{
-        console.log("command started successfully.")
+        !err && console.log("command started successfully.")
       });
     });
 

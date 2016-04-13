@@ -19,18 +19,18 @@ const managementUri = defaultConfig.edge_config.managementUri;
 const keySecretMessage = defaultConfig.edge_config.keySecretMessage;
 var targetFile;
 
-const Configure = function() {
+const Configure = function () {
 }
 
-module.exports = function() {
+module.exports = function () {
   return new Configure();
 }
 
 Configure.prototype.configure = function configure(options, cb) {
-  assert(options.username,'username is required');
-  assert(options.password,'password is required');
-  assert(options.org,'org is required');
-  assert(options.env,'env is required');
+  assert(options.username, 'username is required');
+  assert(options.password, 'password is required');
+  assert(options.org, 'org is required');
+  assert(options.env, 'env is required');
 
   options.proxyName = 'edgemicro-auth';
   if (options.url) {
@@ -46,18 +46,20 @@ Configure.prototype.configure = function configure(options, cb) {
     fs.unlinkSync(cache);
     console.log('deleted ' + cache);
   }
+
   const targetPath = configLocations.getSourcePath(options.org, options.env);
   if (fs.existsSync(targetPath)) {
     fs.unlinkSync(targetPath);
     console.log('deleted ' + targetPath);
   }
+
   console.log('init config');
   edgeconfig.init({
     source: configLocations.getDefaultPath(),
     targetDir: configLocations.homeDir,
     targetFile: targetFile,
     overwrite: true
-  }, function(err, configPath) {
+  }, function (err, configPath) {
     deployAuth.checkDeployedProxies(options, (err, options) => {
       if (err) {
         console.error(err);
@@ -81,12 +83,12 @@ function configureEdgemicroWithCreds(options, cb) {
   var tasks = [],
     agentConfigPath;
 
-  const jwtSearch = _.find(options.deployments, function(proxy) {
+  const jwtSearch = _.find(options.deployments, function (proxy) {
     return proxy.name === options.proxyName;
   });
 
   if (!jwtSearch) {
-    tasks.push(function(callback) {
+    tasks.push(function (callback) {
       deployAuth.deployWithLeanPayload(options, callback);
     });
   } else {
@@ -94,9 +96,9 @@ function configureEdgemicroWithCreds(options, cb) {
   }
 
   tasks.push(
-    function(callback) {
+    function (callback) {
       console.log('checking org for existing vault');
-      cert.checkCertWithPassword(options, function(err, certs) {
+      cert.checkCertWithPassword(options, function (err, certs) {
         if (err) {
           cert.installCertWithPassword(options, callback);
         } else {
@@ -108,12 +110,12 @@ function configureEdgemicroWithCreds(options, cb) {
   );
 
   tasks.push(
-    function(callback) {
+    function (callback) {
       cert.generateKeysWithPassword(options, callback);
     }
   );
 
-  async.series(tasks, function(err, results) {
+  async.series(tasks, function (err, results) {
     if (err) {
       return cb(err);
     }
@@ -152,8 +154,8 @@ function configureEdgemicroWithCreds(options, cb) {
     console.info(keySecretMessage);
     const key = results[2] ? results[2].key : results[1].key;
     const secret = results[2] ? results[2].secret : results[1].secret;
-    assert(key,'must have a key');
-    assert(secret,'must have a secret');
+    assert(key, 'must have a key');
+    assert(secret, 'must have a secret');
     console.info('  key:', key);
     console.info('  secret:', secret);
     console.log();
