@@ -1,7 +1,7 @@
 'use strict';
 
 const configure = require('./cli/lib/configure')()
-const gateway = require('./cli/lib/configure')()
+const gateway = require('./cli/lib/gateway')()
 const cert = require('./cli/lib/cert')();
 const configurePrivate = require('./cli/lib/private')();
 const token = require('./cli/lib/token')();
