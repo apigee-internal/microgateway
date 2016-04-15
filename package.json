@@ -1,6 +1,6 @@
 {
   "name": "microgateway",
-  "version": "2.0.2",
+  "version": "2.0.0",
   "description": "Configurator and Launcher for Apigee Edge Microgateway",
   "author": "shawnfeldman",
   "main": "lib/agent-config.js",
