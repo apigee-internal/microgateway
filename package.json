@@ -4,8 +4,8 @@
   "description": "Configurator and Launcher for Apigee Edge Microgateway",
   "author": "shawnfeldman",
   "main": "index.js",
-  "bin":{
-    "edgemicro":"./cli/edgemicro"
+  "bin": {
+    "edgemicro": "./cli/edgemicro"
   },
   "dependencies": {
     "apigeetool": "^0.6.3",
@@ -24,6 +24,7 @@
     "log-symbols": "^1.0.2",
     "microgateway-config": "^2.0.6",
     "microgateway-core": "^2.0.14",
+    "microgateway-edgeauth": "^1.0.0",
     "microgateway-plugins": "^v2.0.1",
     "pem": "^1.8.1",
     "request": "^2.67.0",
@@ -51,7 +52,6 @@
   "scripts": {
     "start": "./cli/edgemicro start",
     "package": "node cli/package.js",
-    "test": "mocha tests",
-    "preinstall": "cd edge;cd auth;npm i;cd ..;cd ..;"
+    "test": "mocha tests"
   }
 }
