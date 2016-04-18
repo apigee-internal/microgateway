@@ -23,8 +23,6 @@ edgemicro:
     rotate_interval: 24
   plugins:
     sequence:
-      - oauth
-      - sample
 spikearrest:
   timeUnit: minute
   allow: 100000
