@@ -21,7 +21,7 @@ Gateway.prototype.start = function start(options, cb) {
   const source = configLocations.getSourcePath(options.org, options.env);
   const cache = configLocations.getCachePath(options.org, options.env);
   const keys = { key: options.key, secret: options.secret };
-  const args = { target: cache, keys: keys };
+  const args = { target: cache, keys: keys,pluginDir:options.pluginDir };
   const that = this;
   if (cluster.isMaster) {
     edgeconfig.get({ source: source, keys: keys }, function (err, config) {

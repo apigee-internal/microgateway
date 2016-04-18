@@ -36,7 +36,7 @@ describe('configured agent/server address', function() {
         delete config.edgemicro.plugins
         config.proxies[0].url = "http://localhost:" + port + "/";
         target = "http://localhost:" + config.edgemicro.port + "/hello/";
-        agent.start(keys, config, done);
+        agent.start(keys, null, config, done);
         config = configDownload;
       });
 
@@ -72,7 +72,7 @@ describe('configured agent/server address', function() {
     }, function(err, res, body) {
       assert(err, 'must have err');
       assert.equal(err.code, "ECONNREFUSED");
-      agent.start({ key: key, secret: secret }, config, done);
+      agent.start({ key: key, secret: secret },null, config, done);
     });
   });
 
@@ -85,7 +85,7 @@ describe('configured agent/server address', function() {
     }, function(err, res, body) {
       assert(err, 'must have err');
       assert.equal(err.code, "ECONNREFUSED");
-      agent.start({ key: key, secret: secret }, config, () => {
+      agent.start({ key: key, secret: secret },null, config, () => {
         request({
           method: 'GET',
           uri: target
