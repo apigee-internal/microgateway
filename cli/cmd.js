@@ -64,7 +64,7 @@ const setup = function setup() {
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
     .option('-c, --cluster', 'will cluster the server')
     .option('-p, --processes <processes>', 'number of processes to start, defaults to # of cores')
-    .option('-d','--pluginDir <pluginDir>','absolute path to plugin directory')
+    .option('-d, --pluginDir <pluginDir>','absolute path to plugin directory')
     .description('start the gateway based on configuration')
     .action((options)=>{
       options.error = optionError;
