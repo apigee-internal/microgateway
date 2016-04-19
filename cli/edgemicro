@@ -21,7 +21,8 @@
 
 'use strict';
 console.log('current nodejs version is %s',process.version)
-if(!process.version.includes('v5')){
+if(process.version.indexOf('v5')<=0){
   console.error('please update nodejs to v5.x+')
+}else{
+  require('./cmd')()
 }
-require('./cmd')()
