@@ -4,6 +4,7 @@
   "description": "Configurator and Launcher for Apigee Edge Microgateway",
   "author": "shawnfeldman",
   "main": "index.js",
+  "license": "Apache-2.0",
   "bin": {
     "edgemicro": "./cli/edgemicro"
   },
@@ -55,6 +56,6 @@
     "test": "mocha tests"
   },
   "engines": {
-    "node":">=5.0.0 <6.0.0"
+    "node": ">=5.0.0 <6.0.0"
   }
 }
