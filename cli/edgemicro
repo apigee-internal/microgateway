@@ -21,9 +21,10 @@
 
 'use strict';
 const version = process.version;
+const lts_version = "v4.2.0";
 console.log('current nodejs version is %s',version)
-if(version.indexOf('v5.')<0 && version.indexOf('v4.')<0){
-  console.error('You are using an older version of NodeJS version %s, please update nodejs to v4.2.x+',version)
+if(version < lts_version){
+  console.error('You are using an older version of NodeJS version %s, please update nodejs to %s+',version,lts_version)
 }else{
   require('./cmd')()
 }
