@@ -45,7 +45,8 @@ Token.prototype.verifyToken = function(options, cb) {
   const config = edgeconfig.load({ source: targetPath, keys: keys });
 
   const authUri = config.edge_config['authUri'];
-  this.isPublicCloud = config.edge_config['managementUri'] === 'https://api.enterprise.apigee.com';
+  this.isPublicCloud = config.edge_config['managementUri'] === 'https://api.enterprise.apigee.com' ||
+    config.edge_config['managementUri'] === 'https://api.e2e.apigee.net';
 
   getPublicKey(options.org, options.env, authUri, this.isPublicCloud, function(err, certificate) {
     if (err) {
@@ -85,7 +86,8 @@ Token.prototype.getToken = function(options, cb) {
   const keys = { key: key, secret: secret };
   const config = edgeconfig.load({ source: targetPath, keys: keys });
   const authUri = config.edge_config['authUri'];
-  this.isPublicCloud = config.edge_config['managementUri'] === 'https://api.enterprise.apigee.com';
+  this.isPublicCloud = config.edge_config['managementUri'] === 'https://api.enterprise.apigee.com' ||
+    config.edge_config['managementUri'] === 'https://api.e2e.apigee.net';
   const uri = this.isPublicCloud ? util.format(authUri + '/token', options.org, options.env) : authUri + '/token';
   const body = {
     client_id: options.id,
