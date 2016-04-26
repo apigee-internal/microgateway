@@ -12,6 +12,8 @@ const assert = require('assert');
 
 const configLocations = require('../../config/locations');
 const defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath() });
+addEnvVars(defaultConfig);
+
 const cert = require('./cert-lib')(defaultConfig)
 const deployAuth = require('./deploy-auth')(defaultConfig.edge_config, null)
 var authUri = defaultConfig.edge_config.authUri;
@@ -130,6 +132,8 @@ function configureEdgemicroWithCreds(options, cb) {
     agentConfigPath = configLocations.getSourcePath(options.org, options.env);
     const agentConfig = edgeconfig.load({ source: agentConfigPath });
 
+    addEnvVars(agentConfig);
+
     if (!jwtSearch) {
       agentConfig['edge_config']['jwt_public_key'] = results[0]; // get deploy results
       agentConfig['edge_config'].bootstrap = results[2].bootstrap; // get genkeys results
@@ -166,6 +170,12 @@ function configureEdgemicroWithCreds(options, cb) {
     console.log('edgemicro configuration complete!');
     cb();
   });
+}
+
+function addEnvVars(config) {
+  config.edge_config.managementUri = process.env.MGMT_URI || config.edge_config.managementUri;
+  config.edge_config.authUri = process.env.AUTH_URI || config.edge_config.authUri;
+  config.edge_config.baseUri = process.env.BASE_URI || config.edge_config.baseUri;
 }
 
 function printError(err) {
