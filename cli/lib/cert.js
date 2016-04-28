@@ -33,7 +33,7 @@ Cert.prototype.installCert = function(options, cb) {
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
   cert(config).installCertWithPassword(options, (err, res) => {
     if (err) {
-      cb(err)
+      cb && cb(err)
       return console.error(err, 'failed to update cert')
     }
     console.log('installed cert');
