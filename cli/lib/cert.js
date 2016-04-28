@@ -101,7 +101,7 @@ Cert.prototype.retrievePublicKey = function(options,cb) {
     }
     console.log('succeeded');
     console.log(certificate);
-    cb(null,certificate);
+    cb && cb(null,certificate);
     !cb && process.exit(0);
   })
 };
