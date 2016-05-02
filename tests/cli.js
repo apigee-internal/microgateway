@@ -204,6 +204,39 @@ describe('test-cli', function() {
     })
   });
 
+  it('test cert install error', function(done) {
+    try {
+      cert.installCert({ org: org, env: env, username: user, password: 'badPassword' }, (err, res) => {
+        assert(err, "Did not error out with callback");
+        done();
+      });
+    } catch (e) {
+      done(e);
+    }
+  });
+
+  it('test cert check error', function(done) {
+    try {
+      cert.checkCert({ org: org, env: env, username: user, password: 'badPassword' }, (err, res) => {
+        assert(err, "Did not error out with callback");
+        done();
+      })
+    } catch (e) {
+      done(e);
+    }
+  });
+
+  it('test cert delete error', function(done) {
+    try {
+      cert.deleteCert({ org: org, env: env, username: user, password: 'badPassword' }, (err) => {
+        assert(err, "Did not error out with callback");
+        done();
+      })
+    } catch (e) {
+      done(e);
+    }
+  });
+
    it('key gen', function(done) {
     keyGen.generate({ org: org, env: env, username: user, password: password }, (err, result) => {
       assert(!err, err);

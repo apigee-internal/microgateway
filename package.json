@@ -53,7 +53,7 @@
   "scripts": {
     "start": "./cli/edgemicro start",
     "package": "node cli/package.js",
-    "test": "mocha tests"
+    "test": "mocha --timeout 7000 tests"
   },
   "engines": {
     "node": ">=5.0.0 <6.0.0"
