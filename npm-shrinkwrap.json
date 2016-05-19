@@ -1281,9 +1281,8 @@
       }
     },
     "microgateway-edgeauth": {
-      "version": "1.0.0",
-      "from": "microgateway-edgeauth@1.0.0",
-      "resolved": "https://registry.npmjs.org/microgateway-edgeauth/-/microgateway-edgeauth-1.0.0.tgz",
+      "version": "1.0.1",
+      "from": "microgateway-edgeauth@>=1.0.0 <2.0.0",
       "dependencies": {
         "a127-magic": {
           "version": "0.12.1",
@@ -1784,9 +1783,9 @@
           "resolved": "https://registry.npmjs.org/jodid25519/-/jodid25519-1.0.2.tgz"
         },
         "js-yaml": {
-          "version": "3.5.5",
-          "from": "js-yaml@>=3.5.3 <4.0.0",
-          "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-3.5.5.tgz"
+          "version": "3.6.1",
+          "from": "js-yaml@latest",
+          "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-3.6.1.tgz"
         },
         "jsbn": {
           "version": "0.1.0",
