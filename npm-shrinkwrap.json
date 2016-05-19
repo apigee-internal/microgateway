@@ -749,11 +749,13 @@
         },
         "graceful-fs": {
           "version": "3.0.8",
-          "from": "graceful-fs@>=3.0.0 <4.0.0"
+          "from": "graceful-fs@3.0.8",
+          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-3.0.8.tgz"
         },
         "isarray": {
           "version": "0.0.1",
-          "from": "isarray@0.0.1"
+          "from": "isarray@0.0.1",
+          "resolved": "https://registry.npmjs.org/isarray/-/isarray-0.0.1.tgz"
         },
         "minimatch": {
           "version": "2.0.10",
@@ -767,7 +769,8 @@
         },
         "readable-stream": {
           "version": "1.0.34",
-          "from": "readable-stream@>=1.0.33-1 <1.1.0-0"
+          "from": "readable-stream@1.0.34",
+          "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-1.0.34.tgz"
         },
         "strip-bom": {
           "version": "1.0.0",
@@ -1239,7 +1242,7 @@
     },
     "microgateway-config": {
       "version": "2.0.9",
-      "from": "microgateway-config@>=2.0.8 <3.0.0",
+      "from": "microgateway-config@2.0.9",
       "dependencies": {
         "fs-extra": {
           "version": "0.26.7",
@@ -1282,7 +1285,7 @@
     },
     "microgateway-edgeauth": {
       "version": "1.0.2",
-      "from": "microgateway-edgeauth@>=1.0.1 <2.0.0",
+      "from": "microgateway-edgeauth@1.0.2",
       "dependencies": {
         "a127-magic": {
           "version": "0.12.1",
@@ -2516,8 +2519,8 @@
       }
     },
     "microgateway-plugins": {
-      "version": "2.0.3",
-      "from": "microgateway-plugins@>=2.0.2 <3.0.0"
+      "version": "2.0.4",
+      "from": "microgateway-plugins@>=2.0.3 <3.0.0"
     },
     "mime": {
       "version": "1.3.4",
@@ -2995,7 +2998,8 @@
       "dependencies": {
         "isarray": {
           "version": "0.0.1",
-          "from": "isarray@0.0.1"
+          "from": "isarray@0.0.1",
+          "resolved": "https://registry.npmjs.org/isarray/-/isarray-0.0.1.tgz"
         },
         "readable-stream": {
           "version": "1.0.34",
