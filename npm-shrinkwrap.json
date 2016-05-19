@@ -1281,8 +1281,8 @@
       }
     },
     "microgateway-edgeauth": {
-      "version": "1.0.1",
-      "from": "microgateway-edgeauth@>=1.0.0 <2.0.0",
+      "version": "1.0.2",
+      "from": "microgateway-edgeauth@>=1.0.1 <2.0.0",
       "dependencies": {
         "a127-magic": {
           "version": "0.12.1",
