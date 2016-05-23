@@ -86,6 +86,10 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
     cpr(path.resolve(__dirname, '..', '..', 'config'), tmpDir.name+'/config', cb);
   });
 
+  tasks.push(function(cb) {
+    rimraf(tmpDir.name+"/node_modules/express", cb);
+  })
+
   // deploy lean payload
   tasks.push(function(cb) {
     const dir = tmpDir.name;
