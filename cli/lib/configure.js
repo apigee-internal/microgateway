@@ -97,6 +97,9 @@ function configureEdgemicroWithCreds(options, cb) {
     console.log('App ', options.proxyName, ' is already deployed!');
   }
 
+tasks.push(function(callback){
+  setTimeout(callback,10000)
+});
   tasks.push(
     function (callback) {
       console.log('checking org for existing vault');

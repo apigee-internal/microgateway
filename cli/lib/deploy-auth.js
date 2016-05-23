@@ -56,7 +56,14 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
   var tmpDir = tmp.dirSync({ keep: true, dir: path.resolve(__dirname, '..', '..') });
   var tasks = [];
   var publicKeyUri;
-
+  const copyDep = function(dep, cb){
+     const modulePath = tmpDir.name+"/node_modules/"+dep;
+    if(fs.existsSync(modulePath)){
+      return cb();
+    }
+    console.log('copy '+dep+'  into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', dep), modulePath, cb);
+  }
   // copy bin folder into tmp
   tasks.push(function(cb) {
     console.log('copy auth app into tmp dir');
@@ -65,122 +72,13 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
 
    // copy bin folder into tmp
   tasks.push(function(cb) {
-     const modulePath = tmpDir.name+"/node_modules/debug";
-    if(fs.existsSync(modulePath)){
-      return cb();
-    }
-    console.log('copy debug  into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'debug'), modulePath, cb);
+    const arr = ["debug","ms","formidable","delayed-stream","mime-types","combined-stream",
+    "mime-db","extend","mime","core-util-is","inherits","ee-first","on-finished","unpipe",
+    "content-type","statuses","depd","negotiator","type-is","media-typer",""];
+    async.each(arr,function(item,cbinner){
+      copyDep(item,cbinner)
+    },cb)
   });
-
-   // copy bin folder into tmp
-  tasks.push(function(cb) {
-     const modulePath = tmpDir.name+"/node_modules/ms";
-    if(fs.existsSync(modulePath)){
-      return cb();
-    }
-    console.log('copy ms  into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'ms'), modulePath, cb);
-  });
-
-  // copy bin folder into tmp
-  tasks.push(function(cb) {
-    const modulePath = tmpDir.name+"/node_modules/formidable";
-    if(fs.existsSync(modulePath)){
-      return cb();
-    }
-    console.log('copy formidable  into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'formidable'), modulePath, cb);
-  });
-
-  // copy bin folder into tmp
-  tasks.push(function(cb) {
-    const modulePath = tmpDir.name+"/node_modules/delayed-stream";
-    if(fs.existsSync(modulePath)){
-      return cb();
-    }
-    console.log('copy delayed-stream  into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'delayed-stream'), modulePath, cb);
-  });
-
- // copy bin folder into tmp
-  tasks.push(function(cb) {
-    const modulePath = tmpDir.name+"/node_modules/mime-types";
-    if(fs.existsSync(modulePath)){
-      return cb();
-    }
-    console.log('copy mime-types  into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'mime-types'),modulePath, cb);
-  });
-    // copy bin folder into tmp
-  tasks.push(function(cb) {
-    const modulePath = tmpDir.name+"/node_modules/combined-stream";
-    if(fs.existsSync(modulePath)){
-      return cb();
-    }
-    console.log('copy combined-stream  into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'combined-stream'), modulePath, cb);
-  });
-
- // copy bin folder into tmp
-  tasks.push(function(cb) {
-      const modulePath = tmpDir.name+"/node_modules/mime-db";
-    if(fs.existsSync(modulePath)){
-      return cb();
-    }
-    console.log('copy mime-db  into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'mime-db'), modulePath, cb);
-  });
-  // copy bin folder into tmp
-  tasks.push(function(cb) {
-      const modulePath = tmpDir.name+"/node_modules/extend";
-    if(fs.existsSync(modulePath)){
-      return cb();
-    }
-    console.log('copy extend  into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'extend'), modulePath, cb);
-  });
-
-  // copy bin folder into tmp
-  tasks.push(function(cb) {
-    const modulePath = tmpDir.name+"/node_modules/mime";
-    if(fs.existsSync(modulePath)){
-      return cb();
-    }
-    console.log('copy mime  into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'mime'), modulePath, cb);
-  });
-
-    // copy bin folder into tmp
-  tasks.push(function(cb) {
-     const modulePath = tmpDir.name+"/node_modules/core-util-is";
-    if(fs.existsSync(modulePath)){
-      return cb();
-    }
-    console.log('copy core-util-is  into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'core-util-is'), modulePath, cb);
-  });
-
-  // copy bin folder into tmp
-  tasks.push(function(cb) {
-     const modulePath = tmpDir.name+"/node_modules/inherits";
-    if(fs.existsSync(modulePath)){
-      return cb();
-    }
-    console.log('copy debug  into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'inherits'), modulePath, cb);
-  });
-
-// copy bin folder into tmp
-  tasks.push(function(cb) {
-     const modulePath = tmpDir.name+"/node_modules/on-finished";
-    if(fs.existsSync(modulePath)){
-      return cb();
-    }
-    console.log('copy debug  into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'on-finished'), modulePath, cb);
-  });
-
   // copy bin folder into tmp
   tasks.push(function(cb) {
 
