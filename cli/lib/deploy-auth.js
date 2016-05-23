@@ -63,8 +63,127 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
     cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'microgateway-edgeauth'), tmpDir.name, cb);
   });
 
+   // copy bin folder into tmp
+  tasks.push(function(cb) {
+     const modulePath = tmpDir.name+"/node_modules/debug";
+    if(fs.existsSync(modulePath)){
+      return cb();
+    }
+    console.log('copy debug  into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'debug'), modulePath, cb);
+  });
+
+   // copy bin folder into tmp
+  tasks.push(function(cb) {
+     const modulePath = tmpDir.name+"/node_modules/ms";
+    if(fs.existsSync(modulePath)){
+      return cb();
+    }
+    console.log('copy ms  into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'ms'), modulePath, cb);
+  });
+
   // copy bin folder into tmp
   tasks.push(function(cb) {
+    const modulePath = tmpDir.name+"/node_modules/formidable";
+    if(fs.existsSync(modulePath)){
+      return cb();
+    }
+    console.log('copy formidable  into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'formidable'), modulePath, cb);
+  });
+
+  // copy bin folder into tmp
+  tasks.push(function(cb) {
+    const modulePath = tmpDir.name+"/node_modules/delayed-stream";
+    if(fs.existsSync(modulePath)){
+      return cb();
+    }
+    console.log('copy delayed-stream  into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'delayed-stream'), modulePath, cb);
+  });
+
+ // copy bin folder into tmp
+  tasks.push(function(cb) {
+    const modulePath = tmpDir.name+"/node_modules/mime-types";
+    if(fs.existsSync(modulePath)){
+      return cb();
+    }
+    console.log('copy mime-types  into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'mime-types'),modulePath, cb);
+  });
+    // copy bin folder into tmp
+  tasks.push(function(cb) {
+    const modulePath = tmpDir.name+"/node_modules/combined-stream";
+    if(fs.existsSync(modulePath)){
+      return cb();
+    }
+    console.log('copy combined-stream  into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'combined-stream'), modulePath, cb);
+  });
+
+ // copy bin folder into tmp
+  tasks.push(function(cb) {
+      const modulePath = tmpDir.name+"/node_modules/mime-db";
+    if(fs.existsSync(modulePath)){
+      return cb();
+    }
+    console.log('copy mime-db  into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'mime-db'), modulePath, cb);
+  });
+  // copy bin folder into tmp
+  tasks.push(function(cb) {
+      const modulePath = tmpDir.name+"/node_modules/extend";
+    if(fs.existsSync(modulePath)){
+      return cb();
+    }
+    console.log('copy extend  into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'extend'), modulePath, cb);
+  });
+
+  // copy bin folder into tmp
+  tasks.push(function(cb) {
+    const modulePath = tmpDir.name+"/node_modules/mime";
+    if(fs.existsSync(modulePath)){
+      return cb();
+    }
+    console.log('copy mime  into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'mime'), modulePath, cb);
+  });
+
+    // copy bin folder into tmp
+  tasks.push(function(cb) {
+     const modulePath = tmpDir.name+"/node_modules/core-util-is";
+    if(fs.existsSync(modulePath)){
+      return cb();
+    }
+    console.log('copy core-util-is  into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'core-util-is'), modulePath, cb);
+  });
+
+  // copy bin folder into tmp
+  tasks.push(function(cb) {
+     const modulePath = tmpDir.name+"/node_modules/inherits";
+    if(fs.existsSync(modulePath)){
+      return cb();
+    }
+    console.log('copy debug  into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'inherits'), modulePath, cb);
+  });
+
+// copy bin folder into tmp
+  tasks.push(function(cb) {
+     const modulePath = tmpDir.name+"/node_modules/on-finished";
+    if(fs.existsSync(modulePath)){
+      return cb();
+    }
+    console.log('copy debug  into tmp dir');
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'on-finished'), modulePath, cb);
+  });
+
+  // copy bin folder into tmp
+  tasks.push(function(cb) {
+
     console.log('copy config into tmp dir');
     cpr(path.resolve(__dirname, '..', '..', 'config'), tmpDir.name+'/config', cb);
   });
@@ -78,10 +197,12 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
     });
   });
 
+
+
   // delete tmp dir
-  tasks.push(function(cb) {
-    rimraf(tmpDir.name, cb);
-  })
+  // tasks.push(function(cb) {
+  //   rimraf(tmpDir.name, cb);
+  // })
 
   async.series(tasks, function(err, results) {
     if (err) {
