@@ -12,6 +12,15 @@ const fs = require('fs')
 const DEFAULT_HOSTS = 'default,secure';
 const url = require('url');
 const _ =require('lodash')
+var exec = require('child_process').exec;
+
+var run = function(cmd,cb){
+  console.log('run %s',cmd)
+  var child = exec(cmd, function (error, stdout, stderr) {
+    cb(error)
+  });
+};
+
 
 const Deployment = function(edge_config,virtualHosts ) {
   this.managementUri = edge_config.managementUri;
@@ -56,40 +65,29 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
   var tmpDir = tmp.dirSync({ keep: true, dir: path.resolve(__dirname, '..', '..') });
   var tasks = [];
   var publicKeyUri;
-  const copyDep = function(dep, cb){
-     const modulePath = tmpDir.name+"/node_modules/"+dep;
-    if(fs.existsSync(modulePath)){
-      return cb();
-    }
-    console.log('copy '+dep+'  into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'node_modules', dep), modulePath, cb);
-  }
+
   // copy bin folder into tmp
   tasks.push(function(cb) {
     console.log('copy auth app into tmp dir');
     cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'microgateway-edgeauth'), tmpDir.name, cb);
   });
 
-   // copy bin folder into tmp
-  tasks.push(function(cb) {
-    const arr = ["debug","ms","formidable","delayed-stream","mime-types","combined-stream",
-    "mime-db","extend","mime","core-util-is","inherits","ee-first","on-finished","unpipe",
-    "content-type","statuses","depd","negotiator","type-is","media-typer",""];
-    async.each(arr,function(item,cbinner){
-      copyDep(item,cbinner)
-    },cb)
-  });
+
   // copy bin folder into tmp
   tasks.push(function(cb) {
-
     console.log('copy config into tmp dir');
     cpr(path.resolve(__dirname, '..', '..', 'config'), tmpDir.name+'/config', cb);
   });
 
   tasks.push(function(cb) {
+    rimraf(tmpDir.name+"/node_modules/", cb);
+  })
+  tasks.push(function(cb){
+    run('cd '+tmpDir.name+';npm install;cd '+process.cwd(),cb);
+  })
+ tasks.push(function(cb) {
     rimraf(tmpDir.name+"/node_modules/express", cb);
   })
-
   // deploy lean payload
   tasks.push(function(cb) {
     const dir = tmpDir.name;
@@ -99,12 +97,10 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
     });
   });
 
-
-
-  // delete tmp dir
-  // tasks.push(function(cb) {
-  //   rimraf(tmpDir.name, cb);
-  // })
+  //delete tmp dir
+  tasks.push(function(cb) {
+    rimraf(tmpDir.name, cb);
+  })
 
   async.series(tasks, function(err, results) {
     if (err) {
