@@ -12,6 +12,15 @@ const fs = require('fs')
 const DEFAULT_HOSTS = 'default,secure';
 const url = require('url');
 const _ =require('lodash')
+var exec = require('child_process').exec;
+
+var run = function(cmd,cb){
+  console.log('run %s',cmd)
+  var child = exec(cmd, function (error, stdout, stderr) {
+    cb(error)
+  });
+};
+
 
 const Deployment = function(edge_config,virtualHosts ) {
   this.managementUri = edge_config.managementUri;
@@ -63,12 +72,22 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
     cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'microgateway-edgeauth'), tmpDir.name, cb);
   });
 
+
   // copy bin folder into tmp
   tasks.push(function(cb) {
     console.log('copy config into tmp dir');
     cpr(path.resolve(__dirname, '..', '..', 'config'), tmpDir.name+'/config', cb);
   });
 
+  tasks.push(function(cb) {
+    rimraf(tmpDir.name+"/node_modules/", cb);
+  })
+  tasks.push(function(cb){
+    run('cd '+tmpDir.name+';npm install;cd '+process.cwd(),cb);
+  })
+ tasks.push(function(cb) {
+    rimraf(tmpDir.name+"/node_modules/express", cb);
+  })
   // deploy lean payload
   tasks.push(function(cb) {
     const dir = tmpDir.name;
@@ -78,7 +97,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
     });
   });
 
-  // delete tmp dir
+  //delete tmp dir
   tasks.push(function(cb) {
     rimraf(tmpDir.name, cb);
   })

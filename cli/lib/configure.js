@@ -99,15 +99,17 @@ function configureEdgemicroWithCreds(options, cb) {
 
   tasks.push(
     function (callback) {
-      console.log('checking org for existing vault');
-      cert.checkCertWithPassword(options, function (err, certs) {
-        if (err) {
-          cert.installCertWithPassword(options, callback);
-        } else {
-          console.log('vault already exists in your org');
-          cert.retrievePublicKey(options, callback);
-        }
-      });
+      setTimeout(() => {
+        console.log('checking org for existing vault');
+        cert.checkCertWithPassword(options, function (err, certs) {
+          if (err) {
+            cert.installCertWithPassword(options, callback);
+          } else {
+            console.log('vault already exists in your org');
+            cert.retrievePublicKey(options, callback);
+          }
+        });
+      }, 250)
     }
   );
 
