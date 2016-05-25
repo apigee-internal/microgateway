@@ -1,4 +1,5 @@
 #!/bin/bash
+rm -f apigee-edge-micro.zip
 VERSION=2.0.4
 PRODUCT_NAME=apigee-edge-micro
 DIR_TO_CREATE="$HOME/$PRODUCT_NAME-$VERSION"
