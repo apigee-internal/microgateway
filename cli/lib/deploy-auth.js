@@ -15,7 +15,7 @@ const _ =require('lodash')
 var exec = require('child_process').exec;
 
 var run = function(cmd,cb){
-  console.log('run %s',cmd)
+  //console.log('run %s',cmd)
   var child = exec(cmd, function (error, stdout, stderr) {
     cb(error)
   });
@@ -68,14 +68,14 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
 
   // copy bin folder into tmp
   tasks.push(function(cb) {
-    console.log('copy auth app into tmp dir');
+    //console.log('copy auth app into tmp dir');
     cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'microgateway-edgeauth'), tmpDir.name, cb);
   });
 
 
   // copy bin folder into tmp
   tasks.push(function(cb) {
-    console.log('copy config into tmp dir');
+    //console.log('copy config into tmp dir');
     cpr(path.resolve(__dirname, '..', '..', 'config'), tmpDir.name+'/config', cb);
   });
 
@@ -114,7 +114,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
 
 // checks for previously deployed edgemicro proxies
 Deployment.prototype.checkDeployedProxies = function checkDeployedProxies(options, cb) {
-  console.log('checking for previously deployed proxies')
+  //console.log('checking for previously deployed proxies')
   const opts = {
     organization: options.org,
     environment: options.env,
@@ -166,7 +166,7 @@ function deployProxyWithPassword(managementUri,authUri, options, dir, callback) 
       return callback(err);
     }
 
-    console.log('App %s added to your org. Now adding resources.', options.proxyName);
+    //console.log('App %s added to your org. Now adding resources.', options.proxyName);
     opts.password = options.password; // override a apigeetool side-effect bug
     installJavaCallout(managementUri, opts, function(err) {
       if (err) {

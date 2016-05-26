@@ -46,16 +46,16 @@ Configure.prototype.configure = function configure(options, cb) {
   const cache = configLocations.getCachePath(options.org, options.env);
   if (fs.existsSync(cache)) {
     fs.unlinkSync(cache);
-    console.log('deleted ' + cache);
+    //console.log('deleted ' + cache);
   }
 
   const targetPath = configLocations.getSourcePath(options.org, options.env);
   if (fs.existsSync(targetPath)) {
     fs.unlinkSync(targetPath);
-    console.log('deleted ' + targetPath);
+    //console.log('deleted ' + targetPath);
   }
 
-  console.log('init config');
+  //console.log('init config');
   edgeconfig.init({
     source: configLocations.getDefaultPath(),
     targetDir: configLocations.homeDir,
@@ -94,18 +94,18 @@ function configureEdgemicroWithCreds(options, cb) {
       deployAuth.deployWithLeanPayload(options, callback);
     });
   } else {
-    console.log('App ', options.proxyName, ' is already deployed!');
+    //console.log('App ', options.proxyName, ' is already deployed!');
   }
 
   tasks.push(
     function (callback) {
       setTimeout(() => {
-        console.log('checking org for existing vault');
+        //console.log('checking org for existing vault');
         cert.checkCertWithPassword(options, function (err, certs) {
           if (err) {
             cert.installCertWithPassword(options, callback);
           } else {
-            console.log('vault already exists in your org');
+            //console.log('vault already exists in your org');
             cert.retrievePublicKey(options, callback);
           }
         });
@@ -125,8 +125,7 @@ function configureEdgemicroWithCreds(options, cb) {
     }
     assert(targetFile, 'must have an assigned target file')
 
-    console.log('updating agent configuration');
-
+   // console.log('updating agent configuration');
 
     if (err) {
       return cb(err)
@@ -165,7 +164,6 @@ function configureEdgemicroWithCreds(options, cb) {
     console.log('  key:', key);
     console.log('  secret:', secret);
     console.log();
-
     process.env.EDGEMICRO_KEY = key;
     process.env.EDGEMICRO_SECRET = secret;
 
