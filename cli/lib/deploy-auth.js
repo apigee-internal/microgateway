@@ -61,8 +61,8 @@ Deployment.prototype.deployEdgeMicroInternalProxy = function deployEdgeMicroInte
 Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( options, callback) {
   const authUri = this.authUri;
   const managementUri = this.managementUri;
-
-  var tmpDir = tmp.dirSync({ keep: true, dir: path.resolve(__dirname, '..', '..') });
+  const homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+  var tmpDir = tmp.dirSync({ keep: true, dir: path.resolve(homeDir, '.edgemicro') });
   var tasks = [];
   var publicKeyUri;
 
