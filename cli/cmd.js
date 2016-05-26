@@ -33,7 +33,7 @@ const setup = function setup() {
       promptForPassword(options,(options)=>{
         if (!options.password) { return options.error('password is required'); }
         configure.configure(options, () => {
-          process.exit(0);
+          
         });
       })
     });

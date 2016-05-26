@@ -168,7 +168,7 @@ function configureEdgemicroWithCreds(options, cb) {
     process.env.EDGEMICRO_SECRET = secret;
 
     console.log('edgemicro configuration complete!');
-    setTimeout(cb,500)
+    setTimeout(cb,50)
   });
 }
 
