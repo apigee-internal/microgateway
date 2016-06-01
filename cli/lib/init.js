@@ -8,10 +8,12 @@ module.exports =  function init(cb) {
   if (fs.existsSync(defaultConfigPath)) {
     fs.unlinkSync(defaultConfigPath);
   }
-  copyFile(initConfigPath,defaultConfigPath,(err)=>{
-    err && console.log("failed to init configpath file %s",err)
-    cb(err,defaultConfigPath);
-  })
+  fs.mkdir(configLocations.homeDir,function(){
+    copyFile(initConfigPath,defaultConfigPath,(err)=>{
+      err && console.log("failed to init configpath file %s",err)
+      cb(err,defaultConfigPath);
+    })
+  });
 }
 function copyFile(source, target, cb) {
   var cbCalled = false;
