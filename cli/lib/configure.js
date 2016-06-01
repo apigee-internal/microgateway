@@ -28,6 +28,10 @@ module.exports = function () {
 }
 
 Configure.prototype.configure = function configure(options, cb) {
+  if (!fs.existsSync(configLocations.getDefaultPath())) {
+    console.error("Missing %s, Please run 'edgemicro init'",configLocations.getDefaultPath())
+    return cb("Please call edgemicro init first")
+  }
   defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath() });
   addEnvVars(defaultConfig);
   cert = certLib(defaultConfig)
@@ -35,10 +39,7 @@ Configure.prototype.configure = function configure(options, cb) {
   authUri = defaultConfig.edge_config.authUri;
   managementUri = defaultConfig.edge_config.managementUri;
   keySecretMessage = defaultConfig.edge_config.keySecretMessage;
-  if (!fs.existsSync(configLocations.getDefaultPath())) {
-    console.error("Please call edgemicro init first")
-    return cb("Please call edgemicro init first")
-  }
+
   assert(options.username, 'username is required');
   assert(options.password, 'password is required');
   assert(options.org, 'org is required');
