@@ -9,19 +9,16 @@ const async = require('async')
 const util = require('util')
 const fs = require('fs')
 const assert = require('assert');
-
 const configLocations = require('../../config/locations');
-const defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath() });
-addEnvVars(defaultConfig);
 
-const cert = require('./cert-lib')(defaultConfig)
-const deployAuth = require('./deploy-auth')(defaultConfig.edge_config, null)
-var authUri = defaultConfig.edge_config.authUri;
-const managementUri = defaultConfig.edge_config.managementUri;
-const keySecretMessage = defaultConfig.edge_config.keySecretMessage;
-var targetFile;
+var defaultConfig ;
+
+var cert = require('./cert-lib')
+var deployAuth = require('./deploy-auth')
+var authUri, managementUri, keySecretMessage, targetFile;
 
 const Configure = function () {
+
 }
 
 module.exports = function () {
@@ -29,6 +26,17 @@ module.exports = function () {
 }
 
 Configure.prototype.configure = function configure(options, cb) {
+  defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath() });
+  addEnvVars(defaultConfig);
+  cert = cert(defaultConfig)
+  deployAuth = deployAuth(defaultConfig.edge_config, null)
+  authUri = defaultConfig.edge_config.authUri;
+  managementUri = defaultConfig.edge_config.managementUri;
+  keySecretMessage = defaultConfig.edge_config.keySecretMessage;
+  if (!fs.existsSync(configLocations.getDefaultPath())) {
+    console.error("Please call edgemicro init first")
+    return cb("Please call edgemicro init first")
+  }
   assert(options.username, 'username is required');
   assert(options.password, 'password is required');
   assert(options.org, 'org is required');
@@ -125,7 +133,7 @@ function configureEdgemicroWithCreds(options, cb) {
     }
     assert(targetFile, 'must have an assigned target file')
 
-   // console.log('updating agent configuration');
+    // console.log('updating agent configuration');
 
     if (err) {
       return cb(err)
@@ -168,7 +176,7 @@ function configureEdgemicroWithCreds(options, cb) {
     process.env.EDGEMICRO_SECRET = secret;
 
     console.log('edgemicro configuration complete!');
-    setTimeout(cb,50)
+    setTimeout(cb, 50)
   });
 }
 

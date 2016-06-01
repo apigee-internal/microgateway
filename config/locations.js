@@ -10,8 +10,11 @@ const defaultFile = 'default.yaml';
 const cacheFile =  'cache-config.yaml';
 
 module.exports = {
+  getInitPath: function(){
+     return  path.join(configDir,defaultFile);
+  },
   getDefaultPath: function(){
-     return  path.join(this.defaultDir,defaultFile);
+     return  path.join(this.homeDir,defaultFile);
   },
   defaultFile: defaultFile,
   getSourcePath: function getSource(org,env){

@@ -7,6 +7,7 @@ const run = require('./lib/gateway')();
 const keyGenerator = require('./lib/key-gen')();
 const prompt = require('cli-prompt');
 const cluster = require('cluster')
+const init = require('./lib/init')
 
 const setup = function setup() {
   commander
@@ -33,11 +34,18 @@ const setup = function setup() {
       promptForPassword(options,(options)=>{
         if (!options.password) { return options.error('password is required'); }
         configure.configure(options, () => {
-          
         });
       })
     });
 
+ commander
+    .command('init')
+    .description('initialize default.yaml into home dir')
+    .action((options) => {
+      init((err,location)=>{
+        console.log("config initialized to %s",location)
+      })
+    });
 
   commander
     .command('verify')
