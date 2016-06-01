@@ -13,8 +13,10 @@ const configLocations = require('../../config/locations');
 
 var defaultConfig ;
 
-var cert = require('./cert-lib')
-var deployAuth = require('./deploy-auth')
+var certLib = require('./cert-lib')
+var cert;
+var deployAuthLib = require('./deploy-auth')
+var deployAuth;
 var authUri, managementUri, keySecretMessage, targetFile;
 
 const Configure = function () {
@@ -28,8 +30,8 @@ module.exports = function () {
 Configure.prototype.configure = function configure(options, cb) {
   defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath() });
   addEnvVars(defaultConfig);
-  cert = cert(defaultConfig)
-  deployAuth = deployAuth(defaultConfig.edge_config, null)
+  cert = certLib(defaultConfig)
+  deployAuth = deployAuthLib(defaultConfig.edge_config, null)
   authUri = defaultConfig.edge_config.authUri;
   managementUri = defaultConfig.edge_config.managementUri;
   keySecretMessage = defaultConfig.edge_config.keySecretMessage;
