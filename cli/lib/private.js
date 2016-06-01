@@ -29,6 +29,10 @@ module.exports = function () {
 
 // begins edgemicro configuration process
 Private.prototype.configureEdgemicro = function (options, cb) {
+  if(!fs.existsSync(configLocations.getDefaultPath())){
+    console.log("Please call edgemicro init first")
+    return cb("Please call edgemicro init first")
+  }
   assert(options.username, 'username is required');
   assert(options.org, 'org is required');
   assert(options.env, 'env is required');

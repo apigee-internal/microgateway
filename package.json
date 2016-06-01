@@ -24,7 +24,7 @@
     "lodash": "^3.9.3",
     "log-symbols": "^1.0.2",
     "microgateway-config": "^2.0.9",
-    "microgateway-core": "^2.0.14",
+    "microgateway-core": "^2.0.15",
     "microgateway-edgeauth": "^1.0.2",
     "microgateway-plugins": "^2.0.4",
     "pem": "^1.8.1",
