@@ -24,7 +24,7 @@ Gateway.prototype.start = function start(options, cb) {
   const args = { target: cache, keys: keys,pluginDir:options.pluginDir };
   const that = this;
   if (cluster.isMaster) {
-    edgeconfig.get({ source: source, keys: keys }, function (err, config) {
+    edgeconfig.get({ source: source, keys: keys, localproxy: {name:options.app_name , path:options.app_path, target_url:options.target_url} }, function (err, config) {
       if (err) {
         const exists = fs.existsSync(cache);
         console.error("failed to retieve config from gateway. continuing, will try cached copy..");

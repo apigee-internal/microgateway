@@ -7,7 +7,6 @@ const run = require('./lib/gateway')();
 const keyGenerator = require('./lib/key-gen')();
 const prompt = require('cli-prompt');
 const cluster = require('cluster')
-const init = require('./lib/init')
 
 const setup = function setup() {
   commander
@@ -34,18 +33,11 @@ const setup = function setup() {
       promptForPassword(options,(options)=>{
         if (!options.password) { return options.error('password is required'); }
         configure.configure(options, () => {
+          process.exit(0);
         });
       })
     });
 
- commander
-    .command('init')
-    .description('initialize default.yaml into home dir')
-    .action((options) => {
-      init((err,location)=>{
-        console.log("config initialized to %s",location)
-      })
-    });
 
   commander
     .command('verify')
@@ -73,6 +65,9 @@ const setup = function setup() {
     .option('-c, --cluster', 'will cluster the server')
     .option('-p, --processes <processes>', 'number of processes to start, defaults to # of cores')
     .option('-d, --pluginDir <pluginDir>','absolute path to plugin directory')
+    .option('-a, --app_name <app_name>','local app name')
+    .option('-b, --app_path <app_path>','local app path')
+    .option('-t, --target_url <target_url>','local target url')
     .description('start the gateway based on configuration')
     .action((options)=>{
       options.error = optionError;
