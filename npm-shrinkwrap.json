@@ -1,6 +1,6 @@
 {
   "name": "edgemicro",
-  "version": "2.0.10",
+  "version": "2.0.11-beta",
   "dependencies": {
     "ansi-regex": {
       "version": "2.0.0",
@@ -1229,7 +1229,7 @@
       }
     },
     "microgateway-core": {
-      "version": "2.0.15",
+      "version": "2.0.17",
       "from": "microgateway-core@>=2.0.14 <3.0.0",
       "dependencies": {
         "bl": {
@@ -1957,7 +1957,7 @@
       }
     },
     "microgateway-plugins": {
-      "version": "2.0.4",
+      "version": "2.0.5",
       "from": "microgateway-plugins@2.0.4"
     },
     "mime": {
