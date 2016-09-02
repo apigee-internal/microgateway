@@ -91,8 +91,6 @@ const setup = function setup() {
       if(cluster.isMaster && options.port){
         portastic.test(options.port)
           .then(function(isAvailable){
-            console.log('Port ' + options.port + ' is %s', isAvailable ? 'available' : 'not available');
-            
             if(!isAvailable) {
               options.error('port is not available.');
               process.exit(1);
