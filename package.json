@@ -33,7 +33,9 @@
     "tmp": "0.0.28",
     "util": "^0.10.3",
     "uuid": "^2.0.1",
-    "xml2js": "^0.4.16"
+    "xml2js": "^0.4.16",
+    "portastic": "^1.0.1"
+   
   },
   "devDependencies": {
     "gulp": "^3.8.11",

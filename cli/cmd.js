@@ -7,7 +7,11 @@ const run = require('./lib/gateway')();
 const keyGenerator = require('./lib/key-gen')();
 const prompt = require('cli-prompt');
 const cluster = require('cluster')
-const init = require('./lib/init')
+const init = require('./lib/init');
+var portastic = require('portastic');
+
+const configLocations = require('../config/locations');
+
 
 const setup = function setup() {
   commander
@@ -73,6 +77,7 @@ const setup = function setup() {
     .option('-c, --cluster', 'will cluster the server')
     .option('-p, --processes <processes>', 'number of processes to start, defaults to # of cores')
     .option('-d, --pluginDir <pluginDir>','absolute path to plugin directory')
+    .option('-r, --port <portNumber>','override port in the config.yaml file')
     .description('start the gateway based on configuration')
     .action((options)=>{
       options.error = optionError;
@@ -81,7 +86,18 @@ const setup = function setup() {
       options.org = options.org || process.env.EDGEMICRO_ORG;
       options.env = options.env || process.env.EDGEMICRO_ENV;
       options.cluster =  options.cluster || process.env.EDGEMICRO_CLUSTER ;
-      options.processes =  options.processes || process.env.EDGEMICRO_PROCESSES ;
+      options.processes =  options.processes || process.env.EDGEMICRO_PROCESSES;
+
+      if(cluster.isMaster && options.port){
+        portastic.test(options.port)
+          .then(function(isAvailable){
+            if(!isAvailable) {
+              options.error('port is not available.');
+              process.exit(1);
+            }
+            
+          });
+      }
       if (!options.key ) {return  options.error('key is required');}
       if (!options.secret ) {return  options.error('secret is required');}
       if (!options.org ) { return  options.error('org is required'); }
