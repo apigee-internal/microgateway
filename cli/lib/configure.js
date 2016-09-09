@@ -155,6 +155,16 @@ function configureEdgemicroWithCreds(options, cb) {
       agentConfig['edge_config'].bootstrap = results[1].bootstrap;
     }
 
+    var publicKeyUri = agentConfig['edge_config']['jwt_public_key'];
+    if (publicKeyUri) {
+      agentConfig['edge_config']['products'] = publicKeyUri.replace('publicKey', 'products');
+
+      if (!agentConfig.hasOwnProperty('oauth') || agentConfig['oauth'] == null) {
+        agentConfig['oauth'] = {};
+      }
+      agentConfig['oauth']['verify_api_key_url'] = publicKeyUri.replace('publicKey', 'verifyApiKey');
+    }
+
     console.log();
     console.log('saving configuration information to:', agentConfigPath);
     edgeconfig.save(agentConfig, agentConfigPath); // if it didn't throw, save succeeded
