@@ -1213,8 +1213,8 @@
       }
     },
     "microgateway-config": {
-      "version": "2.0.9",
-      "from": "microgateway-config@2.0.9",
+      "version": "2.0.10",
+      "from": "microgateway-config@2.0.10",
       "dependencies": {
         "fs-extra": {
           "version": "0.26.7",

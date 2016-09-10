@@ -1,6 +1,6 @@
 {
   "name": "edgemicro",
-  "version": "2.0.11-beta",
+  "version": "2.0.11-beta.2",
   "description": "Configurator and Launcher for Apigee Edge Microgateway",
   "author": "shawnfeldman",
   "main": "index.js",
@@ -23,7 +23,7 @@
     "jsonwebtoken": "^5.7.0",
     "lodash": "^3.9.3",
     "log-symbols": "^1.0.2",
-    "microgateway-config": "^2.0.9",
+    "microgateway-config": "^2.0.10",
     "microgateway-core": "^2.0.17",
     "microgateway-edgeauth": "^1.0.2",
     "microgateway-plugins": "^2.0.5",
