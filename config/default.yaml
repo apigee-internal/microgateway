@@ -31,7 +31,6 @@ headers:
   x-request-id: true
   x-response-time: true
   via: true
-  host: true 
 
 oauth:
   allowNoAuthorization: false
