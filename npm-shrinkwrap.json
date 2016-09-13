@@ -2039,6 +2039,18 @@
         }
       }
     },
+    "mkdirp": {
+      "version": "0.5.1",
+      "from": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
+      "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
+      "dependencies": {
+        "minimist": {
+          "version": "0.0.8",
+          "from": "minimist@0.0.8",
+          "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz"
+        }
+      }
+    },
     "moment": {
       "version": "2.12.0",
       "from": "https://registry.npmjs.org/moment/-/moment-2.12.0.tgz",
@@ -2085,6 +2097,18 @@
       "version": "2.2.1",
       "from": "https://registry.npmjs.org/nan/-/nan-2.2.1.tgz",
       "resolved": "https://registry.npmjs.org/nan/-/nan-2.2.1.tgz"
+    },
+    "naught2": {
+      "version": "1.0.1",
+      "from": "naught2@*",
+      "resolved": "https://registry.npmjs.org/naught2/-/naught2-1.0.1.tgz",
+      "dependencies": {
+        "pend": {
+          "version": "1.2.0",
+          "from": "pend@>=1.2.0 <1.3.0",
+          "resolved": "https://registry.npmjs.org/pend/-/pend-1.2.0.tgz"
+        }
+      }
     },
     "ncp": {
       "version": "2.0.0",
@@ -2208,6 +2232,11 @@
       "from": "https://registry.npmjs.org/pem/-/pem-1.8.1.tgz",
       "resolved": "https://registry.npmjs.org/pem/-/pem-1.8.1.tgz"
     },
+    "pend": {
+      "version": "1.2.0",
+      "from": "pend@*",
+      "resolved": "https://registry.npmjs.org/pend/-/pend-1.2.0.tgz"
+    },
     "pify": {
       "version": "2.3.0",
       "from": "https://registry.npmjs.org/pify/-/pify-2.3.0.tgz",
@@ -2227,6 +2256,18 @@
       "version": "0.3.1",
       "from": "https://registry.npmjs.org/pkginfo/-/pkginfo-0.3.1.tgz",
       "resolved": "https://registry.npmjs.org/pkginfo/-/pkginfo-0.3.1.tgz"
+    },
+    "portastic": {
+      "version": "1.0.1",
+      "from": "portastic@*",
+      "resolved": "https://registry.npmjs.org/portastic/-/portastic-1.0.1.tgz",
+      "dependencies": {
+        "bluebird": {
+          "version": "2.11.0",
+          "from": "bluebird@>=2.9.34 <3.0.0",
+          "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-2.11.0.tgz"
+        }
+      }
     },
     "precond": {
       "version": "0.2.3",
