@@ -106,8 +106,9 @@ const setup = function setup() {
         if(cluster.isMaster){
           if(!err) {
             console.log("edgemicro started successfully.")
-          }else{
+          } else {
             console.error(err);
+            process.exit(1);
           }
         }
       });
