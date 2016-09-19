@@ -2228,6 +2228,18 @@
       "from": "https://registry.npmjs.org/pkginfo/-/pkginfo-0.3.1.tgz",
       "resolved": "https://registry.npmjs.org/pkginfo/-/pkginfo-0.3.1.tgz"
     },
+    "portastic": {
+      "version": "1.0.1",
+      "from": "portastic@1.0.1",
+      "resolved": "https://registry.npmjs.org/portastic/-/portastic-1.0.1.tgz",
+      "dependencies": {
+        "bluebird": {
+          "version": "2.11.0",
+          "from": "bluebird@>=2.9.34 <3.0.0",
+          "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-2.11.0.tgz"
+        }
+      }
+    },
     "precond": {
       "version": "0.2.3",
       "from": "https://registry.npmjs.org/precond/-/precond-0.2.3.tgz",
