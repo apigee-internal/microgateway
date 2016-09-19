@@ -1,8 +1,7 @@
 {
   "name": "edgemicro",
   "version": "2.1.0-beta.2",
-  "description": "Configurator and Launcher for Apigee Edge Microgateway",
-  "author": "shawnfeldman",
+  "description": "Apigee Edge Microgateway",
   "main": "index.js",
   "license": "Apache-2.0",
   "bin": {
@@ -35,7 +34,6 @@
     "uuid": "^2.0.1",
     "xml2js": "^0.4.16",
     "portastic": "^1.0.1"
-   
   },
   "devDependencies": {
     "gulp": "^3.8.11",
@@ -58,6 +56,34 @@
     "test": "mocha --timeout 7000 tests"
   },
   "engines": {
-    "node": ">=5.0.0 <6.0.0"
-  }
+    "node": ">=5.0.0"
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apigee-internal/microgateway.git"
+  },
+  "keywords": [
+    "apigee",
+    "edge",
+    "micro",
+    "microgateway",
+    "proxy",
+    "gateway"
+  ],
+  "bugs": {
+    "url": "https://github.com/apigee-internal/microgateway/issues"
+  },
+  "homepage": "https://github.com/apigee-internal/microgateway#readme",
+  "contributors": [
+    "Prabhat Jha <prabhat143@gmail.com> (https://github.com/prabhatjha)",
+    "Sean Williams (https://github.com/swilliams11)",
+    "Noah Dietz <noahdietz24@gmail.com> (https://github.com/noahdietz)",
+    "Shawn Feldman (https://github.com/shawnfeldman)",
+    "Kevin Swiber <kswiber@gmail.com> (https://github.com/kevinswiber)"
+  ],
+  "author": "Kevin Swiber <kswiber@gmail.com>"
 }
