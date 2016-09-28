@@ -1,6 +1,6 @@
 {
   "name": "edgemicro",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "dependencies": {
     "ansi-regex": {
       "version": "2.0.0",
@@ -326,9 +326,9 @@
           "resolved": "https://registry.npmjs.org/glob/-/glob-6.0.4.tgz"
         },
         "graceful-fs": {
-          "version": "4.1.6",
+          "version": "4.1.8",
           "from": "graceful-fs@>=4.1.2 <4.2.0",
-          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.6.tgz"
+          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.8.tgz"
         },
         "rimraf": {
           "version": "2.4.5",
@@ -717,9 +717,9 @@
       }
     },
     "glob": {
-      "version": "7.0.6",
+      "version": "7.1.0",
       "from": "glob@>=7.0.5 <8.0.0",
-      "resolved": "https://registry.npmjs.org/glob/-/glob-7.0.6.tgz"
+      "resolved": "https://registry.npmjs.org/glob/-/glob-7.1.0.tgz"
     },
     "glob-base": {
       "version": "0.3.0",
@@ -1138,9 +1138,9 @@
       "resolved": "https://registry.npmjs.org/jsonfile/-/jsonfile-2.4.0.tgz",
       "dependencies": {
         "graceful-fs": {
-          "version": "4.1.6",
+          "version": "4.1.8",
           "from": "graceful-fs@>=4.1.6 <5.0.0",
-          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.6.tgz"
+          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.8.tgz"
         }
       }
     },
@@ -1210,9 +1210,9 @@
       "resolved": "https://registry.npmjs.org/load-json-file/-/load-json-file-1.1.0.tgz",
       "dependencies": {
         "graceful-fs": {
-          "version": "4.1.6",
+          "version": "4.1.8",
           "from": "graceful-fs@>=4.1.2 <5.0.0",
-          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.6.tgz"
+          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.8.tgz"
         }
       }
     },
@@ -1406,21 +1406,21 @@
           "resolved": "https://registry.npmjs.org/fs-extra/-/fs-extra-0.26.7.tgz"
         },
         "graceful-fs": {
-          "version": "4.1.6",
+          "version": "4.1.8",
           "from": "graceful-fs@>=4.1.2 <5.0.0",
-          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.6.tgz"
+          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.8.tgz"
         },
         "lodash": {
-          "version": "4.16.0",
+          "version": "4.16.2",
           "from": "lodash@>=4.6.1 <5.0.0",
-          "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.16.0.tgz"
+          "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.16.2.tgz"
         }
       }
     },
     "microgateway-core": {
-      "version": "2.1.0-beta",
-      "from": "microgateway-core@>=2.1.0-beta <3.0.0",
-      "resolved": "https://registry.npmjs.org/microgateway-core/-/microgateway-core-2.1.0-beta.tgz",
+      "version": "2.1.0",
+      "from": "microgateway-core@>=2.1.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/microgateway-core/-/microgateway-core-2.1.0.tgz",
       "dependencies": {
         "bl": {
           "version": "1.0.3",
@@ -1438,9 +1438,9 @@
               "resolved": "https://registry.npmjs.org/async/-/async-2.0.1.tgz"
             },
             "lodash": {
-              "version": "4.16.0",
+              "version": "4.16.2",
               "from": "lodash@>=4.8.0 <5.0.0",
-              "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.16.0.tgz"
+              "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.16.2.tgz"
             }
           }
         },
@@ -2755,19 +2755,12 @@
     "mkdirp": {
       "version": "0.5.1",
       "from": "mkdirp@>=0.5.0 <0.6.0",
-      "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
-      "dependencies": {
-        "minimist": {
-          "version": "0.0.8",
-          "from": "minimist@0.0.8",
-          "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz"
-        }
-      }
+      "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz"
     },
     "moment": {
-      "version": "2.15.0",
+      "version": "2.15.1",
       "from": "moment@>=2.10.6 <3.0.0",
-      "resolved": "https://registry.npmjs.org/moment/-/moment-2.15.0.tgz"
+      "resolved": "https://registry.npmjs.org/moment/-/moment-2.15.1.tgz"
     },
     "ms": {
       "version": "0.7.1",
@@ -2962,9 +2955,9 @@
       "resolved": "https://registry.npmjs.org/path-type/-/path-type-1.1.0.tgz",
       "dependencies": {
         "graceful-fs": {
-          "version": "4.1.6",
+          "version": "4.1.8",
           "from": "graceful-fs@>=4.1.2 <5.0.0",
-          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.6.tgz"
+          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.1.8.tgz"
         }
       }
     },
@@ -3206,13 +3199,13 @@
       "resolved": "https://registry.npmjs.org/spdx-license-ids/-/spdx-license-ids-1.2.2.tgz"
     },
     "spdy": {
-      "version": "3.4.0",
+      "version": "3.4.2",
       "from": "spdy@>=3.3.3 <4.0.0",
-      "resolved": "https://registry.npmjs.org/spdy/-/spdy-3.4.0.tgz"
+      "resolved": "https://registry.npmjs.org/spdy/-/spdy-3.4.2.tgz"
     },
     "spdy-transport": {
       "version": "2.0.15",
-      "from": "spdy-transport@>=2.0.0 <3.0.0",
+      "from": "spdy-transport@>=2.0.15 <3.0.0",
       "resolved": "https://registry.npmjs.org/spdy-transport/-/spdy-transport-2.0.15.tgz",
       "dependencies": {
         "isarray": {
@@ -3630,9 +3623,9 @@
       "resolved": "https://registry.npmjs.org/xmlbuilder/-/xmlbuilder-4.2.1.tgz",
       "dependencies": {
         "lodash": {
-          "version": "4.16.0",
+          "version": "4.16.2",
           "from": "lodash@>=4.0.0 <5.0.0",
-          "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.16.0.tgz"
+          "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.16.2.tgz"
         }
       }
     },

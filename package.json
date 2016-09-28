@@ -1,6 +1,6 @@
 {
   "name": "edgemicro",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Apigee Edge Microgateway",
   "main": "index.js",
   "license": "Apache-2.0",
@@ -23,7 +23,7 @@
     "lodash": "^3.9.3",
     "log-symbols": "^1.0.2",
     "microgateway-config": "^2.0.10",
-    "microgateway-core": "^2.1.0-beta",
+    "microgateway-core": "^2.1.0",
     "microgateway-edgeauth": "^1.0.2",
     "microgateway-plugins": "^2.0.5",
     "pem": "^1.8.1",
@@ -54,9 +54,6 @@
     "start": "./cli/edgemicro start",
     "package": "node cli/package.js",
     "test": "mocha --timeout 7000 tests"
-  },
-  "engines": {
-    "node": ">=5.0.0"
   },
   "directories": {
     "doc": "docs",
