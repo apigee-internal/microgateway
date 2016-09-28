@@ -83,7 +83,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
     rimraf(tmpDir.name+"/node_modules/", cb);
   })
   tasks.push(function(cb){
-    run('cd '+tmpDir.name+';npm install;cd '+process.cwd(),cb);
+    run('cd '+tmpDir.name+' && npm install && cd '+process.cwd(),cb);
   })
  tasks.push(function(cb) {
     rimraf(tmpDir.name+"/node_modules/express", cb);
