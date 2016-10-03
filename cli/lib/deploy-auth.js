@@ -16,7 +16,7 @@ var exec = require('child_process').exec;
 
 var run = function(cmd,cb){
   //console.log('run %s',cmd)
-  var child = exec(cmd, function (error, stdout, stderr) {
+  var child = exec(cmd, {maxBuffer: 1024 * 500}, function (error, stdout, stderr) {
     cb(error)
   });
 };
