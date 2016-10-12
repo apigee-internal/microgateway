@@ -15,6 +15,8 @@ const configLocations = require('../config/locations');
 
 const setup = function setup() {
   commander
+    .version(require('../package.json').version);
+  commander
     .command('token [action]', 'JWT token commands, see: "edgemicro token -h"')
     .command('cert [action]', 'ssh cert commands to store on Apigee Vault, see: "edgemicro cert -h"')
     .command('private [action]', 'Automated, one-time configuration with Edge On-Premises, see: "edgemicro private -h"')
@@ -95,7 +97,7 @@ const setup = function setup() {
               options.error('port is not available.');
               process.exit(1);
             }
-            
+
           });
       }
       if (!options.key ) {return  options.error('key is required');}
