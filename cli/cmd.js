@@ -105,7 +105,7 @@ const setup = function setup() {
     .option('-e, --env <env>', 'the environment')
     .option('-k, --key <key>', 'key for authenticating with Edge')
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
-    .description('reoad the edgemicro cluster by pulling new configuration')
+    .description('reload the edgemicro cluster by pulling new configuration')
     .action((options)=> {
       options.error = optionError;
       options.secret = options.secret || process.env.EDGEMICRO_SECRET;

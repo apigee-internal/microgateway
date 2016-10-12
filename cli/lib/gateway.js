@@ -56,7 +56,10 @@ Gateway.prototype.start =  (options) => {
       edgeconfig.save(config, cache);
     }
 
-    gateway(config);
+    var opt = {};
+    opt.args = [JSON.stringify(args)];
+    opt.timeout = 10;
+    var mgCluster = reloadCluster(path.join(__dirname, 'start-agent.js'), opt);
 
     var server = net.createServer();
     server.listen(ipcPath);
@@ -66,30 +69,25 @@ Gateway.prototype.start =  (options) => {
       socket.on('message', (message) => {
         if (message.command == 'reload') {
           console.log('Recieved reload instruction. Proceeding to reload');
-          cluster.reload(() => {
+          mgCluster.reload(() => {
             console.log('Reload completed');
             socket.sendMessage(true);
           });
         } else if (message.command == 'stop') {
           console.log('Recieved stop instruction. Proceeding to stop');
-          cluster.terminate(() => {
+          mgCluster.terminate(() => {
             console.log('Stop completed');
             socket.sendMessage(true);
             process.exit(0);
           });
         } else if (message.command == 'status') {
-          var activeWorkers = cluster.activeWorkers();
+          var activeWorkers = mgCluster.activeWorkers();
           socket.sendMessage(activeWorkers ? activeWorkers.length : 0);
         }
       });
     });
-    var opt = {};
-    opt.args = [JSON.stringify(args)];
-    opt.timeout = 10;
 
-    var cluster = reloadCluster(path.join(__dirname, 'start-agent.js'), opt);
-
-    cluster.run();
+    mgCluster.run();
     console.log('PROCESS PID : '+ process.pid);
 
     process.on('exit', () => {
@@ -132,8 +130,6 @@ Gateway.prototype.reload = (options) => {
       } else {
         edgeconfig.save(config, cache);
       }
-
-      gateway(config);
 
       socket.sendMessage({command: 'reload'});
       socket.on('message', (success) => {

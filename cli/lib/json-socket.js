@@ -118,3 +118,5 @@ delegates.forEach(function (method) {
 });
 
 module.exports = JsonSocket;
+
+// Code inspired from https://github.com/sebastianseilund/node-json-socket under MIT license.

@@ -371,3 +371,7 @@ function removeItem(arr, item) {
   var index = arr.indexOf(item);
   if (index >= 0) arr.splice(index, 1)
 }
+
+// Idea and Implementations are inspired from the following repositories
+// https://github.com/andrewrk/naught under MIT license
+// https://github.com/doxout/recluster under MIT license
