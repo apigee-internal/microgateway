@@ -106,7 +106,7 @@ Gateway.prototype.start =  (options) => {
       process.exit(0);
     });
 
-    var pollInterval = config.edgemicro.config_change_poll_interval ? config.edgemicro.config_change_poll_interval : defaultPollInterval;
+    var pollInterval = config.edgemicro.config_change_poll_interval || defaultPollInterval;
     // Client Socket for auto reload
     // send reload message to socket.
     var clientSocket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
@@ -232,9 +232,5 @@ Gateway.prototype.status = (options) => {
 
 function hasConfigChanged(oldConfig, newConfig) {
   // This may not be the best way to do the check. But it works for now.
-  if (JSON.stringify(oldConfig) == JSON.stringify(newConfig)) {
-    return false;
-  } else {
-    return true;
-  }
+  return JSON.stringify(oldConfig) != JSON.stringify(newConfig);
 }
