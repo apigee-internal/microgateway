@@ -10,6 +10,7 @@ const JsonSocket = require('./json-socket');
 const configLocations = require('../../config/locations');
 const isWin = /^win/.test(process.platform);
 const ipcPath = configLocations.getIPCFilePath();
+const defaultPollInterval = 20;
 
 const Gateway = function () {
 };
@@ -19,7 +20,7 @@ module.exports = function () {
 };
 
 Gateway.prototype.start =  (options) => {
-
+  const self = this;
   try {
     fs.accessSync(ipcPath, fs.F_OK);
     console.error('Edgemicro seems to be already running.');
@@ -105,6 +106,40 @@ Gateway.prototype.start =  (options) => {
       process.exit(0);
     });
 
+    var pollInterval = config.edgemicro.config_change_poll_interval ? config.edgemicro.config_change_poll_interval : defaultPollInterval;
+    // Client Socket for auto reload
+    // send reload message to socket.
+    var clientSocket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
+    clientSocket.connect(ipcPath);
+
+    //start the polling mechanism to look for config changes
+    var reloadOnConfigChange = (oldConfig, cache, opts) => {
+      console.log('Checking for change in configuration');
+      var self = this;
+      edgeconfig.get(opts, (err, newConfig) => {
+        if (err) {
+          // failed to check new config. so try to check again after pollInterval
+          console.error('Failed to check for change in Config. Will retry after ' + pollInterval + ' seconds');
+          setTimeout(()=> {
+            reloadOnConfigChange(oldConfig, cache, opts);
+          }, pollInterval * 1000);
+        } else {
+          pollInterval = config.edgemicro.config_change_poll_interval ? config.edgemicro.config_change_poll_interval : pollInterval;
+          var isConfigChanged = hasConfigChanged(oldConfig, newConfig);
+          if (isConfigChanged) {
+            console.log('Configuration change detected. Saving new config and Initiating reload');
+            edgeconfig.save(newConfig, cache);
+            clientSocket.sendMessage({command: 'reload'});
+          }
+          setTimeout(()=> {
+            reloadOnConfigChange(newConfig, cache, opts);
+          }, pollInterval * 1000);
+        }
+      });
+    };
+    setTimeout(()=> {
+      reloadOnConfigChange(config, cache, {source: source, keys: keys});
+    }, pollInterval * 1000);
   });
 };
 
@@ -194,3 +229,12 @@ Gateway.prototype.status = (options) => {
   });
   socket.connect(ipcPath);
 };
+
+function hasConfigChanged(oldConfig, newConfig) {
+  // This may not be the best way to do the check. But it works for now.
+  if (JSON.stringify(oldConfig) == JSON.stringify(newConfig)) {
+    return false;
+  } else {
+    return true;
+  }
+}

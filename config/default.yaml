@@ -16,6 +16,7 @@ edgemicro:
   restart_sleep: 500
   restart_max: 50
   max_times: 300
+  config_change_poll_interval: 600
   logging:
     level: error
     dir: /var/tmp
