@@ -296,6 +296,25 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
         agentConfig['edge_config'].bootstrap = results[1];
       }
 
+      var publicKeyUri = agentConfig['edge_config']['jwt_public_key'];
+      if (publicKeyUri) {
+        agentConfig['edge_config']['products'] = publicKeyUri.replace('publicKey', 'products');
+
+        if (!agentConfig.hasOwnProperty('oauth') || agentConfig['oauth'] == null) {
+          agentConfig['oauth'] = {};
+        }
+        agentConfig['oauth']['verify_api_key_url'] = publicKeyUri.replace('publicKey', 'verifyApiKey');
+      }
+
+      var bootstrapUri = agentConfig['edge_config']['bootstrap'];
+      if (bootstrapUri) {
+        if (!agentConfig.hasOwnProperty('analytics') || agentConfig['analytics'] == null) {
+          agentConfig['analytics'] = {};
+        }
+
+        agentConfig['analytics']['uri'] = bootstrapUri.replace('bootstrap', 'axpublisher');
+      }
+      
       console.log();
       console.log('saving configuration information to:', agentConfigPath);
       edgeconfig.save(agentConfig, agentConfigPath);

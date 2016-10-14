@@ -34,9 +34,7 @@ Configure.prototype.configure = function configure(options, cb) {
   }
   defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath() });
   addEnvVars(defaultConfig);
-  cert = certLib(defaultConfig)
   deployAuth = deployAuthLib(defaultConfig.edge_config, null)
-  authUri = defaultConfig.edge_config.authUri;
   managementUri = defaultConfig.edge_config.managementUri;
   keySecretMessage = defaultConfig.edge_config.keySecretMessage;
 
@@ -46,12 +44,17 @@ Configure.prototype.configure = function configure(options, cb) {
   assert(options.env, 'env is required');
 
   options.proxyName = 'edgemicro-auth';
+
   if (options.url) {
     if (options.url.indexOf('://') === -1) {
       options.url = 'https://' + options.url;
     }
-    authUri = options.url + '/edgemicro-auth';
+    defaultConfig.edge_config.authUri = options.url + '/edgemicro-auth';
   }
+
+  authUri = defaultConfig.edge_config.authUri;
+
+  cert = certLib(defaultConfig)
 
   targetFile = configLocations.getSourceFile(options.org, options.env);
   const cache = configLocations.getCachePath(options.org, options.env);
@@ -153,6 +156,25 @@ function configureEdgemicroWithCreds(options, cb) {
       agentConfig['edge_config']['jwt_public_key'] =
         options.url ? authUri + '/publicKey' : util.format(authUri + '/publicKey', options.org, options.env);
       agentConfig['edge_config'].bootstrap = results[1].bootstrap;
+    }
+
+    var publicKeyUri = agentConfig['edge_config']['jwt_public_key'];
+    if (publicKeyUri) {
+      agentConfig['edge_config']['products'] = publicKeyUri.replace('publicKey', 'products');
+
+      if (!agentConfig.hasOwnProperty('oauth') || agentConfig['oauth'] == null) {
+        agentConfig['oauth'] = {};
+      }
+      agentConfig['oauth']['verify_api_key_url'] = publicKeyUri.replace('publicKey', 'verifyApiKey');
+    }
+
+    var bootstrapUri = agentConfig['edge_config']['bootstrap'];
+    if (bootstrapUri) {
+      if (!agentConfig.hasOwnProperty('analytics') || agentConfig['analytics'] == null) {
+        agentConfig['analytics'] = {};
+      }
+
+      agentConfig['analytics']['uri'] = bootstrapUri.replace('bootstrap', 'axpublisher');
     }
 
     console.log();

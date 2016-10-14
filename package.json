@@ -1,8 +1,7 @@
 {
   "name": "edgemicro",
-  "version": "2.0.10",
-  "description": "Configurator and Launcher for Apigee Edge Microgateway",
-  "author": "shawnfeldman",
+  "version": "2.1.2",
+  "description": "Apigee Edge Microgateway",
   "main": "index.js",
   "license": "Apache-2.0",
   "bin": {
@@ -23,17 +22,18 @@
     "jsonwebtoken": "^5.7.0",
     "lodash": "^3.9.3",
     "log-symbols": "^1.0.2",
-    "microgateway-config": "^2.0.9",
-    "microgateway-core": "^2.0.15",
+    "microgateway-config": "^2.0.10",
+    "microgateway-core": "^2.1.0",
     "microgateway-edgeauth": "^1.0.2",
-    "microgateway-plugins": "^2.0.4",
+    "microgateway-plugins": "^2.0.5",
     "pem": "^1.8.1",
     "request": "^2.67.0",
     "rimraf": "^2.4.3",
     "tmp": "0.0.28",
     "util": "^0.10.3",
     "uuid": "^2.0.1",
-    "xml2js": "^0.4.16"
+    "xml2js": "^0.4.16",
+    "portastic": "^1.0.1"
   },
   "devDependencies": {
     "gulp": "^3.8.11",
@@ -55,7 +55,32 @@
     "package": "node cli/package.js",
     "test": "mocha --timeout 7000 tests"
   },
-  "engines": {
-    "node": ">=5.0.0 <6.0.0"
-  }
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apigee-internal/microgateway.git"
+  },
+  "keywords": [
+    "apigee",
+    "edge",
+    "micro",
+    "microgateway",
+    "proxy",
+    "gateway"
+  ],
+  "bugs": {
+    "url": "https://github.com/apigee-internal/microgateway/issues"
+  },
+  "homepage": "https://github.com/apigee-internal/microgateway#readme",
+  "contributors": [
+    "Prabhat Jha <prabhat143@gmail.com> (https://github.com/prabhatjha)",
+    "Sean Williams (https://github.com/swilliams11)",
+    "Noah Dietz <noahdietz24@gmail.com> (https://github.com/noahdietz)",
+    "Shawn Feldman (https://github.com/shawnfeldman)",
+    "Kevin Swiber <kswiber@gmail.com> (https://github.com/kevinswiber)"
+  ],
+  "author": "Kevin Swiber <kswiber@gmail.com>"
 }

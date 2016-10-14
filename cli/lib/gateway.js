@@ -6,7 +6,6 @@ const os = require('os');
 const fs = require('fs');
 const edgeconfig = require('microgateway-config');
 const gateway = require('microgateway-core');
-
 const configLocations = require('../../config/locations');
 const agentConfig = require('../../lib/agent-config');
 
@@ -23,8 +22,13 @@ Gateway.prototype.start = function start(options, cb) {
   const keys = { key: options.key, secret: options.secret };
   const args = { target: cache, keys: keys,pluginDir:options.pluginDir };
   const that = this;
+
   if (cluster.isMaster) {
-    edgeconfig.get({ source: source, keys: keys, localproxy: {name:options.app_name , path:options.app_path, target_url:options.target_url} }, function (err, config) {
+    edgeconfig.get({ source: source, keys: keys, localproxy: {name:options.app_name , path:options.app_path, target_url:options.target_url} }, function (err, config) {      
+      if(options.port){
+        config.edgemicro.port = parseInt(options.port);
+      }
+
       if (err) {
         const exists = fs.existsSync(cache);
         console.error("failed to retieve config from gateway. continuing, will try cached copy..");
@@ -34,11 +38,16 @@ Gateway.prototype.start = function start(options, cb) {
         }else{
           console.log('using cached configuration from %s',cache);
           config = edgeconfig.load({source:cache})
+          if(options.port){
+            config.edgemicro.port = parseInt(options.port);
+          }
         }
       } else {
         edgeconfig.save(config, cache);
       }
+
       if (options.cluster) {
+
         const numWorkers = Number(options.processes || require('os').cpus().length);
         cluster.setupMaster();
         const argv = cluster.settings ? cluster.settings.execArgv || [] : [];
@@ -54,11 +63,13 @@ Gateway.prototype.start = function start(options, cb) {
         for (var i = 0; i < numWorkers; i++) {
           cluster.fork();
         }
+
         gateway(config);
 
         cluster.on('death', function (worker) {
           console.log('worker ' + worker.pid + ' died');
         });
+
         cb(null, {
           close: function (cb) {
             cluster.disconnect(cb);

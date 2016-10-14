@@ -16,7 +16,7 @@ var exec = require('child_process').exec;
 
 var run = function(cmd,cb){
   //console.log('run %s',cmd)
-  var child = exec(cmd, function (error, stdout, stderr) {
+  var child = exec(cmd, {maxBuffer: 1024 * 500}, function (error, stdout, stderr) {
     cb(error)
   });
 };
@@ -83,7 +83,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
     rimraf(tmpDir.name+"/node_modules/", cb);
   })
   tasks.push(function(cb){
-    run('cd '+tmpDir.name+';npm install;cd '+process.cwd(),cb);
+    run('cd '+tmpDir.name+' && npm install && cd '+process.cwd(),cb);
   })
  tasks.push(function(cb) {
     rimraf(tmpDir.name+"/node_modules/express", cb);
