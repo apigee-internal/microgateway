@@ -10,7 +10,7 @@ const JsonSocket = require('./json-socket');
 const configLocations = require('../../config/locations');
 const isWin = /^win/.test(process.platform);
 const ipcPath = configLocations.getIPCFilePath();
-const defaultPollInterval = 20;
+const defaultPollInterval = 600;
 
 const Gateway = function () {
 };
