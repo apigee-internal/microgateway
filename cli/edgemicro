@@ -20,9 +20,11 @@
  ****************************************************************************/
 
 'use strict';
+var edgemicroVersion = require('../package.json').version;
 const version = process.version;
 const lts_version = "v4.2.0";
 console.log('current nodejs version is %s',version)
+console.log('current edgemicro version is %s',edgemicroVersion);
 if(version < lts_version){
   console.error('You are using an older version of NodeJS version %s, please update nodejs to %s+',version,lts_version)
 }else{
