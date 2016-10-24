@@ -22,9 +22,11 @@ Gateway.prototype.start = function start(options, cb) {
   const keys = { key: options.key, secret: options.secret };
   const args = { target: cache, keys: keys,pluginDir:options.pluginDir };
   const that = this;
-
+  const localproxy;
+  if(options.app_name && options.app_path && options.target_url)
+    localproxy = {name:options.app_name , path:options.app_path, target_url:options.target_url}
   if (cluster.isMaster) {
-    edgeconfig.get({ source: source, keys: keys, localproxy: {name:options.app_name , path:options.app_path, target_url:options.target_url} }, function (err, config) {      
+    edgeconfig.get({ source: source, keys: keys, localproxy: localproxy }, function (err, config) {      
       if(options.port){
         config.edgemicro.port = parseInt(options.port);
       }
