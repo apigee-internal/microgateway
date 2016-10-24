@@ -8,6 +8,8 @@ const homeDir =  path.join(os.homedir(), '.edgemicro');
 const sourceFile = 'config.yaml';
 const defaultFile = 'default.yaml';
 const cacheFile =  'cache-config.yaml';
+const defaultIPCFileName = 'edgemicro';
+const isWin = /^win/.test(process.platform);
 
 module.exports = {
   getInitPath: function(){
@@ -26,6 +28,13 @@ module.exports = {
   getCachePath: function getCachePath(org,env){
     return path.join(this.homeDir, org + "-" + env + "-" + cacheFile);
   },
+  getIPCFilePath: function getIPCFilePath() {
+    if (!isWin) {
+      return path.join(process.cwd(), defaultIPCFileName + '.sock');
+    } else {
+      return path.join('\\\\?\\pipe', process.cwd(), defaultIPCFileName);
+    }
+  },
   defaultDir: configDir,
   homeDir: homeDir
-}
+};
