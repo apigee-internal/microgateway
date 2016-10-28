@@ -54,6 +54,9 @@ Gateway.prototype.start =  (options) => {
         }
       }
     } else {
+      if (options.port) {
+        config.edgemicro.port = parseInt(options.port);
+      }
       edgeconfig.save(config, cache);
     }
 
