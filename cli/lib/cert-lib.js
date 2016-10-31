@@ -53,7 +53,7 @@ CertLogic.prototype.retrievePublicKeyPrivate = function( callback) {
 CertLogic.prototype.checkCertWithPassword = function(options, callback) {
 
   //switch to KVM
-  const uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries',
+  const uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s',
     this.managementUri, options.org, options.env, this.vaultName);
 
   request({
@@ -362,19 +362,41 @@ function createVault(username, password, managementUri, organization, environmen
 function addKeyToVault(username, password, managementUri, organization, environment, vaultName, key, value, cb) {
 
   //switch to KVM
-  const uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries', managementUri, organization, environment, vaultName);
-  request({
-    uri: uri,
-    method: 'POST',
-    auth: {
-      username: username,
-      password: password
-    },
-    json: { name: key, value: value }
-  }, function(err, res) {
-    err = translateError(err, res);
-    cb(err, res);
-  });
+  var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries', managementUri, organization, environment, vaultName);
+
+    request({
+      uri: uri,
+      method: 'POST',
+      auth: {
+        username: username,
+        password: password
+      },
+      json: {name: key, value: value}
+    }, function (err, res) {
+      err = translateError(err, res);
+      console.log("Caught err during POST to " + uri + ". Falling back to Non-CPS API");
+      uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s', managementUri, organization, environment, vaultName);
+      request({
+        uri: uri,
+        method: 'POST',
+        auth: {
+          username: username,
+          password: password
+        },
+        json: {
+          name: vaultName,
+          entry: [
+            {
+              name: key,
+              value: value
+            },
+          ]
+        }
+      }, function (err, res) {
+        err = translateError(err, res);
+        cb(err, res);
+      });
+    });
 }
 
 function translateError(err, res) {
