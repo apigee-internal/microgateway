@@ -26,4 +26,20 @@ It also provides a CLI that an admin uses to wire/configure an instance of Micro
  * [Get support and help] (https://community.apigee.com/spaces/71/index.html)
 
 
+# Guidelines for Contribution
 
+Pull requests to microgateway repos are gladly accepted. However, to make it easier on maintainers reviewing requests we kindly ask that
+you include the following with each pull request.
+
+* Title should be clear and concise as to what is in the Pull Request
+* Please include some unit tests with your PR.
+* If it is a feature addition please include a use case, and how to use the feature.
+* If it is a bug fix please include reproduction steps for the bug, or link to an issue with reproduction steps.
+* Ensure your PR is compatible with Node.js as far back as 4.5.X
+* Follow our general style of coding. Taking advantage of the latest ES6 features.
+
+For filing issues please follow the following steps
+
+* An issue should have a clear concise title to indicate the problem
+* Reproduction steps should be included to verify what the issue is
+* Including a relevant Apigee Community post to ensure that fix information is propogated into the community.
