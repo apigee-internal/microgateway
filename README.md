@@ -25,6 +25,15 @@ It also provides a CLI that an admin uses to wire/configure an instance of Micro
  * [Official Microgateway Docs] (http://docs.apigee.com/microgateway/content/edge-microgateway-home)
  * [Get support and help] (https://community.apigee.com/spaces/71/index.html)
 
+# Filing Issues
+
+For filing issues please follow the following steps, and file the issue [here](https://github.com/apigee-internal/microgateway/issues).
+
+* An issue should have a clear concise title to indicate the problem
+* Reproduction steps should be included to verify what the issue is
+* Including a relevant Apigee Community post to ensure that fix information is propogated into the community.
+
+
 
 # Guidelines for Contribution
 
@@ -38,8 +47,6 @@ you include the following with each pull request.
 * Ensure your PR is compatible with Node.js as far back as 4.5.X
 * Follow our general style of coding. Taking advantage of the latest ES6 features.
 
-For filing issues please follow the following steps
+# License
 
-* An issue should have a clear concise title to indicate the problem
-* Reproduction steps should be included to verify what the issue is
-* Including a relevant Apigee Community post to ensure that fix information is propogated into the community.
+Apache
