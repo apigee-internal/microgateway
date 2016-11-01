@@ -52,6 +52,8 @@ CertLogic.prototype.retrievePublicKeyPrivate = function( callback) {
 
 CertLogic.prototype.checkCertWithPassword = function(options, callback) {
 
+  /*const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries',
+    this.managementUri, options.org, options.env, this.vaultName);*/
   //switch to KVM
   const uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries',
     this.managementUri, options.org, options.env, this.vaultName);
@@ -73,6 +75,8 @@ CertLogic.prototype.checkCertWithPassword = function(options, callback) {
 
 CertLogic.prototype.checkPrivateCert = function(options, callback) {
 
+  /*const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries',
+    this.managementUri, options.org, options.env, this.vaultName);*/
   //switch to KVM
   const uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries',
     this.managementUri, options.org, options.env, this.vaultName);
@@ -318,6 +322,7 @@ function createCert(cb) {
 
 function deleteVault(username, password, managementUri, organization, environment, vaultName, cb) {
   console.log('deleting vault');
+  //const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s', managementUri, organization, environment, vaultName);
   //switch to KVM
   const uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s', managementUri, organization, environment, vaultName);
   request({
@@ -339,6 +344,7 @@ function deleteVault(username, password, managementUri, organization, environmen
 
 function createVault(username, password, managementUri, organization, environment, vaultName, cb) {
 
+  //const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults', managementUri, organization, environment);
   //swtch to vault
   const uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps', managementUri, organization, environment);
   request({
@@ -361,6 +367,7 @@ function createVault(username, password, managementUri, organization, environmen
 
 function addKeyToVault(username, password, managementUri, organization, environment, vaultName, key, value, cb) {
 
+  //const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries', managementUri, organization, environment, vaultName);
   //switch to KVM
   const uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries', managementUri, organization, environment, vaultName);
   request({
