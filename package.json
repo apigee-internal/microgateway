@@ -1,6 +1,6 @@
 {
   "name": "edgemicro",
-  "version": "2.2.3-beta",
+  "version": "2.2.4-beta",
   "description": "Apigee Edge Microgateway",
   "main": "index.js",
   "license": "Apache-2.0",
@@ -80,7 +80,9 @@
     "Sean Williams (https://github.com/swilliams11)",
     "Noah Dietz <noahdietz24@gmail.com> (https://github.com/noahdietz)",
     "Shawn Feldman (https://github.com/shawnfeldman)",
-    "Kevin Swiber <kswiber@gmail.com> (https://github.com/kevinswiber)"
+    "Kevin Swiber <kswiber@gmail.com> (https://github.com/kevinswiber)",
+    "Matt Dobson <mdobson@apigee.com> (https://github.com/mdobson)",
+    "Mitch Fierro <fierro.mitch@gmail.com> (https://github.com/f1erro)"
   ],
   "author": "Kevin Swiber <kswiber@gmail.com>"
 }
