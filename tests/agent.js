@@ -35,7 +35,7 @@ describe('configured agent/server address', function() {
         config = configDownload;
         delete config.edgemicro.plugins
         config.proxies[0].url = "http://localhost:" + port + "/";
-        target = "http://localhost:" + config.edgemicro.port + "/hello/";
+        target = "http://localhost:" + config.edgemicro.port + "/edgemicro_hello/";
         agent.start(keys, null, config, done);
         config = configDownload;
       });

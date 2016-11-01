@@ -34,37 +34,21 @@ module.exports = function (useRoot) {
     path: '/echo/:key'
   }, respond);
   
-   server.get('/hello/:key', respond);
 
   server.post({
-    path: '/hello/:key'
+    path: '/edgemicro_hello'
   }, respond);
   server.put({
-    path: '/hello/:key'
+    path: '/edgemicro_hello'
   }, respond);
 
   server.del({
-    path: '/hello/:key'
+    path: '/edgemicro_hello'
   }, respond);
   
-  
-  
-   server.get('/hello', respond);
+  server.get('/edgemicro_hello', respond);
 
-  server.post({
-    path: '/hello'
-  }, respond);
-  server.put({
-    path: '/hello'
-  }, respond);
-
-  server.del({
-    path: '/hello'
-  }, respond);
-
-    server.get('/', respond);
-
-
+  server.get('/', respond);
 
   return server;
 

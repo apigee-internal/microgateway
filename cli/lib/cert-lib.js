@@ -52,10 +52,9 @@ CertLogic.prototype.retrievePublicKeyPrivate = function( callback) {
 
 CertLogic.prototype.checkCertWithPassword = function(options, callback) {
 
-  //switch to KVM
-  const uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries',
-    this.managementUri, options.org, options.env, this.vaultName);
+  const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries',
 
+    this.managementUri, options.org, options.env, this.vaultName);
   request({
     uri: uri,
     auth: {
@@ -73,8 +72,7 @@ CertLogic.prototype.checkCertWithPassword = function(options, callback) {
 
 CertLogic.prototype.checkPrivateCert = function(options, callback) {
 
-  //switch to KVM
-  const uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries',
+  const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries',
     this.managementUri, options.org, options.env, this.vaultName);
 
   request({
@@ -318,8 +316,7 @@ function createCert(cb) {
 
 function deleteVault(username, password, managementUri, organization, environment, vaultName, cb) {
   console.log('deleting vault');
-  //switch to KVM
-  const uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s', managementUri, organization, environment, vaultName);
+  const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s', managementUri, organization, environment, vaultName);
   request({
     uri: uri,
     method: 'DELETE',
@@ -339,8 +336,7 @@ function deleteVault(username, password, managementUri, organization, environmen
 
 function createVault(username, password, managementUri, organization, environment, vaultName, cb) {
 
-  //swtch to vault
-  const uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps', managementUri, organization, environment);
+  const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults', managementUri, organization, environment);
   request({
     uri: uri,
     method: 'POST',
@@ -348,7 +344,7 @@ function createVault(username, password, managementUri, organization, environmen
       username: username,
       password: password
     },
-    json: { name: vaultName } //TODO: turn on encryption when available
+    json: { name: vaultName }
   }, function(err, res) {
     err = translateError(err, res);
     if (isApigeeError(err, ERR_STORE_EXISTS)) {
@@ -361,8 +357,7 @@ function createVault(username, password, managementUri, organization, environmen
 
 function addKeyToVault(username, password, managementUri, organization, environment, vaultName, key, value, cb) {
 
-  //switch to KVM
-  const uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries', managementUri, organization, environment, vaultName);
+  const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries', managementUri, organization, environment, vaultName);
   request({
     uri: uri,
     method: 'POST',
@@ -423,3 +418,4 @@ function getPublicKeyPrivate(authUri, cb) {
     cb(null, res.body);
   });
 }
+
