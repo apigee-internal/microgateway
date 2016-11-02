@@ -201,8 +201,8 @@ function configureEdgemicroWithCreds(options, cb) {
     process.env.EDGEMICRO_SECRET = secret;
 
     console.log('edgemicro configuration complete!');
-    setTimeout(cb, 50)
-  });
+    setTimeout(() => cb(), 50);
+});
 }
 
 function addEnvVars(config) {
@@ -218,4 +218,3 @@ function printError(err) {
     console.log(err);
   }
 }
-

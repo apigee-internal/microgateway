@@ -17,6 +17,51 @@ const setup = function setup() {
     .command('cert [action]', 'ssh cert commands to store on Apigee Vault, see: "edgemicro cert -h"')
     .command('private [action]', 'Automated, one-time configuration with Edge On-Premises, see: "edgemicro private -h"');
 
+  commander
+    .command('configure-and-start')
+    .description('Equivalent to running `edgemicro configure` followed by `edgemicro start` with the' +
+        'key and secret returned during configuration.  Convenience method for automation / scripting.')
+    .option('-o, --org <org>', 'the organization')
+    .option('-e, --env <env>', 'the environment')
+    .option('-v, --virtualHosts <virtualHosts>', 'override virtualHosts (default: "default,secure")')
+    .option('-u, --username <user>', 'username of the organization admin')
+    .option('-p, --password <password>', 'password of the organization admin')
+    .option('-d, --debug', 'execute with debug output')
+    .option('-c, --processes <processes>', 'number of processes to start, defaults to # of cores')
+    .option('-l, --pluginDir <pluginDir>','absolute path to plugin directory')
+    .option('-r, --port <portNumber>','override port in the config.yaml file')
+    .action((options) => {
+      options.error = optionError;
+      if (!options.username) { return options.error('username is required'); }
+      if (!options.org) { return options.error('org is required'); }
+      if (!options.env) { return options.error('env is required'); }
+      promptForPassword(options,(options)=>{
+        if (!options.password) {
+          return options.error('password is required'); }
+          configure.configure(options, (err) => {
+            if (err) {
+              console.error('Configuration failed.  Cannot proceed with edgemicro start');
+              process.exit(1);
+            }
+            console.log("Edgemicro succesfully configured.  Now starting...");
+            if (options.port) {
+              portastic.test(options.port)
+                .then(function(isAvailable){
+                  if(!isAvailable) {
+                    options.error('port is not available.');
+                    process.exit(1);
+                  }
+                });
+            }
+            options.key = process.env.EDGEMICRO_KEY;
+            options.secret = process.env.EDGEMICRO_SECRET;
+            options.processes =  options.processes || process.env.EDGEMICRO_PROCESSES;
+            options.pluginDir = options.pluginDir || process.env.EDGEMICRO_PLUGIN_DIR;
+            run.start(options);
+          });
+      });
+  });
+
 
   commander
     .command('configure')
@@ -26,7 +71,7 @@ const setup = function setup() {
     .option('-v, --virtualHosts <virtualHosts>', 'override virtualHosts (default: "default,secure")')
     .option('-u, --username <user>', 'username of the organization admin')
     .option('-p, --password <password>', 'password of the organization admin')
-    .option('-r, --url <url>', 'organization\'s custom API URL (https://api.example.com)')
+
     .option('-d, --debug', 'execute with debug output')
     .action((options) => {
       options.error = optionError;
@@ -34,10 +79,11 @@ const setup = function setup() {
       if (!options.org) { return options.error('org is required'); }
       if (!options.env) { return options.error('env is required'); }
       promptForPassword(options,(options)=>{
-        if (!options.password) { return options.error('password is required'); }
-        configure.configure(options, () => {
-        });
-      })
+        if (!options.password) {
+            return options.error('password is required');
+        }
+        configure.configure(options, () => {});
+      });
     });
 
  commander
