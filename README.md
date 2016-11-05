@@ -2,7 +2,7 @@
 
 **Note: Description and code apply to Microgateway v2.x It's not compatible with v1.x series of Microgateway.**
 
-![Build Status](https://travis-ci.org/apigee/microgateway.svg?branch=master)
+![Build Status](https://travis-ci.org/apigee-internal/microgateway.svg?branch=master)
 
 The Apigee Microgateway is a lightweight API management proxy that routes requests and responses between  API consumers and API providers. As  requests are routed the microgateway introduces an eventing model that is based on the concept of http middleware.  You can add custom plugins to the http router via the plugins directory.  You can also change the code to explicitly load plugins via the gateway.addPlugin method.  For more information about plugins see [https://github.com/apigee/microgateway-plugins](https://github.com/apigee/microgateway-plugins).
 For more information on how to use the producet see the [product documentation](http://docs.apigee.com/microgateway/content/edge-microgateway-home)
@@ -22,7 +22,16 @@ It also provides a CLI that an admin uses to wire/configure an instance of Micro
 
 ![micro-flow](micro-flow.png)
 
+# Official Microgateway Docs
+
+The official docs for Microgateway can be found on the Apigee website.
+
  * [Official Microgateway Docs] (http://docs.apigee.com/microgateway/content/edge-microgateway-home)
+
+# Get support and help
+
+The Apigee community is the best place to ask questions, suggest features, and learn best practices with Microgateway.
+
  * [Get support and help] (https://community.apigee.com/spaces/71/index.html)
 
 # Filing Issues
