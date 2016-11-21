@@ -63,6 +63,12 @@ Gateway.prototype.start =  (options) => {
     var opt = {};
     opt.args = [JSON.stringify(args)];
     opt.timeout = 10;
+    
+    //Let reload cluster know how many processes to use if the user doesn't want the default
+    if(options.processes) {
+      opt.workers = Number(options.processes);
+    }
+
     var mgCluster = reloadCluster(path.join(__dirname, 'start-agent.js'), opt);
 
     var server = net.createServer();
