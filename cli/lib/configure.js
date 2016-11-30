@@ -50,6 +50,9 @@ Configure.prototype.configure = function configure(options, cb) {
       options.url = 'https://' + options.url;
     }
     defaultConfig.edge_config.authUri = options.url + '/edgemicro-auth';
+  } else {
+    var newAuthURI = util.format(defaultConfig.edge_config.authUri, options.org, options.env);
+    defaultConfig.edge_config.authUri = newAuthURI;
   }
 
   authUri = defaultConfig.edge_config.authUri;
