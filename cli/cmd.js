@@ -33,6 +33,7 @@ const setup = function setup() {
       if (!options.username) { return options.error('username is required'); }
       if (!options.org) { return options.error('org is required'); }
       if (!options.env) { return options.error('env is required'); }
+
       promptForPassword(options,(options)=>{
         if (!options.password) { return options.error('password is required'); }
         configure.configure(options, () => {
@@ -91,13 +92,15 @@ const setup = function setup() {
               options.error('port is not available.');
               process.exit(1);
             }
-
           });
       }
       if (!options.key ) {return  options.error('key is required');}
       if (!options.secret ) {return  options.error('secret is required');}
       if (!options.org ) { return  options.error('org is required'); }
       if (!options.env ) { return  options.error('env is required'); }
+
+      // TODO once apid API is changed to no longer need env, this can go away
+      process.env.ENV = options.env;
       run.start(options);
     });
 
