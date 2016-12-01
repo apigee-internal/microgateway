@@ -393,7 +393,7 @@ function isApigeeError(err, code) {
 
 function getPublicKey(organization, environment, authUri,cb) {
 
-  const uri = util.format(authUri + '/publicKey', organization, environment);
+  const uri = authUri + '/publicKey';
   request({
     uri: uri,
   }, function(err, res) {
