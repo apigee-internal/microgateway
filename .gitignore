@@ -42,3 +42,4 @@ tmp-*
 default.yaml.bak
 *-*-*config.yaml
 test-token.txt
+env.sh

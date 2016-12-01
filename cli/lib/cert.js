@@ -44,8 +44,6 @@ Cert.prototype.installCert = function(options, cb) {
 
 Cert.prototype.checkCert = function(options, cb) {
 
-
-
   assert(options.org,"org is required");
   assert(options.env,"env is required")
 
@@ -53,6 +51,16 @@ Cert.prototype.checkCert = function(options, cb) {
   assert(options.password,"password is required")
 
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
+  if (options.url) {
+    if (options.url.indexOf('://') === -1) {
+      options.url = 'https://' + options.url;
+    }
+    config.edge_config.authUri = options.url + '/edgemicro-auth';
+  } else {
+    var newAuthURI = util.format(config.edge_config.authUri, options.org, options.env);
+    config.edge_config.authUri = newAuthURI;
+  }
+
   cert(config).checkCertWithPassword(options, (err, res) => {
     if (err) {
       if(cb){
@@ -94,6 +102,15 @@ Cert.prototype.retrievePublicKey = function(options,cb) {
  assert(options.env,"env is required")
 
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
+  if (options.url) {
+    if (options.url.indexOf('://') === -1) {
+      options.url = 'https://' + options.url;
+    }
+    config.edge_config.authUri = options.url + '/edgemicro-auth';
+  } else {
+    var newAuthURI = util.format(config.edge_config.authUri, options.org, options.env);
+    config.edge_config.authUri = newAuthURI;
+  }
   cert(config).retrievePublicKey(options, (err, certificate) => {
     if (err) {
       cb && cb(err);
