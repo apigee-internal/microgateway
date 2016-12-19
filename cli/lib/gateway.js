@@ -61,6 +61,7 @@ Gateway.prototype.start =  (options) => {
     }
 
     var opt = {};
+    delete args.keys;
     opt.args = [JSON.stringify(args)];
     opt.timeout = 10;
     
