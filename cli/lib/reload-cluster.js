@@ -69,7 +69,12 @@ var ReloadCluster = (file, opt) => {
     w._rc_isReplaced = false;
     // whenever worker sends a message, emit it to the channels
     w.on('message', (message) => {
-      emit('message', w, message);
+      if(message.level) {
+        var logHandler = logger[message.level];
+        logHandler(message.msg.trim());
+      } else {
+        emit('message', w, message);
+      }   
     });
     // When a worker exits remove the worker reference from workers array, which holds all the workers
     w.process.on('exit', () => {
