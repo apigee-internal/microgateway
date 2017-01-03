@@ -69,6 +69,7 @@ var ReloadCluster = (file, opt) => {
     w._rc_isReplaced = false;
     // whenever worker sends a message, emit it to the channels
     w.on('message', (message) => {
+      opt.logger.writeLogRecord(message);
       emit('message', w, message);
     });
     // When a worker exits remove the worker reference from workers array, which holds all the workers
