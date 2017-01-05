@@ -28,11 +28,13 @@ const setup = function setup() {
     .option('-p, --password <password>', 'password of the organization admin')
     .option('-r, --url <url>', 'organization\'s custom API URL (https://api.example.com)')
     .option('-d, --debug', 'execute with debug output')
+    .option('-c, --configDir <configDir>', 'Set the directory where configs are written.')
     .action((options) => {
       options.error = optionError;
       if (!options.username) { return options.error('username is required'); }
       if (!options.org) { return options.error('org is required'); }
       if (!options.env) { return options.error('env is required'); }
+      options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
       promptForPassword(options,(options)=>{
         if (!options.password) { return options.error('password is required'); }
         configure.configure(options, () => {
@@ -43,8 +45,10 @@ const setup = function setup() {
  commander
     .command('init')
     .description('initialize default.yaml into home dir')
+    .option('-c, --configDir <configDir>', 'Set the directory where configs are written.') 
     .action((options) => {
-      init((err,location)=>{
+      options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
+      init(options, (err,location)=>{
         console.log("config initialized to %s",location)
       })
     });
@@ -75,6 +79,7 @@ const setup = function setup() {
     .option('-p, --processes <processes>', 'number of processes to start, defaults to # of cores')
     .option('-d, --pluginDir <pluginDir>','absolute path to plugin directory')
     .option('-r, --port <portNumber>','override port in the config.yaml file')
+    .option('-c, --configDir <configDir>', 'Set the directory where configs are read from.')
     .description('start the gateway based on configuration')
     .action((options)=>{
       options.error = optionError;
@@ -83,6 +88,7 @@ const setup = function setup() {
       options.org = options.org || process.env.EDGEMICRO_ORG;
       options.env = options.env || process.env.EDGEMICRO_ENV;
       options.processes =  options.processes || process.env.EDGEMICRO_PROCESSES;
+      options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
 
       if (options.port) {
         portastic.test(options.port)

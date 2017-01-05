@@ -71,11 +71,12 @@ Configure.prototype.configure = function configure(options, cb) {
     fs.unlinkSync(targetPath);
     //console.log('deleted ' + targetPath);
   }
-
+  
+  var configFileDirectory = options.configDir || configLocations.homeDir; 
   //console.log('init config');
   edgeconfig.init({
     source: configLocations.getDefaultPath(),
-    targetDir: configLocations.homeDir,
+    targetDir: configFileDirectory,
     targetFile: targetFile,
     overwrite: true
   }, function (err, configPath) {
@@ -147,7 +148,7 @@ function configureEdgemicroWithCreds(options, cb) {
     if (err) {
       return cb(err)
     }
-    agentConfigPath = configLocations.getSourcePath(options.org, options.env);
+    agentConfigPath = configLocations.getSourcePath(options.org, options.env, options.configDir);
     const agentConfig = edgeconfig.load({ source: agentConfigPath });
 
     addEnvVars(agentConfig);

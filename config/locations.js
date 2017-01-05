@@ -12,21 +12,29 @@ const defaultIPCFileName = 'edgemicro';
 const isWin = /^win/.test(process.platform);
 
 module.exports = {
-  getInitPath: function(){
-     return  path.join(configDir,defaultFile);
+  getInitPath: function(opts){
+    return  path.join(configDir,defaultFile);
   },
   getDefaultPath: function(){
-     return  path.join(this.homeDir,defaultFile);
+    return  path.join(this.homeDir,defaultFile);
   },
   defaultFile: defaultFile,
-  getSourcePath: function getSource(org,env){
-    return path.join(this.homeDir, this.getSourceFile(org,env));
+  getSourcePath: function getSource(org, env, configDir){
+    if(configDir) {
+      return path.join(configDir, this.getSourceFile(org,env));
+    } else {
+      return path.join(this.homeDir, this.getSourceFile(org,env));
+    }
   },
   getSourceFile: function getSourceFile(org,env){
     return org + "-" + env + "-" + sourceFile;
   },
-  getCachePath: function getCachePath(org,env){
-    return path.join(this.homeDir, org + "-" + env + "-" + cacheFile);
+  getCachePath: function getCachePath(org,env, configDir){
+    if(configDir) {
+      return path.join(configDir, org + "-" + env + "-" + cacheFile);
+    } else {
+      return path.join(this.homeDir, org + "-" + env + "-" + cacheFile);
+    }
   },
   getIPCFilePath: function getIPCFilePath() {
     if (!isWin) {
