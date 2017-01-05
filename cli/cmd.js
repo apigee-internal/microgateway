@@ -75,6 +75,9 @@ const setup = function setup() {
     .option('-p, --processes <processes>', 'number of processes to start, defaults to # of cores')
     .option('-d, --pluginDir <pluginDir>','absolute path to plugin directory')
     .option('-r, --port <portNumber>','override port in the config.yaml file')
+    .option('-a, --proxy_name <app_name>', 'local app name')
+    .option('-b, --proxy_path <app_path>', 'local app path')
+    .option('-t, --target_url <target_url>', 'local target url')
     .description('start the gateway based on configuration')
     .action((options)=>{
       options.error = optionError;

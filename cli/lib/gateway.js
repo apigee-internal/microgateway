@@ -38,7 +38,16 @@ Gateway.prototype.start =  (options) => {
   const keys = {key: options.key, secret: options.secret};
   const args = {target: cache, keys: keys, pluginDir: options.pluginDir};
 
-  edgeconfig.get({source: source, keys: keys},  (err, config) => {
+  var localproxy;
+  if(options.proxy_name && options.proxy_path && options.target_url) {
+    localproxy = {
+      name: options.proxy_name,
+      path: options.proxy_path,
+      target_url: options.target_url
+    }
+  }
+
+  edgeconfig.get({source: source, keys: keys, localproxy: localproxy},  (err, config) => {
     if (err) {
       const exists = fs.existsSync(cache);
       console.error("failed to retieve config from gateway. continuing, will try cached copy..");
