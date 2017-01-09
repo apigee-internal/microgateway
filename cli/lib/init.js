@@ -7,32 +7,31 @@ module.exports =  function init(opts, cb) {
   if(typeof opts == 'function') {
     cb = opts;
   }
+  
+  const setupConfigPath = (srcFile, destFile, destFileDir, cb) => {
+  
+    if(fs.existsSync(destFile)) {
+      fs.unlinkSync(destFile);
+    }
+
+    fs.mkdir(destFileDir, () => {
+      copyFile(srcFile, destFile, (err) => {
+        err && console.log("failed to init configpath file %s", err);
+        cb(err, destFile);
+      }); 
+    });
+  }
 
   if(!opts.configDir) {
     const initConfigPath = configLocations.getInitPath();
     const defaultConfigPath = configLocations.getDefaultPath();
-    if (fs.existsSync(defaultConfigPath)) {
-      fs.unlinkSync(defaultConfigPath);
-    }
-    fs.mkdir(configLocations.homeDir,function(){
-      copyFile(initConfigPath,defaultConfigPath,(err)=>{
-        err && console.log("failed to init configpath file %s",err)
-        cb(err,defaultConfigPath);
-      })
-    });
+
+    setupConfigPath(initConfigPath, customConfigPath, configLocations.homeDir, cb);
   } else {
     const initConfigPath = configLocations.getInitPath();
     const customConfigPath = path.join(opts.configDir, configLocations.defaultFile);
-    if(fs.existsSync(customConfigPath)) {
-      fs.unlinkSync(customConfigPath);
-    }
 
-    fs.mkdir(opts.configDir, () => {
-      copyFile(initConfigPath, customConfigPath, (err) => {
-        err && console.log("failed to init configpath file %s", err);
-        cb(err, customConfigPath);
-      }); 
-    });
+    setupConfigPath(initConfigPath, customConfigPath, opts.configDir, cb);
   }
 }
 function copyFile(source, target, cb) {
