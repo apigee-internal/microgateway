@@ -179,7 +179,7 @@ Gateway.prototype.reload = (options) => {
       socket.sendMessage({command: 'reload'});
       socket.on('message', (success) => {
         if (success) {
-          console.log('Reload Completed Succesfully');
+          console.log('Reload Completed Successfully');
         } else {
           console.error('Reloading edgemicro was unsuccessful');
         }
