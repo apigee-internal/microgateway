@@ -50,5 +50,9 @@ describe('configure', () => {
       var cachePath = locations.getCachePath('test', 'foo', 'foo');
       assert.equal(cachePath, 'foo/test-foo-cache-config.yaml');
     });
+    it('will put together a properly named source file', () => {
+      var sourceFile = locations.getSourceFile('test', 'foo');
+      assert.equal(sourceFile, 'test-foo-config.yaml');
+    });
   });
 });
