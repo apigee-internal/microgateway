@@ -3,6 +3,10 @@ const locations = require('../config/locations');
 const init = require('../cli/lib/init');
 const fs = require('fs');
 
+//these are needed to account for the mutation of a singleton pathing module 
+const path = require('path');
+const normalizedPath = path.normalize(__dirname);
+
 describe('configure', () => {
   describe('init module', () => {
     it('will copy file to custom dir', (done) => {
@@ -18,7 +22,7 @@ describe('configure', () => {
     it('will copy file to default dir', () => {
       init({}, (err, file) => {
         console.log(file);
-        assert.equal(file, '/Users/apigeelabs/node/microgateway/tests/default.yaml');
+        assert.equal(file, path.join(normalizedPath, 'default.yaml'));
          
         const fileBuf = fs.readFileSync('config/default.yaml');
         const testBuf = fs.readFileSync(file);
@@ -31,7 +35,7 @@ describe('configure', () => {
     it('will build a source path without a configDir', () => {
       var configPath = locations.getSourcePath('test', 'foo');
       //This path differs from the actual config path because we mutate the singleton in other tests.
-      assert.equal(configPath, '/Users/apigeelabs/node/microgateway/tests/test-foo-config.yaml');
+      assert.equal(configPath, path.join(normalizedPath, 'test-foo-config.yaml'));
     });
     it('will build a source path with a configDir', () => {
       var configPath = locations.getSourcePath('test', 'foo', 'foo');
@@ -40,7 +44,7 @@ describe('configure', () => {
     it('will build a cache path without a configDir', () => {
       var cachePath = locations.getCachePath('test', 'foo');
       //This path differs from the actual config path because we mutate the singleton in other tests.
-      assert.equal(cachePath, '/Users/apigeelabs/node/microgateway/tests/test-foo-cache-config.yaml');
+      assert.equal(cachePath, path.join(normalizedPath, 'test-foo-cache-config.yaml'));
     });
     it('will build a cache path with a configDir', () => {
       var cachePath = locations.getCachePath('test', 'foo', 'foo');
