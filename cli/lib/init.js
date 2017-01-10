@@ -26,7 +26,7 @@ module.exports =  function init(opts, cb) {
     const initConfigPath = configLocations.getInitPath();
     const defaultConfigPath = configLocations.getDefaultPath();
 
-    setupConfigPath(initConfigPath, customConfigPath, configLocations.homeDir, cb);
+    setupConfigPath(initConfigPath, defaultConfigPath, configLocations.homeDir, cb);
   } else {
     const initConfigPath = configLocations.getInitPath();
     const customConfigPath = path.join(opts.configDir, configLocations.defaultFile);

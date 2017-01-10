@@ -19,9 +19,9 @@ module.exports = {
     return  path.join(this.homeDir,defaultFile);
   },
   defaultFile: defaultFile,
-  getSourcePath: function getSource(org, env, configDir){
-    if(configDir) {
-      return path.join(configDir, this.getSourceFile(org,env));
+  getSourcePath: function getSource(org, env, customConfigDir){
+    if(customConfigDir) {
+      return path.join(customConfigDir, this.getSourceFile(org,env));
     } else {
       return path.join(this.homeDir, this.getSourceFile(org,env));
     }
@@ -29,9 +29,9 @@ module.exports = {
   getSourceFile: function getSourceFile(org,env){
     return org + "-" + env + "-" + sourceFile;
   },
-  getCachePath: function getCachePath(org,env, configDir){
-    if(configDir) {
-      return path.join(configDir, org + "-" + env + "-" + cacheFile);
+  getCachePath: function getCachePath(org, env, customConfigDir){
+    if(customConfigDir) {
+      return path.join(customConfigDir, org + "-" + env + "-" + cacheFile);
     } else {
       return path.join(this.homeDir, org + "-" + env + "-" + cacheFile);
     }
@@ -43,6 +43,6 @@ module.exports = {
       return path.join('\\\\?\\pipe', process.cwd(), defaultIPCFileName);
     }
   },
+  homeDir: homeDir,
   defaultDir: configDir,
-  homeDir: homeDir
 };
