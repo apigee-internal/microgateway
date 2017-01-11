@@ -32,8 +32,8 @@ Gateway.prototype.start =  (options) => {
     // so ignore and proceed
   }
 
-  const source = configLocations.getSourcePath(options.org, options.env);
-  const cache = configLocations.getCachePath(options.org, options.env);
+  const source = configLocations.getSourcePath(options.org, options.env, options.configDir);
+  const cache = configLocations.getCachePath(options.org, options.env, options.configDir);
 
   const keys = {key: options.key, secret: options.secret};
   const args = {target: cache, keys: keys, pluginDir: options.pluginDir};
