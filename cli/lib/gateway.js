@@ -11,6 +11,7 @@ const configLocations = require('../../config/locations');
 const isWin = /^win/.test(process.platform);
 const ipcPath = configLocations.getIPCFilePath();
 const defaultPollInterval = 600;
+const uuid = require('uuid');
 
 const Gateway = function () {
 };
@@ -60,10 +61,13 @@ Gateway.prototype.start =  (options) => {
       edgeconfig.save(config, cache);
     }
 
+    config.uid = uuid.v1();
+    var logger = gateway.Logging.init(config);  
     var opt = {};
     delete args.keys;
     opt.args = [JSON.stringify(args)];
     opt.timeout = 10;
+    opt.logger = gateway.Logging.getLogger();
     
     //Let reload cluster know how many processes to use if the user doesn't want the default
     if(options.processes) {
