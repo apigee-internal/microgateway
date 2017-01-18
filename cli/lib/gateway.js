@@ -120,6 +120,7 @@ Gateway.prototype.start =  (options) => {
       process.exit(0);
     });
 
+    var shouldNotPoll = config.edgemicro.config_disable_poll_interval || false;
     var pollInterval = config.edgemicro.config_change_poll_interval || defaultPollInterval;
     // Client Socket for auto reload
     // send reload message to socket.
@@ -151,9 +152,12 @@ Gateway.prototype.start =  (options) => {
         }
       });
     };
-    setTimeout(()=> {
-      reloadOnConfigChange(config, cache, {source: source, keys: keys});
-    }, pollInterval * 1000);
+
+    if(!shouldNotPoll) {
+      setTimeout(()=> {
+        reloadOnConfigChange(config, cache, {source: source, keys: keys});
+      }, pollInterval * 1000);
+    }
   });
 };
 
