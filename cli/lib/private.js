@@ -76,11 +76,13 @@ Private.prototype.configureEdgemicro = function (options, cb) {
   this.cert = cert(this.config);
   this.sourcePath = configLocations.getSourcePath(options.org, options.env);
 
+  var configFileDirectory = options.configDir || configLocations.homeDir;
+
   const that = this;
   console.log('init config');
   edgeconfig.init({
     source: configLocations.getDefaultPath(),
-    targetDir: configLocations.homeDir,
+    targetDir: configFileDirectory,
     targetFile: configLocations.getSourceFile(options.org, options.env),
     overwrite: true
   }, function (err, configPath) {

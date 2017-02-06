@@ -15,6 +15,7 @@ module.exports = function() {
     .option('-u, --username <user>', 'username of the organization admin')
     .option('-p, --password <password>', 'password of the organization admin')
     .option('-v, --virtual-hosts <virtualHosts>', 'comma separated virtual hosts to deploy with')
+    .option('-c, --configDir <configDir>', 'Set the directory where configs are read from.')
     .action((options) => {
       options.error = optionError;
       if (!options.username) { return options.error('username is required'); }
