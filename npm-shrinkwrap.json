@@ -1,6 +1,6 @@
 {
   "name": "edgemicro",
-  "version": "2.3.3-beta",
+  "version": "2.3.3",
   "dependencies": {
     "acorn": {
       "version": "4.0.9",
