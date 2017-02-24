@@ -15,8 +15,12 @@ module.exports = {
   getInitPath: function(opts){
     return  path.join(configDir,defaultFile);
   },
-  getDefaultPath: function(){
-    return  path.join(this.homeDir,defaultFile);
+  getDefaultPath: function(customConfigDir){
+    if(customConfigDir) {
+      return path.join(customConfigDir, defaultFile);
+    } else {
+      return  path.join(this.homeDir,defaultFile);
+    }
   },
   defaultFile: defaultFile,
   getSourcePath: function getSource(org, env, customConfigDir){

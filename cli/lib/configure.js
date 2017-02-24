@@ -28,11 +28,11 @@ module.exports = function () {
 }
 
 Configure.prototype.configure = function configure(options, cb) {
-  if (!fs.existsSync(configLocations.getDefaultPath())) {
+  if (!fs.existsSync(configLocations.getDefaultPath(options.configDir))) {
     console.error("Missing %s, Please run 'edgemicro init'",configLocations.getDefaultPath())
     return cb("Please call edgemicro init first")
   }
-  defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath() });
+  defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath(options.configDir) });
   addEnvVars(defaultConfig);
   deployAuth = deployAuthLib(defaultConfig.edge_config, null)
   managementUri = defaultConfig.edge_config.managementUri;
@@ -75,7 +75,7 @@ Configure.prototype.configure = function configure(options, cb) {
   var configFileDirectory = options.configDir || configLocations.homeDir; 
   //console.log('init config');
   edgeconfig.init({
-    source: configLocations.getDefaultPath(),
+    source: configLocations.getDefaultPath(options.configDir),
     targetDir: configFileDirectory,
     targetFile: targetFile,
     overwrite: true
