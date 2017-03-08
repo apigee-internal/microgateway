@@ -52,24 +52,25 @@ CertLogic.prototype.retrievePublicKeyPrivate = function( callback) {
 
 CertLogic.prototype.checkCertWithPassword = function(options, callback) {
 
- const opts = {
-    managementUri: managementUri,
-    username: username,
-    password: password,
-    org: organization
+  var self = this;
+  const opts = {
+    managementUri: this.managementUri,
+    username: options.username,
+    password: options.password,
+    organization: options.org
   }
   checkForCps(opts, function(err, cpsEnabled){
     if(err){
-      return cb(err);
+      return callback(err);
     }
 
-    const uri;
+    var uri;
     if(cpsEnabled) {
       uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries', 
-      this.managementUri, options.org, options.env, this.vaultName);
+      self.managementUri, options.org, options.env, self.vaultName);
     } else {
       uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries', 
-      this.managementUri, options.org, options.env, this.vaultName);
+      self.managementUri, options.org, options.env, self.vaultName);
     }
     
 
@@ -93,25 +94,26 @@ CertLogic.prototype.checkCertWithPassword = function(options, callback) {
 
 CertLogic.prototype.checkPrivateCert = function(options, callback) {
 
+  var self = this;
   const opts = {
-    managementUri: managementUri,
-    username: username,
-    password: password,
-    org: organization
+    managementUri: this.managementUri,
+    username: options.username,
+    password: options.password,
+    organization: options.org
   }
   checkForCps(opts, function(err, cpsEnabled){
     if(err) {
-      return cb(err);
+      return callback(err);
     }
 
-    const uri;
+    var uri;
     if(cpsEnabled) {
       uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries',
-        this.managementUri, options.org, options.env, this.vaultName);
+        self.managementUri, options.org, options.env, self.vaultName);
 
     } else {
       uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries',
-        this.managementUri, options.org, options.env, this.vaultName);
+        self.managementUri, options.org, options.env, self.vaultName);
     }
     
     request({
@@ -338,9 +340,10 @@ CertLogic.prototype.deleteCertWithPassword = function deleteCertWithPassword(opt
 function checkForCps(options, cb) {
   var managementUri = options.managementUri;
   var org = options.organization;
+  
 
   const uri = util.format('%s/v1/o/%s', managementUri, org);
-
+  
   request({
     uri: uri,
     method: 'GET',
@@ -352,7 +355,8 @@ function checkForCps(options, cb) {
     if(err) {
       return cb(err);
     } else if(response.statusCode !== 200) {
-      console.log('Bad Req translate from apigee');
+      const errorMessage = util.format('API Response: %s - %s', response.statusCode, response.statusMessage);
+      return cb(new Error(errorMessage));      
     } else {
       body = JSON.parse(body);
       var orgProperties = body.properties.property;
@@ -389,7 +393,7 @@ function deleteVault(username, password, managementUri, organization, environmen
     managementUri: managementUri,
     username: username,
     password: password,
-    org: organization
+    organization: organization
   }
   checkForCps(opts, function(err, cpsEnabled){
     if(err) {
@@ -429,14 +433,14 @@ function createVault(username, password, managementUri, organization, environmen
     managementUri: managementUri,
     username: username,
     password: password,
-    org: organization
+    organization: organization
   }
   checkForCps(opts, (err, cpsEnabled) => {
     if(err) {
       return cb(err);
     }
 
-    const uri;
+    var uri;
     if(cpsEnabled) {
       uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps', managementUri, organization, environment);
     } else {
@@ -469,10 +473,10 @@ function addKeyToVault(username, password, managementUri, organization, environm
     managementUri: managementUri,
     username: username,
     password: password,
-    org: organization
+    organization: organization
   }
   checkForCps(opts, (err, cpsEnabled) => {
-    const uri
+    var uri
     if(cpsEnabled) {
       uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries', managementUri, organization, environment, vaultName);
     } else {
