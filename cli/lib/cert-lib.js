@@ -52,43 +52,83 @@ CertLogic.prototype.retrievePublicKeyPrivate = function( callback) {
 
 CertLogic.prototype.checkCertWithPassword = function(options, callback) {
 
-  const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries',
+ const opts = {
+    managementUri: managementUri,
+    username: username,
+    password: password,
+    org: organization
+  }
+  checkForCps(opts, function(err, cpsEnabled){
+    if(err){
+      return cb(err);
+    }
 
-    this.managementUri, options.org, options.env, this.vaultName);
-  request({
-    uri: uri,
-    auth: {
-      username: options.username,
-      password: options.password
+    const uri;
+    if(cpsEnabled) {
+      uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries', 
+      this.managementUri, options.org, options.env, this.vaultName);
+    } else {
+      uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries', 
+      this.managementUri, options.org, options.env, this.vaultName);
     }
-  }, function(err, res) {
-    err = translateError(err, res);
-    if (err) {
-      return callback(err);
-    }
-    callback(null, res.body);
+    
+
+      
+    request({
+      uri: uri,
+      auth: {
+        username: options.username,
+        password: options.password
+      }
+    }, function(err, res) {
+      err = translateError(err, res);
+      if (err) {
+        return callback(err);
+      }
+      callback(null, res.body);
+    });
+
   });
 }
 
 CertLogic.prototype.checkPrivateCert = function(options, callback) {
 
-  const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries',
-    this.managementUri, options.org, options.env, this.vaultName);
-
-  request({
-    uri: uri,
-    auth: {
-      username: options.username,
-      password: options.password
-    }
-  }, function(err, res) {
-    err = translateError(err, res);
-    if (err) {
-      return callback(err);
+  const opts = {
+    managementUri: managementUri,
+    username: username,
+    password: password,
+    org: organization
+  }
+  checkForCps(opts, function(err, cpsEnabled){
+    if(err) {
+      return cb(err);
     }
 
-    callback(null, res.body);
+    const uri;
+    if(cpsEnabled) {
+      uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries',
+        this.managementUri, options.org, options.env, this.vaultName);
 
+    } else {
+      uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries',
+        this.managementUri, options.org, options.env, this.vaultName);
+    }
+    
+    request({
+      uri: uri,
+      auth: {
+        username: options.username,
+        password: options.password
+      }
+    }, function(err, res) {
+      err = translateError(err, res);
+      if (err) {
+        return callback(err);
+      }
+
+      callback(null, res.body);
+
+    });
   });
 }
 
@@ -358,7 +398,7 @@ function deleteVault(username, password, managementUri, organization, environmen
     
     var uri; 
     if(cpsEnabled) {
-
+      uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s', managementUri, organization, environment, vaultName);
     } else {
       uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s', managementUri, organization, environment, vaultName);
     }
@@ -398,7 +438,7 @@ function createVault(username, password, managementUri, organization, environmen
 
     const uri;
     if(cpsEnabled) {
-
+      uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps', managementUri, organization, environment);
     } else {
       uri = util.format('%s/v1/organizations/%s/environments/%s/vaults', managementUri, organization, environment);
     }
@@ -434,7 +474,7 @@ function addKeyToVault(username, password, managementUri, organization, environm
   checkForCps(opts, (err, cpsEnabled) => {
     const uri
     if(cpsEnabled) {
-
+      uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries', managementUri, organization, environment, vaultName);
     } else {
       uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries', managementUri, organization, environment, vaultName);
     }
