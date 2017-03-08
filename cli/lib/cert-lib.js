@@ -295,6 +295,35 @@ CertLogic.prototype.deleteCertWithPassword = function deleteCertWithPassword(opt
   });
 };
 
+function checkForCps(options, cb) {
+  var managementUri = options.managementUri;
+  var org = options.organization;
+
+  const uri = util.format('%s/v1/o/%s', managementUri, org);
+
+  request({
+    uri: uri,
+    method: 'GET',
+    auth: {
+      username: options.username,
+      password: options.password
+    }
+  }, (err, response, body) => {
+    if(err) {
+      return cb(err);
+    } else if(response.statusCode !== 200) {
+      console.log('Bad Req translate from apigee');
+    } else {
+      body = JSON.parse(body);
+      var orgProperties = body.properties.property;
+      var cpsEnabled = orgProperties.some((prop) => {
+        return prop.name == 'features.isCpsEnabled' && prop.value == 'true';
+      });
+      cb(null, cpsEnabled);
+    }    
+  });
+}
+
 // response: { certificate, csr, clientKey, serviceKey }
 function createCert(cb) {
 
@@ -316,60 +345,115 @@ function createCert(cb) {
 
 function deleteVault(username, password, managementUri, organization, environment, vaultName, cb) {
   console.log('deleting vault');
-  const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s', managementUri, organization, environment, vaultName);
-  request({
-    uri: uri,
-    method: 'DELETE',
-    auth: {
-      username: username,
-      password: password
+  const opts = {
+    managementUri: managementUri,
+    username: username,
+    password: password,
+    org: organization
+  }
+  checkForCps(opts, function(err, cpsEnabled){
+    if(err) {
+      return cb(err);
     }
-  }, function(err, res) {
-    err = translateError(err, res);
-    if (isApigeeError(err, ERR_STORE_MISSING)) {
-      err = undefined;
-    }
+    
+    var uri; 
+    if(cpsEnabled) {
 
-    cb(err, res);
+    } else {
+      uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s', managementUri, organization, environment, vaultName);
+    }
+    
+    request({
+      uri: uri,
+      method: 'DELETE',
+      auth: {
+        username: username,
+        password: password
+      }
+    }, function(err, res) {
+      err = translateError(err, res);
+      if (isApigeeError(err, ERR_STORE_MISSING)) {
+        err = undefined;
+      }
+
+      cb(err, res);
+    });
   });
+  
+  
 }
 
 function createVault(username, password, managementUri, organization, environment, vaultName, cb) {
 
-  const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults', managementUri, organization, environment);
-  request({
-    uri: uri,
-    method: 'POST',
-    auth: {
-      username: username,
-      password: password
-    },
-    json: { name: vaultName }
-  }, function(err, res) {
-    err = translateError(err, res);
-    if (isApigeeError(err, ERR_STORE_EXISTS)) {
-      err = new Error('Store already exists. Use --force to replace keys.');
+  const opts = {
+    managementUri: managementUri,
+    username: username,
+    password: password,
+    org: organization
+  }
+  checkForCps(opts, (err, cpsEnabled) => {
+    if(err) {
+      return cb(err);
     }
 
-    cb(err, res);
-  });
+    const uri;
+    if(cpsEnabled) {
+
+    } else {
+      uri = util.format('%s/v1/organizations/%s/environments/%s/vaults', managementUri, organization, environment);
+    }
+    
+    request({
+      uri: uri,
+      method: 'POST',
+      auth: {
+        username: username,
+        password: password
+      },
+      json: { name: vaultName }
+    }, function(err, res) {
+      err = translateError(err, res);
+      if (isApigeeError(err, ERR_STORE_EXISTS)) {
+        err = new Error('Store already exists. Use --force to replace keys.');
+      }
+
+      cb(err, res);
+    });
+  })
+
 }
 
 function addKeyToVault(username, password, managementUri, organization, environment, vaultName, key, value, cb) {
 
-  const uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries', managementUri, organization, environment, vaultName);
-  request({
-    uri: uri,
-    method: 'POST',
-    auth: {
-      username: username,
-      password: password
-    },
-    json: { name: key, value: value }
-  }, function(err, res) {
-    err = translateError(err, res);
-    cb(err, res);
+  const opts = {
+    managementUri: managementUri,
+    username: username,
+    password: password,
+    org: organization
+  }
+  checkForCps(opts, (err, cpsEnabled) => {
+    const uri
+    if(cpsEnabled) {
+
+    } else {
+      uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries', managementUri, organization, environment, vaultName);
+    }
+    
+    request({
+      uri: uri,
+      method: 'POST',
+      auth: {
+        username: username,
+        password: password
+      },
+      json: { name: key, value: value }
+    }, function(err, res) {
+      err = translateError(err, res);
+      cb(err, res);
+    });
+
   });
+
 }
 
 function translateError(err, res) {
