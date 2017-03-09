@@ -29,8 +29,8 @@ module.exports = function () {
 
 // begins edgemicro configuration process
 Private.prototype.configureEdgemicro = function (options, cb) {
-  if (!fs.existsSync(configLocations.getDefaultPath())) {
-    console.error("Missing %s, Please run 'edgemicro init'",configLocations.getDefaultPath())
+  if (!fs.existsSync(configLocations.getDefaultPath(options.configDir))) {
+    console.error("Missing %s, Please run 'edgemicro init'",configLocations.getDefaultPath(options.configDir))
     return cb("Please call edgemicro init first")
   }
   assert(options.username, 'username is required');
@@ -60,7 +60,7 @@ Private.prototype.configureEdgemicro = function (options, cb) {
   this.virtualHosts = options.virtualHosts || 'default';
 
 
-  const config = edgeconfig.load({ source: configLocations.getDefaultPath() });
+  const config = edgeconfig.load({ source: configLocations.getDefaultPath(options.configDir) });
   this.config = config;
   this.authUri = config.edge_config.authUri = this.runtimeUrl + this.basePath;
   this.config.edge_config.managementUri = this.managementUri;
@@ -81,7 +81,7 @@ Private.prototype.configureEdgemicro = function (options, cb) {
   const that = this;
   console.log('init config');
   edgeconfig.init({
-    source: configLocations.getDefaultPath(),
+    source: configLocations.getDefaultPath(options.configDir),
     targetDir: configFileDirectory,
     targetFile: configLocations.getSourceFile(options.org, options.env),
     overwrite: true
