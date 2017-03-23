@@ -29,6 +29,7 @@ const setup = function setup() {
     .option('-r, --url <url>', 'organization\'s custom API URL (https://api.example.com)')
     .option('-d, --debug', 'execute with debug output')
     .option('-c, --configDir <configDir>', 'Set the directory where configs are written.')
+    .option('-x, --proxyName <proxyName>', 'Set the custom proxy name for edgemicro-auth')
     .action((options) => {
       options.error = optionError;
       if (!options.username) { return options.error('username is required'); }

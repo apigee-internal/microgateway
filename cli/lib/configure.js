@@ -43,13 +43,16 @@ Configure.prototype.configure = function configure(options, cb) {
   assert(options.org, 'org is required');
   assert(options.env, 'env is required');
 
-  options.proxyName = 'edgemicro-auth';
+  if(!options.proxyName) {
+    options.proxyName = 'edgemicro-auth';
+  }
+  
 
   if (options.url) {
     if (options.url.indexOf('://') === -1) {
       options.url = 'https://' + options.url;
     }
-    defaultConfig.edge_config.authUri = options.url + '/edgemicro-auth';
+    defaultConfig.edge_config.authUri = options.url + '/' + options.proxyName;
   } else {
     var newAuthURI = util.format(defaultConfig.edge_config.authUri, options.org, options.env);
     defaultConfig.edge_config.authUri = newAuthURI;
