@@ -1,154 +1,105 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ProxyEndpoint name="default">
-    <Description/>
-    <FaultRules/>
-    <PreFlow name="PreFlow">
-        <Request/>
-        <Response/>
-    </PreFlow>
-    <PostFlow name="PostFlow">
-        <Request/>
-        <Response/>
-    </PostFlow>
-    <Flows>
-        <Flow name="Get public key">
-            <Description/>
-            <Request/>
-            <Response>
-                <Step>
-                    <Name>Get-Public-Key</Name>
-                </Step>
-                <Step>
-                    <Name>Send-Public-Key</Name>
-                </Step>
-            </Response>
-            <Condition>(proxy.pathsuffix MatchesPath "/publicKey") and (request.verb = "GET")</Condition>
-        </Flow>
-        <Flow name="Verify API Key">
-            <Description/>
-            <Request>
-                <Step>
-                    <Name>Extract-API-Key</Name>
-                </Step>
-                <Step>
-                    <Name>Verify-API-Key</Name>
-                </Step>
-                <Step>
-                    <Name>Access-App-Info-2</Name>
-                </Step>
-                <Step>
-                    <Name>Products-to-JSON-2</Name>
-                </Step>
-                <Step>
-                    <Name>Get-Private-Key</Name>
-                </Step>
-                <Step>
-                    <Name>Set-JWT-Variables</Name>
-                </Step>
-                <Step>
-                    <Name>JavaCalloutJWT2</Name>
-                </Step>
-                <Step>
-                    <Name>Set-Response</Name>
-                </Step>
-            </Request>
-            <Response/>
-            <Condition>(proxy.pathsuffix MatchesPath "/verifyApiKey") and (request.verb = "POST")</Condition>
-        </Flow>
-        <Flow name="Get API Products">
-            <Description/>
-            <Request/>
-            <Response>
-                <Step>
-                    <FaultRules/>
-                    <Name>JavaCallout</Name>
-                </Step>
-            </Response>
-            <Condition>(proxy.pathsuffix MatchesPath "/products") and (request.verb = "GET")</Condition>
-        </Flow>
-        <Flow name="Obtain Access Token">
-            <Description/>
-            <Request>
-                <Step>
-                    <Name>Extract-OAuth-Params</Name>
-                </Step>
-                <Step>
-                    <Name>Create-OAuth-Request</Name>
-                </Step>
-                <Step>
-                    <Name>Access-App-Info</Name>
-                </Step>
-                <Step>
-                    <Name>Products-to-JSON</Name>
-                </Step>
-                <Step>
-                    <Name>AccessTokenRequest</Name>
-                </Step>
-                <Step>
-                    <Name>Get-Private-Key</Name>
-                </Step>
-                <Step>
-                    <Name>Set-JWT-Variables</Name>
-                </Step>
-                <Step>
-                    <Name>JavaCalloutJWT</Name>
-                </Step>
-                <Step>
-                    <Name>Set-Response</Name>
-                </Step>
-            </Request>
-            <Response/>
-            <Condition>(proxy.pathsuffix MatchesPath "/token") and (request.verb = "POST")</Condition>
-        </Flow>
-        <Flow name="Refresh Access Token">
-            <Description/>
-            <Request>
-                <Step>
-                    <Name>Extract-Refresh-Params</Name>
-                </Step>
-                <Step>
-                    <Name>Create-Refresh-Request</Name>
-                </Step>
-                <Step>
-                    <Name>Access-App-Info</Name>
-                </Step>
-                <Step>
-                    <Name>Products-to-JSON</Name>
-                </Step>
-                <Step>
-                    <Name>RefreshAccessToken</Name>
-                </Step>
-                <Step>
-                    <Name>Get-Private-Key</Name>
-                </Step>
-                <Step>
-                    <Name>Set-JWT-Variables</Name>
-                </Step>
-                <Step>
-                    <Name>JavaCalloutJWT</Name>
-                </Step>
-                <Step>
-                    <Name>Set-Response</Name>
-                </Step>
-            </Request>
-            <Response/>
-            <Condition>(proxy.pathsuffix MatchesPath "/refresh") and (request.verb = "POST")</Condition>
-        </Flow>
-        <Flow name="Unknow Request">
-            <Description>Unknow Request</Description>
-            <Request>
-                <Step>
-                    <Name>Raise-Fault-Unknown-Request</Name>
-                </Step>
-            </Request>
-            <Response/>
-        </Flow>
-    </Flows>
-    <HTTPProxyConnection>
-        <BasePath>/edgemicro-auth</BasePath>
-        <Properties/>
-        <VirtualHost>default</VirtualHost>
-        <VirtualHost>secure</VirtualHost>
-    </HTTPProxyConnection>
-    <RouteRule name="noroute"/>
+  <Description/>
+  <PreFlow name="PreFlow">
+    <Request>
+      <Step>
+        <Name>Authenticate</Name>
+      </Step>
+    </Request>
+    <Response/>
+  </PreFlow>
+  <Flows>
+    <Flow name="Version">
+      <Response>
+        <Step>
+          <Name>ReturnVersion</Name>
+        </Step>
+      </Response>
+      <Condition>(proxy.pathsuffix MatchesPath "**/v2/version") and (request.verb = "GET")</Condition>
+      <Request/>
+    </Flow>
+    <Flow name="NoOrgOrEnv">
+      <Response>
+        <Step>
+          <Name>NoOrgOrEnv</Name>
+        </Step>
+      </Response>
+      <Condition>(apigee.edgemicro.organization = null or apigee.edgemicro.environment = null)</Condition>
+    </Flow>
+    <Flow name="DistributedQuota">
+      <Request>
+        <Step>
+          <Name>JSSetupVariables</Name>
+        </Step>
+        <Step>
+          <Name>DistributedQuota</Name>
+        </Step>
+      </Request>
+      <Response>
+        <Step>
+          <Name>SetQuotaResponse</Name>
+        </Step>
+      </Response>
+      <Condition>(proxy.pathsuffix MatchesPath "/quotas**") and (request.verb = "POST")</Condition>
+    </Flow>
+    <Flow name="Callout">
+      <Description/>
+      <Request/>
+      <Response>
+        <Step>
+          <Name>Callout</Name>
+        </Step>
+      </Response>
+      <Condition>(proxy.pathsuffix MatchesPath "/credential/**")</Condition>
+    </Flow>
+    <Flow name="Bootstrap">
+      <Response>
+        <Step>
+          <Name>Callout</Name>
+        </Step>
+      </Response>
+      <Condition>(proxy.pathsuffix MatchesPath "/bootstrap/**" and apigee.edgemicro.authenicate = "true" and (request.verb = "GET"))</Condition>
+    </Flow>
+    <Flow name="Region">
+      <Response>
+        <Step>
+          <Name>Callout</Name>
+        </Step>
+      </Response>
+      <Condition>(proxy.pathsuffix MatchesPath "/region/**" and apigee.edgemicro.authenicate = "true" and (request.verb = "GET"))</Condition>
+    </Flow>
+    <Flow name="AXPublisher">
+      <Response>
+        <Step>
+          <Name>Callout</Name>
+        </Step>
+      </Response>
+      <Condition>( proxy.pathsuffix MatchesPath "/axpublisher/**" and (request.verb = "POST")</Condition>
+    </Flow>
+    <Flow name="NoAuthFlow">
+      <Request>
+        <Step>
+          <Name>Return401</Name>
+        </Step>
+      </Request>
+      <Condition>apigee.edgemicro.authenicate = "false"</Condition>
+    </Flow>
+    <Flow name="NotFound">
+      <Response>
+        <Step>
+          <Name>Return404</Name>
+        </Step>
+      </Response>
+    </Flow>
+  </Flows>
+  <PostFlow name="PostFlow">
+    <Request/>
+    <Response/>
+  </PostFlow>
+  <HTTPProxyConnection>
+    <BasePath>/edgemicro</BasePath>
+    <VirtualHost>default</VirtualHost>
+  </HTTPProxyConnection>
+  <RouteRule name="noroute"/>
 </ProxyEndpoint>
