@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ExtractVariables async="false" continueOnError="false" enabled="true" name="Extract-OAuth-Params">
+    <DisplayName>Extract OAuth Params</DisplayName>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+    <Header name="X-Forwarded-Proto">
+        <Pattern ignoreCase="true">{proxyProto}</Pattern>
+    </Header>
+    <Header name="Host">
+        <Pattern ignoreCase="true">{proxyHost}</Pattern>
+    </Header>
+    <JSONPayload>
+        <Variable name="client_id" type="string">
+            <JSONPath>$.client_id</JSONPath>
+        </Variable>
+        <Variable name="client_secret" type="string">
+            <JSONPath>$.client_secret</JSONPath>
+        </Variable>
+        <Variable name="grant_type" type="string">
+            <JSONPath>$.grant_type</JSONPath>
+        </Variable>
+        <Variable name="username" type="string">
+            <JSONPath>$.username</JSONPath>
+        </Variable>
+        <Variable name="password" type="string">
+            <JSONPath>$.password</JSONPath>
+        </Variable>
+        <Variable name="scp" type="string">
+            <JSONPath>$.scope</JSONPath>
+        </Variable>
+    </JSONPayload>
+    <Source clearPayload="false">request</Source>
+</ExtractVariables>

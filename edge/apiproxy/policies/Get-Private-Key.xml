@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<KeyValueMapOperations async="false" continueOnError="false" enabled="true" name="Get-Private-Key" mapIdentifier="microgateway">
+    <DisplayName>Get Private Key</DisplayName>
+    <Properties/>
+    <Get assignTo="privateKey" index="1">
+        <Key>
+            <Parameter>private-key</Parameter>
+        </Key>
+    </Get>
+    <Scope>environment</Scope>
+</KeyValueMapOperations>

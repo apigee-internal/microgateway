@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Javascript async="false" continueOnError="false" enabled="true" timeLimit="200" name="Send-Public-Key">
+    <DisplayName>Send Public Key</DisplayName>
+    <Properties/>
+    <ResourceURL>jsc://send-public-key.js</ResourceURL>
+</Javascript>

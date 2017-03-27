@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<JavaCallout async="false" continueOnError="false" enabled="true" name="JavaCalloutJWT2">
+    <DisplayName>JavaCalloutJWT2</DisplayName>
+    <FaultRules/>
+    <Properties>
+        <Property name="private-key">{privateKey}</Property>
+        <Property name="algorithm">RS256</Property>
+        <Property name="audience">microgateway</Property>
+        <!--<Property name="expiresIn">{token_expiry}</Property>-->
+        <Property name="claim_access_token">{apigee.access_token}</Property>
+        <Property name="claim_application_name">{apigee.developer.app.name}</Property>
+        <Property name="claim_client_id">{apigee.client_id}</Property>
+        <Property name="claim_scopes"/>
+        <Property name="claim_jti">{jti}</Property>
+        <Property name="claim_iss">{iss}</Property>
+        <Property name="claim_api_product_list">{apiProductList}</Property>
+    </Properties>
+    <ClassName>com.apigee.callout.jwtsigned.JwtCreatorCallout</ClassName>
+    <ResourceURL>java://jwt-signed-edge-callout.jar</ResourceURL>
+</JavaCallout>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ExtractVariables async="false" continueOnError="false" enabled="true" name="Extract-API-Key">
+    <DisplayName>Extract API Key</DisplayName>
+    <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+    <Header name="X-Forwarded-Proto">
+        <Pattern ignoreCase="true">{proxyProto}</Pattern>
+    </Header>
+    <Header name="Host">
+        <Pattern ignoreCase="true">{proxyHost}</Pattern>
+    </Header>
+    <JSONPayload>
+        <Variable name="apikey">
+            <JSONPath>$.apiKey</JSONPath>
+        </Variable>
+    </JSONPayload>
+    <Source clearPayload="false">request</Source>
+</ExtractVariables>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<OAuthV2 async="false" continueOnError="false" enabled="true" name="RefreshAccessToken">
+    <DisplayName>RefreshAccessToken</DisplayName>
+    <Operation>RefreshAccessToken</Operation>
+    <SupportedGrantTypes/>
+    <ExpiresIn ref="token_expiry">300000</ExpiresIn>
+    <GenerateResponse enabled="false"/>
+    <GenerateErrorResponse enabled="true"/>
+    <ReuseRefreshToken>true</ReuseRefreshToken>
+</OAuthV2>
