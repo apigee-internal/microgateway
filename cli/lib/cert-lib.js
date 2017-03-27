@@ -439,13 +439,10 @@ function createVault(username, password, managementUri, organization, environmen
     if(err) {
       return cb(err);
     }
-    var storageOpts = { 
-        name: vaultName
-    }
+
     var uri;
     if(cpsEnabled) {
       uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps', managementUri, organization, environment);
-      storageOpts.encrypted = 'true';
     } else {
       uri = util.format('%s/v1/organizations/%s/environments/%s/vaults', managementUri, organization, environment);
     }
@@ -457,7 +454,7 @@ function createVault(username, password, managementUri, organization, environmen
         username: username,
         password: password
       },
-      json: storageOpts
+      json: { name: vaultName }
     }, function(err, res) {
       err = translateError(err, res);
       if (isApigeeError(err, ERR_STORE_EXISTS)) {
