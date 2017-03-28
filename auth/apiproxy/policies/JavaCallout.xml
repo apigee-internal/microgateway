@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<JavaCallout async="false" continueOnError="false" enabled="true" name="JavaCallout">
+    <DisplayName>JavaCallout</DisplayName>
+    <FaultRules/>
+    <Properties/>
+    <ClassName>io.apigee.microgateway.javacallout.Callout</ClassName>
+    <ResourceURL>java://micro-gateway-products-javacallout-1.0.0.jar</ResourceURL>
+</JavaCallout>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<OAuthV2 async="false" continueOnError="false" enabled="true" name="AccessTokenRequest">
+    <DisplayName>AccessTokenRequest</DisplayName>
+    <ExpiresIn ref="token_expiry">300000</ExpiresIn>
+    <RefreshTokenExpiresIn ref="refresh_token_expiry">3600000</RefreshTokenExpiresIn>
+    <ExternalAuthorization>false</ExternalAuthorization>
+    <Operation>GenerateAccessToken</Operation>
+    <GenerateResponse enabled="false"/>
+    <GenerateErrorResponse enabled="true"/>
+    <ReuseRefreshToken>true</ReuseRefreshToken>
+    <SupportedGrantTypes>
+        <GrantType>password</GrantType>
+        <GrantType>client_credentials</GrantType>
+    </SupportedGrantTypes>
+</OAuthV2>

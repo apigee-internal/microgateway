@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AccessEntity async="false" continueOnError="false" enabled="true" name="Access-App-Info">
+    <DisplayName>Access App Info</DisplayName>
+    <Properties/>
+    <EntityIdentifier ref="request.formparam.client_id" type="consumerkey"/>
+    <EntityType value="app"/>
+</AccessEntity>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AccessEntity async="false" continueOnError="false" enabled="true" name="Access-App-Info-2">
+    <DisplayName>Access App Info 2</DisplayName>
+    <Properties/>
+    <EntityIdentifier ref="apikey" type="consumerkey"/>
+    <EntityType value="app"/>
+</AccessEntity>

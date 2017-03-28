@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<APIProxy revision="12" name="edgemicro-auth">
+    <ConfigurationVersion majorVersion="4" minorVersion="0"/>
+    <CreatedAt>1476383547794</CreatedAt>
+    <CreatedBy>ssridhar@apigee.com</CreatedBy>
+    <Description></Description>
+    <DisplayName>edgemicro-auth</DisplayName>
+    <LastModifiedAt>1476383691461</LastModifiedAt>
+    <LastModifiedBy>ssridhar@apigee.com</LastModifiedBy>
+    <Policies>
+        <Policy>Access-App-Info-2</Policy>
+        <Policy>Access-App-Info</Policy>
+        <Policy>AccessTokenRequest</Policy>
+        <Policy>Create-OAuth-Request</Policy>
+        <Policy>Create-Refresh-Request</Policy>
+        <Policy>Extract-API-Key</Policy>
+        <Policy>Extract-OAuth-Params</Policy>
+        <Policy>Extract-Refresh-Params</Policy>
+        <Policy>Get-Private-Key</Policy>
+        <Policy>Get-Public-Key</Policy>
+        <Policy>JavaCallout</Policy>
+        <Policy>JavaCalloutJWT</Policy>
+        <Policy>JavaCalloutJWT2</Policy>
+        <Policy>Products-to-JSON-2</Policy>
+        <Policy>Products-to-JSON</Policy>
+        <Policy>Raise-Fault-Unknown-Request</Policy>
+        <Policy>RefreshAccessToken</Policy>
+        <Policy>Send-Public-Key</Policy>
+        <Policy>Set-JWT-Variables</Policy>
+        <Policy>Set-Response</Policy>
+        <Policy>Verify-API-Key</Policy>
+    </Policies>
+    <ProxyEndpoints>
+        <ProxyEndpoint>default</ProxyEndpoint>
+    </ProxyEndpoints>
+    <Resources>
+        <Resource>jsc://generate-verify-jwt.js</Resource>
+        <Resource>jsc://send-public-key.js</Resource>
+        <Resource>jsc://set-jwt-variables.js</Resource>
+        <Resource>jsc://set-response.js</Resource>
+        <Resource>java://commons-lang3-3.4.jar</Resource>
+        <Resource>java://guava-18.0.jar</Resource>
+        <Resource>java://json-smart-1.3.jar</Resource>
+        <Resource>java://jwt-signed-edge-callout.jar</Resource>
+        <Resource>java://micro-gateway-products-javacallout-1.0.0.jar</Resource>
+        <Resource>java://nimbus-jose-jwt-3.10.jar</Resource>
+    </Resources>
+    <TargetServers/>
+    <TargetEndpoints/>
+    <validate>false</validate>
+</APIProxy>
