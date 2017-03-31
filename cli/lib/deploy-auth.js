@@ -147,9 +147,6 @@ function deployProxyWithPassword(managementUri,authUri, options, dir, callback) 
     verbose: options.debug,
     api: options.proxyName,
     directory: dir,
-    'base-path': '/edgemicro-auth',
-    'import-only': false,
-    'resolve-modules': false,
     virtualhosts: options.virtualHosts || DEFAULT_HOSTS
   };
 

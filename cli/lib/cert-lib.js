@@ -51,70 +51,30 @@ CertLogic.prototype.retrievePublicKeyPrivate = function( callback) {
 }
 
 CertLogic.prototype.checkCertWithPassword = function(options, callback) {
-
-  var self = this;
-  const opts = {
-    managementUri: this.managementUri,
-    username: options.username,
-    password: options.password,
-    organization: options.org
-  }
-  checkForCps(opts, function(err, cpsEnabled){
-    if(err){
+  var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries', 
+    this.managementUri, options.org, options.env, this.vaultName);
+  
+  request({
+    uri: uri,
+    auth: {
+      username: options.username,
+      password: options.password
+    }
+  }, function(err, res) {
+    err = translateError(err, res);
+    if (err) {
       return callback(err);
     }
-
-    var uri;
-    if(cpsEnabled) {
-      uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries', 
-      self.managementUri, options.org, options.env, self.vaultName);
-    } else {
-      uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries', 
-      self.managementUri, options.org, options.env, self.vaultName);
-    }
-    
-
-      
-    request({
-      uri: uri,
-      auth: {
-        username: options.username,
-        password: options.password
-      }
-    }, function(err, res) {
-      err = translateError(err, res);
-      if (err) {
-        return callback(err);
-      }
-      callback(null, res.body);
-    });
-
+    callback(null, res.body);
   });
 }
 
 CertLogic.prototype.checkPrivateCert = function(options, callback) {
 
-  var self = this;
-  const opts = {
-    managementUri: this.managementUri,
-    username: options.username,
-    password: options.password,
-    organization: options.org
-  }
-  checkForCps(opts, function(err, cpsEnabled){
-    if(err) {
-      return callback(err);
-    }
+  
+    var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries',
+        this.managementUri, options.org, options.env, this.vaultName);
 
-    var uri;
-    if(cpsEnabled) {
-      uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries',
-        self.managementUri, options.org, options.env, self.vaultName);
-
-    } else {
-      uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries',
-        self.managementUri, options.org, options.env, self.vaultName);
-    }
     
     request({
       uri: uri,
@@ -131,7 +91,7 @@ CertLogic.prototype.checkPrivateCert = function(options, callback) {
       callback(null, res.body);
 
     });
-  });
+  
 }
 
 CertLogic.prototype.installPrivateCert = function(options, callback) {
@@ -158,15 +118,19 @@ CertLogic.prototype.installPrivateCert = function(options, callback) {
         },
         function(cb) {
           console.log('creating vault');
-          createVault(options.username, options.password, managementUri, options.org, options.env, vaultName, cb);
-        },
-        function(cb) {
           console.log('adding private_key');
-          addKeyToVault(options.username, options.password, managementUri, options.org, options.env, vaultName, 'private_key', privateKey, cb);
-        },
-        function(cb) {
           console.log('adding public_key');
-          addKeyToVault(options.username, options.password, managementUri, options.org, options.env, vaultName, 'public_key', publicKey, cb);
+          var entries = [
+            {
+              'name':'private_key',
+              'value': privateKey
+            },
+            {
+              'name': 'public_key',
+              'value': publicKey
+            }
+          ]
+          createVault(options.username, options.password, managementUri, options.org, options.env, vaultName, entries, cb);
         }
       ],
       function(err) {
@@ -201,15 +165,19 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
         },
         function(cb) {
           console.log('creating vault');
-          createVault(options.username, options.password, managementUri, options.org, options.env, vaultName, cb);
-        },
-        function(cb) {
           console.log('adding private_key');
-          addKeyToVault(options.username, options.password, managementUri, options.org, options.env, vaultName, 'private_key', privateKey, cb);
-        },
-        function(cb) {
           console.log('adding public_key');
-          addKeyToVault(options.username, options.password, managementUri, options.org, options.env, vaultName, 'public_key', publicKey, cb);
+          var entries = [
+            {
+              'name':'private_key',
+              'value': privateKey
+            },
+            {
+              'name': 'public_key',
+              'value': publicKey
+            }
+          ]
+          createVault(options.username, options.password, managementUri, options.org, options.env, vaultName, entries, cb);
         }
       ],
       function(err) {
@@ -337,37 +305,6 @@ CertLogic.prototype.deleteCertWithPassword = function deleteCertWithPassword(opt
   });
 };
 
-function checkForCps(options, cb) {
-  var managementUri = options.managementUri;
-  var org = options.organization;
-  
-
-  const uri = util.format('%s/v1/o/%s', managementUri, org);
-  
-  request({
-    uri: uri,
-    method: 'GET',
-    auth: {
-      username: options.username,
-      password: options.password
-    }
-  }, (err, response, body) => {
-    if(err) {
-      return cb(err);
-    } else if(response.statusCode !== 200) {
-      const errorMessage = util.format('API Response: %s - %s', response.statusCode, response.statusMessage);
-      return cb(new Error(errorMessage));      
-    } else {
-      body = JSON.parse(body);
-      var orgProperties = body.properties.property;
-      var cpsEnabled = orgProperties.some((prop) => {
-        return prop.name == 'features.isCpsEnabled' && prop.value == 'true';
-      });
-      cb(null, cpsEnabled);
-    }    
-  });
-}
-
 // response: { certificate, csr, clientKey, serviceKey }
 function createCert(cb) {
 
@@ -389,116 +326,53 @@ function createCert(cb) {
 
 function deleteVault(username, password, managementUri, organization, environment, vaultName, cb) {
   console.log('deleting vault');
-  const opts = {
-    managementUri: managementUri,
-    username: username,
-    password: password,
-    organization: organization
-  }
-  checkForCps(opts, function(err, cpsEnabled){
-    if(err) {
-      return cb(err);
-    }
     
-    var uri; 
-    if(cpsEnabled) {
-      uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s', managementUri, organization, environment, vaultName);
-    } else {
-      uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s', managementUri, organization, environment, vaultName);
-    }
+  var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s', managementUri, organization, environment, vaultName);
     
-    request({
-      uri: uri,
-      method: 'DELETE',
-      auth: {
-        username: username,
-        password: password
-      }
-    }, function(err, res) {
-      err = translateError(err, res);
-      if (isApigeeError(err, ERR_STORE_MISSING)) {
-        err = undefined;
-      }
+  request({
+    uri: uri,
+    method: 'DELETE',
+    auth: {
+      username: username,
+      password: password
+    }
+  }, function(err, res) {
+    err = translateError(err, res);
+    if (isApigeeError(err, ERR_STORE_MISSING)) {
+      err = undefined;
+    }
 
-      cb(err, res);
-    });
+    cb(err, res);
   });
+
   
   
 }
 
-function createVault(username, password, managementUri, organization, environment, vaultName, cb) {
+function createVault(username, password, managementUri, organization, environment, vaultName, entries, cb) {
 
-  const opts = {
-    managementUri: managementUri,
-    username: username,
-    password: password,
-    organization: organization
+  var storageOpts = { 
+    name: vaultName,
+    encrypted: 'true',
+    entries: entries
   }
-  checkForCps(opts, (err, cpsEnabled) => {
-    if(err) {
-      return cb(err);
+  var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps', managementUri, organization, environment);
+  
+  request({
+    uri: uri,
+    method: 'POST',
+    auth: {
+      username: username,
+      password: password
+    },
+    json: storageOpts
+  }, function(err, res) {
+    err = translateError(err, res);
+    if (isApigeeError(err, ERR_STORE_EXISTS)) {
+      err = new Error('Store already exists. Use --force to replace keys.');
     }
-    var storageOpts = { 
-        name: vaultName
-    }
-    var uri;
-    if(cpsEnabled) {
-      uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps', managementUri, organization, environment);
-      storageOpts.encrypted = 'true';
-    } else {
-      uri = util.format('%s/v1/organizations/%s/environments/%s/vaults', managementUri, organization, environment);
-    }
-    
-    request({
-      uri: uri,
-      method: 'POST',
-      auth: {
-        username: username,
-        password: password
-      },
-      json: storageOpts
-    }, function(err, res) {
-      err = translateError(err, res);
-      if (isApigeeError(err, ERR_STORE_EXISTS)) {
-        err = new Error('Store already exists. Use --force to replace keys.');
-      }
 
-      cb(err, res);
-    });
-  })
-
-}
-
-function addKeyToVault(username, password, managementUri, organization, environment, vaultName, key, value, cb) {
-
-  const opts = {
-    managementUri: managementUri,
-    username: username,
-    password: password,
-    organization: organization
-  }
-  checkForCps(opts, (err, cpsEnabled) => {
-    var uri
-    if(cpsEnabled) {
-      uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries', managementUri, organization, environment, vaultName);
-    } else {
-      uri = util.format('%s/v1/organizations/%s/environments/%s/vaults/%s/entries', managementUri, organization, environment, vaultName);
-    }
-    
-    request({
-      uri: uri,
-      method: 'POST',
-      auth: {
-        username: username,
-        password: password
-      },
-      json: { name: key, value: value }
-    }, function(err, res) {
-      err = translateError(err, res);
-      cb(err, res);
-    });
-
+    cb(err, res);
   });
 
 }
