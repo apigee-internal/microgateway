@@ -69,7 +69,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
   // copy bin folder into tmp
   tasks.push(function(cb) {
     //console.log('copy auth app into tmp dir');
-    cpr(path.resolve(__dirname, '..', '..', 'auth'), tmpDir.name, cb);
+    cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'microgateway-edgeauth'), tmpDir.name, cb);
   });
 
 
