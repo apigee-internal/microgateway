@@ -51,21 +51,20 @@ CertLogic.prototype.retrievePublicKeyPrivate = function( callback) {
 }
 
 CertLogic.prototype.checkCertWithPassword = function(options, callback) {
-  var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries', 
+  var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s', 
     this.managementUri, options.org, options.env, this.vaultName);
-  
   request({
     uri: uri,
     auth: {
       username: options.username,
       password: options.password
     }
-  }, function(err, res) {
+  }, function(err, res, body) {
     err = translateError(err, res);
     if (err) {
       return callback(err);
     }
-    callback(null, res.body);
+    callback(null, body);
   });
 }
 
