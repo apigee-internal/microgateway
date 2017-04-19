@@ -1,11 +1,11 @@
 {
   "name": "edgemicro",
-  "version": "2.4.3-beta",
+  "version": "2.4.4-beta",
   "dependencies": {
     "ajv": {
-      "version": "4.11.6",
+      "version": "4.11.7",
       "from": "ajv@>=4.9.1 <5.0.0",
-      "resolved": "https://registry.npmjs.org/ajv/-/ajv-4.11.6.tgz"
+      "resolved": "https://registry.npmjs.org/ajv/-/ajv-4.11.7.tgz"
     },
     "ansi-regex": {
       "version": "2.1.1",
@@ -717,9 +717,9 @@
       "resolved": "https://registry.npmjs.org/microgateway-edgeauth/-/microgateway-edgeauth-2.0.0-beta.tgz"
     },
     "microgateway-plugins": {
-      "version": "2.3.8-beta",
-      "from": "microgateway-plugins@>=2.3.8-beta <3.0.0",
-      "resolved": "https://registry.npmjs.org/microgateway-plugins/-/microgateway-plugins-2.3.8-beta.tgz"
+      "version": "2.3.9-beta",
+      "from": "microgateway-plugins@>=2.3.9-beta <3.0.0",
+      "resolved": "https://registry.npmjs.org/microgateway-plugins/-/microgateway-plugins-2.3.9-beta.tgz"
     },
     "mime-db": {
       "version": "1.27.0",
