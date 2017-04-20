@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+regex="([^\/]+)-([^-]+)-cache-config.yaml"
+node_yaml='(() => {
+var yaml = require("js-yaml");
+var fs   = require("fs");
+var doc  = yaml.safeLoad(fs.readFileSync(process.argv[1], "utf8"));
+return `-k ${doc.analytics.key} -s ${doc.analytics.secret}`;
+})()'
+
+for file in ~/.edgemicro/*; do
+    if [[ $file =~ $regex ]]; then
+        org=${BASH_REMATCH[1]}
+        env=${BASH_REMATCH[2]}
+        key_secret=$(node -p "$node_yaml" "$file")
+        if [[ $? -eq 0 ]]; then
+            break
+        else
+            echo ERROR: cannot read key/secret from $file
+            exit 1
+        fi
+    fi
+done
+
+if [[ -z "$org" ]]; then
+    echo ERROR: {org}-{env}-cache-config.yaml not found in ~/.edgemicro
+    exit 1
+fi
+
+args="-o $org -e $env $key_secret"
+#echo $args
+NODE_TLS_REJECT_UNAUTHORIZED=0 ./cli/edgemicro start $args

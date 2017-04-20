@@ -1,0 +1,8 @@
+---
+applications:
+- name: edgemicro-app
+  memory: 256M
+  instances: 1
+  host: edgemicro-app
+  path: .
+  buildpack: nodejs_buildpack

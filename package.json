@@ -51,7 +51,7 @@
     }
   },
   "scripts": {
-    "start": "./cli/edgemicro start",
+    "start": "./startmicro",
     "package": "node cli/package.js",
     "test": "mocha --timeout 17000 tests"
   },
