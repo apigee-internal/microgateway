@@ -13,22 +13,16 @@ edgemicro:
   port: 8000
   max_connections: 1000
   max_connections_hard: 5000
-  restart_sleep: 500
-  restart_max: 50
   max_times: 300
+  config_change_poll_interval: 600
   logging:
-    level: none
+    level: error
     dir: /var/tmp
     stats_log_interval: 60
     rotate_interval: 24
   plugins:
     sequence:
       - oauth
-      - sample
-spikearrest:
-  timeUnit: minute
-  allow: 100000
-  buffersize: 0
 
 headers:
   x-forwarded-for: true
@@ -40,4 +34,3 @@ headers:
 oauth:
   allowNoAuthorization: false
   allowInvalidAuthorization: false
-sample:

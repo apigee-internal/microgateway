@@ -1,6 +1,6 @@
 {
   "name": "edgemicro",
-  "version": "2.1.2",
+  "version": "2.4.4-beta",
   "description": "Apigee Edge Microgateway",
   "main": "index.js",
   "license": "Apache-2.0",
@@ -22,10 +22,10 @@
     "jsonwebtoken": "^5.7.0",
     "lodash": "^3.9.3",
     "log-symbols": "^1.0.2",
-    "microgateway-config": "^2.0.10",
-    "microgateway-core": "^2.1.0",
-    "microgateway-edgeauth": "^1.0.2",
-    "microgateway-plugins": "^2.0.5",
+    "microgateway-config": "^2.3.4-beta",
+    "microgateway-core": "^2.4.2-beta",
+    "microgateway-edgeauth": "^2.0.0-beta",
+    "microgateway-plugins": "^2.3.9-beta",
     "pem": "^1.8.1",
     "request": "^2.67.0",
     "rimraf": "^2.4.3",
@@ -53,7 +53,7 @@
   "scripts": {
     "start": "./cli/edgemicro start",
     "package": "node cli/package.js",
-    "test": "mocha --timeout 7000 tests"
+    "test": "mocha --timeout 17000 tests"
   },
   "directories": {
     "doc": "docs",
@@ -80,7 +80,9 @@
     "Sean Williams (https://github.com/swilliams11)",
     "Noah Dietz <noahdietz24@gmail.com> (https://github.com/noahdietz)",
     "Shawn Feldman (https://github.com/shawnfeldman)",
-    "Kevin Swiber <kswiber@gmail.com> (https://github.com/kevinswiber)"
+    "Kevin Swiber <kswiber@gmail.com> (https://github.com/kevinswiber)",
+    "Matt Dobson <mdobson@apigee.com> (https://github.com/mdobson)",
+    "Mitch Fierro <fierro.mitch@gmail.com> (https://github.com/f1erro)"
   ],
   "author": "Kevin Swiber <kswiber@gmail.com>"
 }

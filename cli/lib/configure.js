@@ -28,11 +28,11 @@ module.exports = function () {
 }
 
 Configure.prototype.configure = function configure(options, cb) {
-  if (!fs.existsSync(configLocations.getDefaultPath())) {
+  if (!fs.existsSync(configLocations.getDefaultPath(options.configDir))) {
     console.error("Missing %s, Please run 'edgemicro init'",configLocations.getDefaultPath())
     return cb("Please call edgemicro init first")
   }
-  defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath() });
+  defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath(options.configDir) });
   addEnvVars(defaultConfig);
   deployAuth = deployAuthLib(defaultConfig.edge_config, null)
   managementUri = defaultConfig.edge_config.managementUri;
@@ -43,13 +43,19 @@ Configure.prototype.configure = function configure(options, cb) {
   assert(options.org, 'org is required');
   assert(options.env, 'env is required');
 
-  options.proxyName = 'edgemicro-auth';
+  if(!options.proxyName) {
+    options.proxyName = 'edgemicro-auth';
+  }
+  
 
   if (options.url) {
     if (options.url.indexOf('://') === -1) {
       options.url = 'https://' + options.url;
     }
-    defaultConfig.edge_config.authUri = options.url + '/edgemicro-auth';
+    defaultConfig.edge_config.authUri = options.url + '/' + options.proxyName;
+  } else {
+    var newAuthURI = util.format(defaultConfig.edge_config.authUri, options.org, options.env);
+    defaultConfig.edge_config.authUri = newAuthURI;
   }
 
   authUri = defaultConfig.edge_config.authUri;
@@ -68,11 +74,12 @@ Configure.prototype.configure = function configure(options, cb) {
     fs.unlinkSync(targetPath);
     //console.log('deleted ' + targetPath);
   }
-
+  
+  var configFileDirectory = options.configDir || configLocations.homeDir; 
   //console.log('init config');
   edgeconfig.init({
-    source: configLocations.getDefaultPath(),
-    targetDir: configLocations.homeDir,
+    source: configLocations.getDefaultPath(options.configDir),
+    targetDir: configFileDirectory,
     targetFile: targetFile,
     overwrite: true
   }, function (err, configPath) {
@@ -114,12 +121,13 @@ function configureEdgemicroWithCreds(options, cb) {
   tasks.push(
     function (callback) {
       setTimeout(() => {
-        //console.log('checking org for existing vault');
+        console.log('checking org for existing vault');
         cert.checkCertWithPassword(options, function (err, certs) {
           if (err) {
+            console.log('error checking for cert. Installing new cert.')
             cert.installCertWithPassword(options, callback);
           } else {
-            //console.log('vault already exists in your org');
+            console.log('vault already exists in your org');
             cert.retrievePublicKey(options, callback);
           }
         });
@@ -144,7 +152,7 @@ function configureEdgemicroWithCreds(options, cb) {
     if (err) {
       return cb(err)
     }
-    agentConfigPath = configLocations.getSourcePath(options.org, options.env);
+    agentConfigPath = configLocations.getSourcePath(options.org, options.env, options.configDir);
     const agentConfig = edgeconfig.load({ source: agentConfigPath });
 
     addEnvVars(agentConfig);
@@ -153,8 +161,7 @@ function configureEdgemicroWithCreds(options, cb) {
       agentConfig['edge_config']['jwt_public_key'] = results[0]; // get deploy results
       agentConfig['edge_config'].bootstrap = results[2].bootstrap; // get genkeys results
     } else {
-      agentConfig['edge_config']['jwt_public_key'] =
-        options.url ? authUri + '/publicKey' : util.format(authUri + '/publicKey', options.org, options.env);
+      agentConfig['edge_config']['jwt_public_key'] = authUri + '/publicKey';
       agentConfig['edge_config'].bootstrap = results[1].bootstrap;
     }
 

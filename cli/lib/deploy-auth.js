@@ -146,16 +146,12 @@ function deployProxyWithPassword(managementUri,authUri, options, dir, callback) 
     debug: options.debug,
     verbose: options.debug,
     api: options.proxyName,
-    main: 'app.js',
     directory: dir,
-    'base-path': '/edgemicro-auth',
-    'import-only': false,
-    'resolve-modules': false,
     virtualhosts: options.virtualHosts || DEFAULT_HOSTS
   };
 
   console.log('Give me a minute or two... this can take a while...');
-  apigeetool.deployNodeApp(opts, function(err) {
+  apigeetool.deployProxy(opts, function(err) {
     if (err) {
       if (err.code === 'ECONNRESET' && err.message === 'socket hang up') {
         err.message = 'Deployment timeout. Please try again or use the --upload option.'
@@ -164,10 +160,13 @@ function deployProxyWithPassword(managementUri,authUri, options, dir, callback) 
       }
 
       return callback(err);
+    } else {
+      console.log('App %s deployed.', options.proxyName);
+      callback(null, options.runtimeUrl ? authUri + '/publicKey' : util.format(authUri + '/publicKey', options.org, options.env));
     }
 
     //console.log('App %s added to your org. Now adding resources.', options.proxyName);
-    opts.password = options.password; // override a apigeetool side-effect bug
+/*    opts.password = options.password; // override a apigeetool side-effect bug
     installJavaCallout(managementUri, opts, function(err) {
       if (err) {
         return callback(err);
@@ -175,7 +174,7 @@ function deployProxyWithPassword(managementUri,authUri, options, dir, callback) 
       console.log('App %s deployed.', options.proxyName);
       callback(null, options.runtimeUrl ? authUri + '/publicKey' : util.format(authUri + '/publicKey', options.org, options.env));
 
-    });
+    });*/
   });
 }
 
