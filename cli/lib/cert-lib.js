@@ -353,7 +353,7 @@ function createVault(username, password, managementUri, organization, environmen
   var storageOpts = { 
     name: vaultName,
     encrypted: 'true',
-    entries: entries
+    entry: entries
   }
   var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps', managementUri, organization, environment);
   
