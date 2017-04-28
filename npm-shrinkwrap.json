@@ -1,6 +1,6 @@
 {
   "name": "edgemicro",
-  "version": "2.4.4-beta",
+  "version": "2.4.5-beta",
   "dependencies": {
     "ajv": {
       "version": "4.11.7",
@@ -264,9 +264,16 @@
       }
     },
     "debug": {
-      "version": "2.6.3",
+      "version": "2.6.6",
       "from": "debug@>=2.2.0 <3.0.0",
-      "resolved": "https://registry.npmjs.org/debug/-/debug-2.6.3.tgz"
+      "resolved": "https://registry.npmjs.org/debug/-/debug-2.6.6.tgz",
+      "dependencies": {
+        "ms": {
+          "version": "0.7.3",
+          "from": "ms@0.7.3",
+          "resolved": "https://registry.npmjs.org/ms/-/ms-0.7.3.tgz"
+        }
+      }
     },
     "delayed-stream": {
       "version": "1.0.0",
@@ -322,9 +329,9 @@
       }
     },
     "extend": {
-      "version": "3.0.0",
+      "version": "3.0.1",
       "from": "extend@>=3.0.0 <3.1.0",
-      "resolved": "https://registry.npmjs.org/extend/-/extend-3.0.0.tgz"
+      "resolved": "https://registry.npmjs.org/extend/-/extend-3.0.1.tgz"
     },
     "extsprintf": {
       "version": "1.0.2",
@@ -372,9 +379,9 @@
       "resolved": "https://registry.npmjs.org/generate-object-property/-/generate-object-property-1.2.0.tgz"
     },
     "getpass": {
-      "version": "0.1.6",
+      "version": "0.1.7",
       "from": "getpass@>=0.1.1 <0.2.0",
-      "resolved": "https://registry.npmjs.org/getpass/-/getpass-0.1.6.tgz",
+      "resolved": "https://registry.npmjs.org/getpass/-/getpass-0.1.7.tgz",
       "dependencies": {
         "assert-plus": {
           "version": "1.0.0",
@@ -648,9 +655,9 @@
       }
     },
     "microgateway-core": {
-      "version": "2.4.2-beta",
-      "from": "microgateway-core@>=2.4.2-beta <3.0.0",
-      "resolved": "https://registry.npmjs.org/microgateway-core/-/microgateway-core-2.4.2-beta.tgz",
+      "version": "2.4.3-beta",
+      "from": "microgateway-core@>=2.4.3-beta <3.0.0",
+      "resolved": "https://registry.npmjs.org/microgateway-core/-/microgateway-core-2.4.3-beta.tgz",
       "dependencies": {
         "caseless": {
           "version": "0.11.0",
@@ -712,9 +719,9 @@
       }
     },
     "microgateway-edgeauth": {
-      "version": "2.0.0-beta",
-      "from": "microgateway-edgeauth@>=2.0.0-beta <3.0.0",
-      "resolved": "https://registry.npmjs.org/microgateway-edgeauth/-/microgateway-edgeauth-2.0.0-beta.tgz"
+      "version": "2.1.0-beta",
+      "from": "microgateway-edgeauth@>=2.1.0-beta <3.0.0",
+      "resolved": "https://registry.npmjs.org/microgateway-edgeauth/-/microgateway-edgeauth-2.1.0-beta.tgz"
     },
     "microgateway-plugins": {
       "version": "2.3.9-beta",
