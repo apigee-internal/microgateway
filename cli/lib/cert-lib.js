@@ -55,10 +55,7 @@ CertLogic.prototype.checkCertWithPassword = function(options, callback) {
     this.managementUri, options.org, options.env, this.vaultName);
   request({
     uri: uri,
-    auth: {
-      username: options.username,
-      password: options.password
-    }
+    auth: generateCredentialsObject(options)
   }, function(err, res, body) {
     err = translateError(err, res);
     if (err) {
@@ -77,10 +74,7 @@ CertLogic.prototype.checkPrivateCert = function(options, callback) {
     
     request({
       uri: uri,
-      auth: {
-        username: options.username,
-        password: options.password
-      }
+      auth: generateCredentialsObject(options)
     }, function(err, res) {
       err = translateError(err, res);
       if (err) {
@@ -113,7 +107,7 @@ CertLogic.prototype.installPrivateCert = function(options, callback) {
       [
         function(cb) {
           if (!options.force) { return cb(); }
-          deleteVault(options.username, options.password, managementUri, options.org, options.env, vaultName, cb);
+          deleteVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, cb);
         },
         function(cb) {
           console.log('creating vault');
@@ -129,7 +123,7 @@ CertLogic.prototype.installPrivateCert = function(options, callback) {
               'value': publicKey
             }
           ]
-          createVault(options.username, options.password, managementUri, options.org, options.env, vaultName, entries, cb);
+          createVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, entries, cb);
         }
       ],
       function(err) {
@@ -160,7 +154,7 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
       [
         function(cb) {
           if (!options.force) { return cb(); }
-          deleteVault(options.username, options.password, managementUri, options.org, options.env, vaultName, cb);
+          deleteVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, cb);
         },
         function(cb) {
           console.log('creating vault');
@@ -176,7 +170,7 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
               'value': publicKey
             }
           ]
-          createVault(options.username, options.password, managementUri, options.org, options.env, vaultName, entries, cb);
+          createVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, entries, cb);
         }
       ],
       function(err) {
@@ -226,10 +220,7 @@ CertLogic.prototype.generateKeysWithPassword = function generateKeysWithPassword
     request({
       uri: credentialUrl,
       method: 'POST',
-      auth: {
-        username: options.username,
-        password: options.password
-      },
+      auth: generateCredentialsObject(options),
       json: keys
     }, function(err, res) {
       err = translateError(err, res);
@@ -295,7 +286,7 @@ CertLogic.prototype.deleteCertWithPassword = function deleteCertWithPassword(opt
   const managementUri = this.managementUri ;
   const vaultName = this.vaultName;
 
-  deleteVault(options.username, options.password, managementUri, options.org, options.env, vaultName, function(err) {
+  deleteVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, function(err) {
     if (err) {
       cb(err);
     } else {
@@ -323,7 +314,7 @@ function createCert(cb) {
   pem.createCertificate(options, cb);
 }
 
-function deleteVault(username, password, managementUri, organization, environment, vaultName, cb) {
+function deleteVault(credentials, managementUri, organization, environment, vaultName, cb) {
   console.log('deleting vault');
     
   var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s', managementUri, organization, environment, vaultName);
@@ -331,10 +322,7 @@ function deleteVault(username, password, managementUri, organization, environmen
   request({
     uri: uri,
     method: 'DELETE',
-    auth: {
-      username: username,
-      password: password
-    }
+    auth: credentials 
   }, function(err, res) {
     err = translateError(err, res);
     if (isApigeeError(err, ERR_STORE_MISSING)) {
@@ -348,7 +336,7 @@ function deleteVault(username, password, managementUri, organization, environmen
   
 }
 
-function createVault(username, password, managementUri, organization, environment, vaultName, entries, cb) {
+function createVault(credentials, managementUri, organization, environment, vaultName, entries, cb) {
 
   var storageOpts = { 
     name: vaultName,
@@ -360,10 +348,7 @@ function createVault(username, password, managementUri, organization, environmen
   request({
     uri: uri,
     method: 'POST',
-    auth: {
-      username: username,
-      password: password
-    },
+    auth: credentials,
     json: storageOpts
   }, function(err, res) {
     err = translateError(err, res);
@@ -423,3 +408,15 @@ function getPublicKeyPrivate(authUri, cb) {
   });
 }
 
+function generateCredentialsObject(options) {
+  if(options.token) {
+    return {
+      'bearer': options.token;
+    };
+  } else {
+    return {
+      user: options.username,
+      pass: options.password
+    };
+  }
+}

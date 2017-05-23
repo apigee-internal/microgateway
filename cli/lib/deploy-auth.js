@@ -119,10 +119,15 @@ Deployment.prototype.checkDeployedProxies = function checkDeployedProxies(option
     organization: options.org,
     environment: options.env,
     baseuri: this.managementUri,
-    username: options.username,
-    password: options.password,
     debug: options.debug
   };
+
+  if(options.token) {
+    opts.token = token; 
+  } else {
+    opts.username = options.username;
+    opts.password = options.password;
+  }
   const that = this;
   apigeetool.listDeployments(opts, function(err, proxies) {
     if (err) {
@@ -141,14 +146,19 @@ function deployProxyWithPassword(managementUri,authUri, options, dir, callback) 
     organization: options.org,
     environments: options.env,
     baseuri: managementUri,
-    username: options.username,
-    password: options.password,
     debug: options.debug,
     verbose: options.debug,
     api: options.proxyName,
     directory: dir,
     virtualhosts: options.virtualHosts || DEFAULT_HOSTS
   };
+
+  if(optios.token) {
+    opts.token = options.token;
+  } else {
+    opts.username = options.username;
+    opts.password = options.password;
+  }
 
   console.log('Give me a minute or two... this can take a while...');
   apigeetool.deployProxy(opts, function(err) {
