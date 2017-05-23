@@ -51,7 +51,7 @@
     }
   },
   "scripts": {
-    "start": "./cli/edgemicro start",
+    "start": "node app.js",
     "package": "node cli/package.js",
     "test": "mocha --timeout 17000 tests"
   },
@@ -84,5 +84,10 @@
     "Matt Dobson <mdobson@apigee.com> (https://github.com/mdobson)",
     "Mitch Fierro <fierro.mitch@gmail.com> (https://github.com/f1erro)"
   ],
-  "author": "Kevin Swiber <kswiber@gmail.com>"
+  "author": "Kevin Swiber <kswiber@gmail.com>",
+  "engines" : { 
+     "node" : ">= 4.8.2 <=6.9.1",
+     "npm": ">=3.10.8"
+  },
+  "cpu" : [ "!arm", "!mips" ]
 }
