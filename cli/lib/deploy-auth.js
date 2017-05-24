@@ -123,7 +123,7 @@ Deployment.prototype.checkDeployedProxies = function checkDeployedProxies(option
   };
 
   if(options.token) {
-    opts.token = token; 
+    opts.token = options.token; 
   } else {
     opts.username = options.username;
     opts.password = options.password;
@@ -153,7 +153,7 @@ function deployProxyWithPassword(managementUri,authUri, options, dir, callback) 
     virtualhosts: options.virtualHosts || DEFAULT_HOSTS
   };
 
-  if(optios.token) {
+  if(options.token) {
     opts.token = options.token;
   } else {
     opts.username = options.username;

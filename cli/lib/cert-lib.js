@@ -411,7 +411,7 @@ function getPublicKeyPrivate(authUri, cb) {
 function generateCredentialsObject(options) {
   if(options.token) {
     return {
-      'bearer': options.token;
+      'bearer': options.token
     };
   } else {
     return {
