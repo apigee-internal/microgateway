@@ -1,0 +1,14 @@
+---
+applications:
+- name: edgemicro-app
+  memory: 512M
+  instances: 1
+  host: edgemicro-app
+  path: .
+  buildpack: nodejs_buildpack
+  env: 
+    EDGEMICRO_KEY: 'microgateway-key'
+    EDGEMICRO_SECRET: 'microgateway-secret'
+    EDGEMICRO_CONFIG_DIR: '/app/config'
+    EDGEMICRO_ENV: 'env-name'
+    EDGEMICRO_ORG: 'org-name'

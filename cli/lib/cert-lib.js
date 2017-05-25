@@ -101,7 +101,6 @@ CertLogic.prototype.installPrivateCert = function(options, callback) {
 
     const privateKey = keys.serviceKey;
     const publicKey = keys.certificate;
-
     const async = require('async');
     async.series(
       [
@@ -132,8 +131,8 @@ CertLogic.prototype.installPrivateCert = function(options, callback) {
         } else {
           callback(null, publicKey);
         }
-      }
-    );
+      );
+    });
   });
 }
 
@@ -179,8 +178,8 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
         } else {
           callback(null, publicKey);
         }
-      }
-    );
+      );    
+    });
   });
 }
 
