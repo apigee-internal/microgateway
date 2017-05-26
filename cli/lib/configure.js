@@ -38,8 +38,10 @@ Configure.prototype.configure = function configure(options, cb) {
   managementUri = defaultConfig.edge_config.managementUri;
   keySecretMessage = defaultConfig.edge_config.keySecretMessage;
 
-  assert(options.username, 'username is required');
-  assert(options.password, 'password is required');
+  if(!options.token) {
+    assert(options.username, 'username is required');
+    assert(options.password, 'password is required');
+  }
   assert(options.org, 'org is required');
   assert(options.env, 'env is required');
 

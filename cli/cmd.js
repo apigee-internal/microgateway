@@ -26,21 +26,37 @@ const setup = function setup() {
     .option('-v, --virtualHosts <virtualHosts>', 'override virtualHosts (default: "default,secure")')
     .option('-u, --username <user>', 'username of the organization admin')
     .option('-p, --password <password>', 'password of the organization admin')
+    .option('-t, --token <token>', 'OAuth token to use with management API')
     .option('-r, --url <url>', 'organization\'s custom API URL (https://api.example.com)')
     .option('-d, --debug', 'execute with debug output')
     .option('-c, --configDir <configDir>', 'Set the directory where configs are written.')
     .option('-x, --proxyName <proxyName>', 'Set the custom proxy name for edgemicro-auth')
     .action((options) => {
       options.error = optionError;
-      if (!options.username) { return options.error('username is required'); }
-      if (!options.org) { return options.error('org is required'); }
-      if (!options.env) { return options.error('env is required'); }
-      options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
-      promptForPassword(options,(options)=>{
-        if (!options.password) { return options.error('password is required'); }
+      options.token = options.token || process.env.EDGEMICRO_SAML_TOKEN;
+      
+      if(options.token) {
+        //If there is a token lets configure with standard opts.
+        if (!options.org) { return options.error('org is required'); }
+        if (!options.env) { return options.error('env is required'); }
+        options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
         configure.configure(options, () => {
         });
-      })
+      
+      } else {
+        //If there is no token then we can go through the password process
+        if (!options.username) { return options.error('username is required'); }
+        if (!options.org) { return options.error('org is required'); }
+        if (!options.env) { return options.error('env is required'); }
+        options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
+        promptForPassword(options,(options)=>{
+          if (!options.password) { return options.error('password is required'); }
+          configure.configure(options, () => {
+          });
+        })
+      }
+
+      
     });
 
  commander
