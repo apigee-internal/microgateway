@@ -131,9 +131,9 @@ CertLogic.prototype.installPrivateCert = function(options, callback) {
         } else {
           callback(null, publicKey);
         }
+      }
       );
     });
-  });
 }
 
 CertLogic.prototype.installCertWithPassword = function(options, callback) {
@@ -178,9 +178,9 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
         } else {
           callback(null, publicKey);
         }
+      }
       );    
     });
-  });
 }
 
 
