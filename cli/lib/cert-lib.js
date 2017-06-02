@@ -102,37 +102,52 @@ CertLogic.prototype.installPrivateCert = function(options, callback) {
     const privateKey = keys.serviceKey;
     const publicKey = keys.certificate;
     const async = require('async');
-    async.series(
-      [
-        function(cb) {
-          if (!options.force) { return cb(); }
-          deleteVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, cb);
-        },
-        function(cb) {
-          console.log('creating vault');
-          console.log('adding private_key');
-          console.log('adding public_key');
-          var entries = [
-            {
-              'name':'private_key',
-              'value': privateKey
-            },
-            {
-              'name': 'public_key',
-              'value': publicKey
-            }
-          ]
-          createVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, entries, cb);
+
+    pem.getPublicKey (publicKey, function(err, key) {
+      async.series(
+        [
+          function(cb) {
+            if (!options.force) { return cb(); }
+            deleteVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, cb);
+          },
+          function(cb) {
+            console.log('creating vault');
+            console.log('adding private_key');
+            console.log('adding public_key');
+            var entries = [
+              {
+                'name':'private_key',
+                'value': privateKey
+              },
+              {
+                'name': 'public_key',
+                'value': publicKey
+              },
+              {
+                'name': 'public_key1',
+                'value': key.publicKey
+              },
+              {
+                'name': 'private_key_kid',
+                'value': '1'
+              },
+              {
+                'name': 'public_key1_kid',
+                'value': '1'
+              }
+            ]
+            createVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, entries, cb);
+          }
+        ],
+        function(err) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, publicKey);
+          }
         }
-      ],
-      function(err) {
-        if (err) {
-          callback(err);
-        } else {
-          callback(null, publicKey);
-        }
-      }
-      );
+        );
+      });
     });
 }
 
@@ -147,39 +162,53 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
 
     const privateKey = keys.serviceKey;
     const publicKey = keys.certificate;
-
     const async = require('async');
-    async.series(
-      [
-        function(cb) {
-          if (!options.force) { return cb(); }
-          deleteVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, cb);
-        },
-        function(cb) {
-          console.log('creating vault');
-          console.log('adding private_key');
-          console.log('adding public_key');
-          var entries = [
-            {
-              'name':'private_key',
-              'value': privateKey
-            },
-            {
-              'name': 'public_key',
-              'value': publicKey
-            }
-          ]
-          createVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, entries, cb);
+
+    pem.getPublicKey (publicKey, function(err, key) {
+      async.series(
+        [
+          function(cb) {
+            if (!options.force) { return cb(); }
+            deleteVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, cb);
+          },
+          function(cb) {
+            console.log('creating vault');
+            console.log('adding private_key');
+            console.log('adding public_key');
+            var entries = [
+              {
+                'name':'private_key',
+                'value': privateKey
+              },
+              {
+                'name': 'public_key',
+                'value': publicKey
+              },
+              {
+                'name': 'public_key1',
+                'value': key.publicKey
+              },
+              {
+                'name': 'private_key_kid',
+                'value': '1'
+              },
+              {
+                'name': 'public_key1_kid',
+                'value': '1'
+              }              
+            ]
+            createVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, entries, cb);
+          }
+        ],
+        function(err) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, publicKey);
+          }
         }
-      ],
-      function(err) {
-        if (err) {
-          callback(err);
-        } else {
-          callback(null, publicKey);
-        }
-      }
-      );    
+        );    
+      });
     });
 }
 

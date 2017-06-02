@@ -24,8 +24,8 @@
     },
     "apigeetool": {
       "version": "0.6.6",
-      "from": "apigeetool@>=0.6.3 <0.7.0",
-      "resolved": "https://registry.npmjs.org/apigeetool/-/apigeetool-0.6.6.tgz",
+      "from": "apigeetool@>=0.7.0 <0.7.0",
+      "resolved": "https://registry.npmjs.org/apigeetool/-/apigeetool-0.7.0.tgz",
       "dependencies": {
         "tmp": {
           "version": "0.0.27",
