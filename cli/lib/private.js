@@ -222,8 +222,6 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
   })
 }
 
-
-
 // checks deployments, deploys proxies as necessary, checks/installs certs, generates keys
 Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithCreds(options, cb) {
   const that = this;
@@ -263,12 +261,13 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
   }
 
   tasks.push(function (callback) {
-    console.log('checking org for existing vault');
+    console.log('checking org for existing KVM');
     that.cert.checkPrivateCert(options, function (err, certs) {
-      if (err) {
+      if (err){
+        console.log('error checking for cert. Installing new cert.');
         that.cert.installPrivateCert(options, callback);
       } else {
-        console.log('vault already exists in your org');
+        console.log('KVM already exists in your org');
         that.cert.retrievePublicKeyPrivate(callback);
       }
     });
@@ -316,7 +315,7 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
 
         agentConfig['analytics']['uri'] = bootstrapUri.replace('bootstrap', 'axpublisher');
       }
-      
+
       console.log();
       console.log('saving configuration information to:', agentConfigPath);
       edgeconfig.save(agentConfig, agentConfigPath);
@@ -333,8 +332,6 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
 
     });
 };
-
-
 
 Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(options, cb) {
 
@@ -443,4 +440,3 @@ function optionError(message) {
   console.error(message);
   this.help();
 }
-
