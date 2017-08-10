@@ -73,8 +73,8 @@ CertLogic.prototype.checkPrivateCert = function(options, callback) {
     request({
       uri: uri,
       auth: generateCredentialsObject(options)
-    }, function(err, res, body) {
-      err = translateError(err, res, body);
+    }, function(err, res) {
+      err = translateError(err, res);
       if (err) {
         return callback(err);
       }
