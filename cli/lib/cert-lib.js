@@ -56,7 +56,7 @@ CertLogic.prototype.checkCertWithPassword = function(options, callback) {
   request({
     uri: uri,
     auth: generateCredentialsObject(options)
-  }, function(err, res) {
+  }, function(err, res, body) {
     err = translateError(err, res);
     if (err) {
       return callback(err);
