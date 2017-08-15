@@ -15,6 +15,8 @@ module.exports = function () {
 }
 
 UpgradeAuth.prototype.upgradeauth = function upgradeauth(options, cb) {
+    var authpath = __dirname;
+    var len = authpath.indexOf('/cli/lib');
     const opts = {
         organization: options.org,
         environments: options.env,
@@ -24,7 +26,7 @@ UpgradeAuth.prototype.upgradeauth = function upgradeauth(options, cb) {
         basepath: '/edgemicro-auth',
         verbose: true,
         api: 'edgemicro-auth',
-        directory:  path.join(__dirname,'node_modules','microgateway-edgeauth'),
+        directory:  path.join(authpath.substring(0, len),'node_modules','microgateway-edgeauth'),
         'import-only': false,
         'resolve-modules': false,
         virtualhosts: options.virtualhost || 'secure'
