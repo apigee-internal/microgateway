@@ -48,7 +48,7 @@ Configure.prototype.configure = function configure(options, cb) {
   if(!options.proxyName) {
     options.proxyName = 'edgemicro-auth';
   }
-  
+
 
   if (options.url) {
     if (options.url.indexOf('://') === -1) {
@@ -76,8 +76,8 @@ Configure.prototype.configure = function configure(options, cb) {
     fs.unlinkSync(targetPath);
     //console.log('deleted ' + targetPath);
   }
-  
-  var configFileDirectory = options.configDir || configLocations.homeDir; 
+
+  var configFileDirectory = options.configDir || configLocations.homeDir;
   //console.log('init config');
   edgeconfig.init({
     source: configLocations.getDefaultPath(options.configDir),
@@ -123,13 +123,13 @@ function configureEdgemicroWithCreds(options, cb) {
   tasks.push(
     function (callback) {
       setTimeout(() => {
-        console.log('checking org for existing vault');
+        console.log('checking org for existing KVM');
         cert.checkCertWithPassword(options, function (err, certs) {
           if (err) {
-            console.log('error checking for cert. Installing new cert.')
+            console.log('error checking for cert. Installing new cert.');
             cert.installCertWithPassword(options, callback);
           } else {
-            console.log('vault already exists in your org');
+            console.log('KVM already exists in your org');
             cert.retrievePublicKey(options, callback);
           }
         });
@@ -227,4 +227,3 @@ function printError(err) {
     console.log(err);
   }
 }
-
