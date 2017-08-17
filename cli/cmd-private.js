@@ -36,6 +36,84 @@ module.exports = function() {
       });
     });
 
+    app
+      .command('upgradekvm')
+      .option('-o, --org <org>', 'the organization')
+      .option('-e, --env <env>', 'the environment')
+      .option('-u, --username <user>', 'username of the organization admin')
+      .option('-p, --password <password>', 'password of the organization admin')
+      .option('-v, --virtualhost <virtualhost>', 'virtual host of the proxy')
+      .option('-m, --mgmt-url <mgmtUrl>', 'the URL of the management server')
+      .description('upgrade kvm to support JWT Key rotation')
+      .action((options)=>{
+        options.error = optionError;
+        if (!options.username) { return options.error('username is required'); }
+        if (!options.org) { return options.error('org is required'); }
+        if (!options.env) { return options.error('env is required'); }
+        if (!options.runtimeUrl) { return options.error('runtimeUrl is required'); }
+        if (!options.mgmtUrl) { return options.error('mgmtUrl is required'); }
+        if (!options.mgmtUrl.includes('http')) {
+          return options.error('runtimeUrl requires a prototcol http or https')
+        }
+
+        promptForPassword(options,(options)=>{
+          if (!options.password) { return options.error('password is required'); }
+          upgradekvm.upgradekvm(options, () => {
+          });      
+        })
+      });
+
+      app
+        .command('upgradeauth')
+        .option('-o, --org <org>', 'the organization')
+        .option('-e, --env <env>', 'the environment')
+        .option('-u, --username <user>', 'username of the organization admin')
+        .option('-p, --password <password>', 'password of the organization admin')
+        .option('-v, --virtualhost <virtualhost>', 'virtual host of the proxy')
+        .option('-m, --mgmt-url <mgmtUrl>', 'the URL of the management server')        
+        .description('upgrade edgemicro-auth proxy')
+        .action((options)=>{
+          options.error = optionError;
+          if (!options.username) { return options.error('username is required'); }
+          if (!options.org) { return options.error('org is required'); }
+          if (!options.env) { return options.error('env is required'); }
+          if (!options.mgmtUrl) { return options.error('mgmtUrl is required'); }
+          if (!options.mgmtUrl.includes('http')) {
+            return options.error('runtimeUrl requires a prototcol http or https')
+          }
+
+          promptForPassword(options,(options)=>{
+            if (!options.password) { return options.error('password is required'); }
+            upgradeauth.upgradeauth(options, () => {
+            });      
+          })
+        });
+
+        app
+          .command('rotatekey')
+          .option('-o, --org <org>', 'the organization')
+          .option('-e, --env <env>', 'the environment')
+          .option('-u, --username <user>', 'username of the organization admin')
+          .option('-p, --password <password>', 'password of the organization admin')
+          .option('-k, --kid <kid>', 'new key identifier')
+          .option('-m, --mgmt-url <mgmtUrl>', 'the URL of the management server') 
+          .description('Rotate JWT Keys')
+          .action((options)=>{
+            options.error = optionError;
+            if (!options.username) { return options.error('username is required'); }
+            if (!options.org) { return options.error('org is required'); }
+            if (!options.env) { return options.error('env is required'); }
+            if (!options.mgmtUrl) { return options.error('mgmtUrl is required'); }
+            if (!options.mgmtUrl.includes('http')) {
+              return options.error('runtimeUrl requires a prototcol http or https')
+            }
+            promptForPassword(options,(options)=>{
+              if (!options.password) { return options.error('password is required'); }
+              rotatekey.rotatekey(options, () => {
+              });      
+            })
+          });
+
   app.parse(process.argv);
 
   var running = false;

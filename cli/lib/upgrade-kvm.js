@@ -29,7 +29,7 @@ module.exports = function () {
 
 UpgradeKVM.prototype.upgradekvm = function upgradekvm(options, cb) {
 
-    options.baseuri = options.baseuri || "https://api.enterprise.apigee.com";
+    options.baseuri = options.mgmtUrl || "https://api.enterprise.apigee.com";
     options.kvm = 'microgateway';
     options.kid = '1';
     options.virtualhost = options.virtualhost || 'secure';    

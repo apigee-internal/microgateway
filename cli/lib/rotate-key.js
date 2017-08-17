@@ -41,9 +41,8 @@ module.exports = function () {
 
 RotateKey.prototype.rotatekey = function rotatekey(options, cb) {
 
-    options.baseuri = options.baseuri || "https://api.enterprise.apigee.com";
+    options.baseuri = options.mgmtUrl || "https://api.enterprise.apigee.com";
     options.kvm = "microgateway";
-    options.proto = options.proto || 'https';
     options.kid =  options.kid || "2";
 
     var privateKeyURI = util.format("%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/private_key",
