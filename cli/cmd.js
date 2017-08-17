@@ -2,6 +2,9 @@
 
 const commander = require('commander');
 const configure = require('./lib/configure')();
+const upgradekvm = require('./lib/upgrade-kvm')();
+const upgradeauth = require('./lib/upgrade-edgeauth')();
+const rotatekey = require('./lib/rotate-key')();
 const verify = require('./lib/verify')();
 const run = require('./lib/gateway')();
 const keyGenerator = require('./lib/key-gen')();
@@ -178,6 +181,69 @@ commander
     })
 
   });
+
+commander
+  .command('upgradekvm')
+  .option('-o, --org <org>', 'the organization')
+  .option('-e, --env <env>', 'the environment')
+  .option('-u, --username <user>', 'username of the organization admin')
+  .option('-p, --password <password>', 'password of the organization admin')
+  .option('-v, --virtualhost <virtualhost>', 'virtual host of the proxy')
+  .option('-b, --baseuri <baseuri>', 'baseuri for management apis')  
+  .description('upgrade kvm to support JWT Key rotation')
+  .action((options)=>{
+    options.error = optionError;
+    if (!options.username) { return options.error('username is required'); }
+    if (!options.org) { return options.error('org is required'); }
+    if (!options.env) { return options.error('env is required'); }
+    promptForPassword(options,(options)=>{
+      if (!options.password) { return options.error('password is required'); }
+      upgradekvm.upgradekvm(options, () => {
+      });      
+    })
+  });
+
+  commander
+    .command('upgradeauth')
+    .option('-o, --org <org>', 'the organization')
+    .option('-e, --env <env>', 'the environment')
+    .option('-u, --username <user>', 'username of the organization admin')
+    .option('-p, --password <password>', 'password of the organization admin')
+    .option('-v, --virtualhost <virtualhost>', 'virtual host of the proxy')
+    .option('-b, --baseuri <baseuri>', 'baseuri for management apis')  
+    .description('upgrade edgemicro-auth proxy')
+    .action((options)=>{
+      options.error = optionError;
+      if (!options.username) { return options.error('username is required'); }
+      if (!options.org) { return options.error('org is required'); }
+      if (!options.env) { return options.error('env is required'); }
+      promptForPassword(options,(options)=>{
+        if (!options.password) { return options.error('password is required'); }
+        upgradeauth.upgradeauth(options, () => {
+        });      
+      })
+    });
+
+    commander
+      .command('rotatekey')
+      .option('-o, --org <org>', 'the organization')
+      .option('-e, --env <env>', 'the environment')
+      .option('-u, --username <user>', 'username of the organization admin')
+      .option('-p, --password <password>', 'password of the organization admin')
+      .option('-k, --kid <kid>', 'new key identifier')
+      .option('-b, --baseuri <baseuri>', 'baseuri for management apis')
+      .description('Rotate JWT Keys')
+      .action((options)=>{
+        options.error = optionError;
+        if (!options.username) { return options.error('username is required'); }
+        if (!options.org) { return options.error('org is required'); }
+        if (!options.env) { return options.error('env is required'); }
+        promptForPassword(options,(options)=>{
+          if (!options.password) { return options.error('password is required'); }
+          rotatekey.rotatekey(options, () => {
+          });      
+        })
+      });    
 
   commander.parse(process.argv);
 
