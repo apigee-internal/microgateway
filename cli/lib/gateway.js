@@ -78,17 +78,7 @@ Gateway.prototype.start =  (options) => {
     var mgCluster = reloadCluster(path.join(__dirname, 'start-agent.js'), opt);
 
     var server = net.createServer();
-
-    if (config.edgemicro.bindHost) {
-      debug(ipcPath);
-      server.listen({
-        path: ipcPath,
-        host: config.edgemicro.bindHost
-        });
-      //server.listen(ipcPath);
-    } else {
-      server.listen(ipcPath);
-    }
+    server.listen(ipcPath);
 
     server.on('connection',  (socket) => {
       socket = new JsonSocket(socket);
