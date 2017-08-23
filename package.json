@@ -53,11 +53,7 @@
   },
   "scripts": {
     "start": "node app.js",
-<<<<<<< HEAD
     "stop": "node stop.js",
-=======
-    "stop" : "node stop.js",
->>>>>>> f54fb630a6b6e955565057a20f585020e9163fb3
     "package": "node cli/package.js",
     "test": "mocha --timeout 17000 tests"
   },
