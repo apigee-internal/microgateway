@@ -189,6 +189,7 @@ commander
   .option('-u, --username <user>', 'username of the organization admin')
   .option('-p, --password <password>', 'password of the organization admin')
   .option('-v, --virtualhost <virtualhost>', 'virtual host of the proxy')
+  .option('-b, --baseuri <baseuri>', 'baseuri for management apis')  
   .description('upgrade kvm to support JWT Key rotation')
   .action((options)=>{
     options.error = optionError;
@@ -209,6 +210,7 @@ commander
     .option('-u, --username <user>', 'username of the organization admin')
     .option('-p, --password <password>', 'password of the organization admin')
     .option('-v, --virtualhost <virtualhost>', 'virtual host of the proxy')
+    .option('-b, --baseuri <baseuri>', 'baseuri for management apis')  
     .description('upgrade edgemicro-auth proxy')
     .action((options)=>{
       options.error = optionError;
@@ -229,6 +231,7 @@ commander
       .option('-u, --username <user>', 'username of the organization admin')
       .option('-p, --password <password>', 'password of the organization admin')
       .option('-k, --kid <kid>', 'new key identifier')
+      .option('-b, --baseuri <baseuri>', 'baseuri for management apis')
       .description('Rotate JWT Keys')
       .action((options)=>{
         options.error = optionError;

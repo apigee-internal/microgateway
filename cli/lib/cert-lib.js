@@ -51,12 +51,12 @@ CertLogic.prototype.retrievePublicKeyPrivate = function( callback) {
 }
 
 CertLogic.prototype.checkCertWithPassword = function(options, callback) {
-  var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s', 
+  var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s',
     this.managementUri, options.org, options.env, this.vaultName);
   request({
     uri: uri,
     auth: generateCredentialsObject(options)
-  }, function(err, res, body) {
+  }, function(err, res) {
     err = translateError(err, res);
     if (err) {
       return callback(err);
@@ -67,11 +67,9 @@ CertLogic.prototype.checkCertWithPassword = function(options, callback) {
 
 CertLogic.prototype.checkPrivateCert = function(options, callback) {
 
-  
-    var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries',
+    var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/private_key',
         this.managementUri, options.org, options.env, this.vaultName);
 
-    
     request({
       uri: uri,
       auth: generateCredentialsObject(options)
@@ -84,7 +82,7 @@ CertLogic.prototype.checkPrivateCert = function(options, callback) {
       callback(null, res.body);
 
     });
-  
+
 }
 
 CertLogic.prototype.installPrivateCert = function(options, callback) {
@@ -111,7 +109,7 @@ CertLogic.prototype.installPrivateCert = function(options, callback) {
             deleteVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, cb);
           },
           function(cb) {
-            console.log('creating vault');
+            console.log('creating KVM');
             console.log('adding private_key');
             console.log('adding public_key');
             var entries = [
@@ -172,7 +170,7 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
             deleteVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, cb);
           },
           function(cb) {
-            console.log('creating vault');
+            console.log('creating KVM');
             console.log('adding private_key');
             console.log('adding public_key');
             var entries = [
@@ -195,7 +193,7 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
               {
                 'name': 'public_key1_kid',
                 'value': '1'
-              }              
+              }
             ]
             createVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, entries, cb);
           }
@@ -207,7 +205,7 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
             callback(null, publicKey);
           }
         }
-        );    
+        );
       });
     });
 }
@@ -318,7 +316,7 @@ CertLogic.prototype.deleteCertWithPassword = function deleteCertWithPassword(opt
     if (err) {
       cb(err);
     } else {
-      cb(null,'Vault deleted!');
+      cb(null,'KVM deleted!');
     }
   });
 };
@@ -343,14 +341,14 @@ function createCert(cb) {
 }
 
 function deleteVault(credentials, managementUri, organization, environment, vaultName, cb) {
-  console.log('deleting vault');
-    
+  console.log('deleting KVM');
+
   var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s', managementUri, organization, environment, vaultName);
-    
+
   request({
     uri: uri,
     method: 'DELETE',
-    auth: credentials 
+    auth: credentials
   }, function(err, res) {
     err = translateError(err, res);
     if (isApigeeError(err, ERR_STORE_MISSING)) {
@@ -360,19 +358,19 @@ function deleteVault(credentials, managementUri, organization, environment, vaul
     cb(err, res);
   });
 
-  
-  
+
+
 }
 
 function createVault(credentials, managementUri, organization, environment, vaultName, entries, cb) {
 
-  var storageOpts = { 
+  var storageOpts = {
     name: vaultName,
     encrypted: 'true',
     entry: entries
   }
   var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps', managementUri, organization, environment);
-  
+
   request({
     uri: uri,
     method: 'POST',
@@ -391,7 +389,6 @@ function createVault(credentials, managementUri, organization, environment, vaul
 
 function translateError(err, res) {
   if (!err && res.statusCode >= 400) {
-
     const msg = 'cannot ' + res.request.method + ' ' + url.format(res.request.uri) + ' (' + res.statusCode + ')';
     err = new Error(msg);
     err.text = res.body;
