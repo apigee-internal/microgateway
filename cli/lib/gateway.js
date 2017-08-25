@@ -12,6 +12,7 @@ const isWin = /^win/.test(process.platform);
 const ipcPath = configLocations.getIPCFilePath();
 const defaultPollInterval = 600;
 const uuid = require('uuid');
+const debug = require('debug')('microgateway');
 
 const Gateway = function () {
 };
@@ -118,6 +119,14 @@ Gateway.prototype.start =  (options) => {
 
     process.on('SIGINT', () => {
       process.exit(0);
+    });
+
+    process.on('uncaughtException', () => {
+      console.err(err);
+      debug('Caught Unhandled Exception:');
+      debug(err);
+      debug("Reloading edgemicro...");
+      reloadOnConfigChange(config, cache,{source: source, keys:keys});
     });
 
     var shouldNotPoll = config.edgemicro.disable_config_poll_interval || false;
