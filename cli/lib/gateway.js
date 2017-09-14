@@ -122,7 +122,7 @@ Gateway.prototype.start =  (options) => {
     });
 
     process.on('uncaughtException', () => {
-      console.err(err);
+      console.error(err);
       debug('Caught Unhandled Exception:');
       debug(err);
       debug("Reloading edgemicro...");
