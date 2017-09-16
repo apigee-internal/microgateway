@@ -57,8 +57,8 @@ RotateKey.prototype.rotatekey = function rotatekey(options, cb) {
             console.error(err);
         } else {
             console.log("Private key found");
-            var publicKeyURI = util.format("%s://%s-%s.apigee.net/edgemicro-auth/publicKey",
-                options.proto, options.org, options.env);
+            var publicKeyURI = util.format("https://%s-%s.apigee.net/edgemicro-auth/publicKey",
+                options.org, options.env);
             console.log("Checking for public key...");
             request({
                 uri: publicKeyURI,
