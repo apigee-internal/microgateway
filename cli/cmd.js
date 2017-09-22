@@ -238,6 +238,7 @@ commander
         if (!options.username) { return options.error('username is required'); }
         if (!options.org) { return options.error('org is required'); }
         if (!options.env) { return options.error('env is required'); }
+        if (!options.kid) { return options.error('kid is required'); }
         promptForPassword(options,(options)=>{
           if (!options.password) { return options.error('password is required'); }
           rotatekey.rotatekey(options, () => {

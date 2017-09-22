@@ -24,7 +24,7 @@ UpgradeAuth.prototype.upgradeauth = function upgradeauth(options, cb) {
         basepath: '/edgemicro-auth',
         verbose: true,
         api: 'edgemicro-auth',
-        directory:  path.join(__dirname,'node_modules','microgateway-edgeauth'),
+        directory:  path.join(__dirname,'../..','node_modules','microgateway-edgeauth'),
         'import-only': false,
         'resolve-modules': false,
         virtualhosts: options.virtualhost || 'secure'
