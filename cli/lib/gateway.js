@@ -125,8 +125,13 @@ Gateway.prototype.start =  (options) => {
       console.error(err);
       debug('Caught Unhandled Exception:');
       debug(err);
-      debug("Reloading edgemicro...");
-      reloadOnConfigChange(config, cache,{source: source, keys:keys});
+      if (config.edgemicro.autostart) {
+        debug("Reloading edgemicro...Restart Count: "+restartCount);
+        reloadOnConfigChange(config, cache,{source: source, keys:keys});
+      } else {
+        debug('enable autostart to reload MG automatically');
+        process.exit(0);
+      }
     });
 
     var shouldNotPoll = config.edgemicro.disable_config_poll_interval || false;
