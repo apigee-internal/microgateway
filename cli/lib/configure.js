@@ -10,7 +10,9 @@ const util = require('util')
 const fs = require('fs')
 const assert = require('assert');
 const configLocations = require('../../config/locations');
-
+const BUFFERSIZE    = 10000;
+const BATCHSIZE     = 500;
+const FLUSHINTERVAL = 5000;
 var defaultConfig ;
 
 var certLib = require('./cert-lib')
@@ -184,6 +186,9 @@ function configureEdgemicroWithCreds(options, cb) {
       }
 
       agentConfig['analytics']['uri'] = bootstrapUri.replace('bootstrap', 'axpublisher');
+      agentConfig['analytics']['bufferSize']    = BUFFERSIZE;
+      agentConfig['analytics']['batchSize']     = BATCHSIZE;
+      agentConfig['analytics']['flushInterval'] = FLUSHINTERVAL;
     }
 
     console.log();
