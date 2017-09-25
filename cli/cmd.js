@@ -133,6 +133,7 @@ const setup = function setup() {
     .option('-e, --env <env>', 'the environment')
     .option('-k, --key <key>', 'key for authenticating with Edge')
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
+    .option('-c, --configDir <configDir>', 'Set the directory where configs are written.')
     .description('reload the edgemicro cluster by pulling new configuration')
     .action((options)=> {
       options.error = optionError;
@@ -140,6 +141,7 @@ const setup = function setup() {
       options.key = options.key || process.env.EDGEMICRO_KEY;
       options.org = options.org || process.env.EDGEMICRO_ORG;
       options.env = options.env || process.env.EDGEMICRO_ENV;
+      options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
       if (!options.key ) {return  options.error('key is required');}
       if (!options.secret ) {return  options.error('secret is required');}
       if (!options.org ) { return  options.error('org is required'); }
