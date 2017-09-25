@@ -125,8 +125,7 @@ Gateway.prototype.start =  (options) => {
       console.error(err);
       debug('Caught Unhandled Exception:');
       debug(err);
-      debug("Reloading edgemicro...");
-      reloadOnConfigChange(config, cache,{source: source, keys:keys});
+      process.exit(0);
     });
 
     var shouldNotPoll = config.edgemicro.disable_config_poll_interval || false;
@@ -261,3 +260,4 @@ function hasConfigChanged(oldConfig, newConfig) {
   // This may not be the best way to do the check. But it works for now.
   return JSON.stringify(oldConfig) != JSON.stringify(newConfig);
 }
+
