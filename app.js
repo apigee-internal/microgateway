@@ -32,7 +32,7 @@ if (options.port) {
 }
 if (process.env.EDGEMICRO_CONFIG_URL) {
   var fileName = options.org+"-"+options.env+"-config.yaml";
-  var filePath = os.homedir() + "/.edgemicro/" + fileName;
+  var filePath = options.configDir + "/" + fileName;
   
   var parsedUrl = url.parse(process.env.EDGEMICRO_CONFIG_URL, true);
   if (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") {
