@@ -1,6 +1,11 @@
 'use strict';
 
 const commander = require('commander');
+const url = require('url');
+const fs = require('fs');
+const os = require('os');
+const debug = require('debug')('start');
+const request = require('request');
 const configure = require('./lib/configure')();
 const upgradekvm = require('./lib/upgrade-kvm')();
 const upgradeauth = require('./lib/upgrade-edgeauth')();
@@ -100,6 +105,7 @@ const setup = function setup() {
     .option('-d, --pluginDir <pluginDir>','absolute path to plugin directory')
     .option('-r, --port <portNumber>','override port in the config.yaml file')
     .option('-c, --configDir <configDir>', 'Set the directory where configs are read from.')
+    .option('-u, --configUrl <configUrl>', 'Provide the endpoint to download the edgemicro config file')
     .description('start the gateway based on configuration')
     .action((options)=>{
       options.error = optionError;
@@ -109,6 +115,7 @@ const setup = function setup() {
       options.env = options.env || process.env.EDGEMICRO_ENV;
       options.processes =  options.processes || process.env.EDGEMICRO_PROCESSES;
       options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
+      options.configUrl = options.configUrl || process.env.EDGEMICRO_CONFIG_URL;
 
       if (options.port) {
         portastic.test(options.port)
@@ -124,7 +131,38 @@ const setup = function setup() {
       if (!options.secret ) {return  options.error('secret is required');}
       if (!options.org ) { return  options.error('org is required'); }
       if (!options.env ) { return  options.error('env is required'); }
-      run.start(options);
+      if (options.configUrl) {
+        options.configDir = options.configDir || os.homedir() +"/" + ".edgemicro";
+        if (!fs.existsSync(options.configDir)) fs.mkdirSync(options.configDir);
+        var fileName = options.org+"-"+options.env+"-config.yaml";
+        debug(fileName);
+        var filePath = options.configDir + "/" + fileName;
+        debug(filePath);
+        var parsedUrl = url.parse(options.configUrl, true);
+        debug(options.configUrl);
+
+        if (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") {
+          debug("downloading file...");
+          request.get(options.configUrl, function(error, response, body) {
+            if (error) {
+              console.error("config file did not download: "+error);
+              process.exit(1);
+            }
+            try {
+              debug(body);
+              fs.writeFileSync(filePath, body, 'utf8');
+              run.start(options);
+            } catch (err) {
+              console.error("config file could not be written: " + err);
+              process.exit(1);
+            }        
+          });
+        } else {
+          console.error("url protocol not supported: "+parsedUrl.protocol);
+          process.exit(1);
+        }
+      }
+      else run.start(options);
     });
 
   commander
