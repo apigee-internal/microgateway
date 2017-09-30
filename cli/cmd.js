@@ -233,6 +233,7 @@ commander
       .option('-u, --username <user>', 'username of the organization admin')
       .option('-p, --password <password>', 'password of the organization admin')
       .option('-k, --kid <kid>', 'new key identifier')
+	  .option('-P,--prev-kid <oldkid>', 'previous key identifier')
       .option('-b, --baseuri <baseuri>', 'baseuri for management apis')
       .description('Rotate JWT Keys')
       .action((options)=>{
