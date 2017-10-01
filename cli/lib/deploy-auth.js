@@ -11,6 +11,7 @@ const util = require('util')
 const fs = require('fs')
 const DEFAULT_HOSTS = 'default,secure';
 const url = require('url');
+const debug = require('debug')('edgemicro-auth')
 const _ =require('lodash')
 var exec = require('child_process').exec;
 
@@ -138,6 +139,45 @@ Deployment.prototype.checkDeployedProxies = function checkDeployedProxies(option
   })
 }
 
+function editVirtualHosts(file, virtualhosts) {
+	var beginVH = "<VirtualHost>";
+	var endVH = "</VirtualHost>";
+	var defaultVH = "<VirtualHost>default</VirtualHost>";
+	var secureVH = "<VirtualHost>secure</VirtualHost>";
+	var content = fs.readFileSync(file, 'utf8');
+	var virtualhost = virtualhosts.split(",");
+	var newcontent;
+
+	if (virtualhost.length == 1 && !virtualhost.includes('default') && !virtualhost.includes('secure')) {
+		content = content.replace(defaultVH,beginVH+virtualhost[0]+endVH);
+		newcontent = content.replace(secureVH,'');
+	} else if (virtualhost.length == 1){
+		if (!virtualhost.includes('default')) {
+			//remove default
+			content = content.replace(defaultVH,'');
+		} else if (!virtualhost.includes('secure')) {
+			//remove secure
+			content = content.replace(secureVH,'');
+		}			
+	} else {
+		virtualhost.forEach(function(element){
+			if (element !== 'default' && element !== 'secure') {
+				content = content.replace(defaultVH,defaultVH+"\n"+beginVH+element+endVH);
+			}	
+		});
+		if (!virtualhost.includes('default')) {
+			content = content.replace(defaultVH,'');
+		}
+		if (!virtualhost.includes('secure')) {
+			content = content.replace(secureVH,'');
+		} 
+	}
+
+	fs.unlink(file);
+	debug('editing virtual hosts');
+	fs.writeFileSync(file, content, 'utf8');
+	
+}
 
 function deployProxyWithPassword(managementUri,authUri, options, dir, callback) {
   assert(dir, 'dir must be configured')
@@ -159,7 +199,7 @@ function deployProxyWithPassword(managementUri,authUri, options, dir, callback) 
     opts.username = options.username;
     opts.password = options.password;
   }
-
+  editVirtualHosts(dir+"/apiproxy/proxies/default.xml",opts.virtualhosts);
   console.log('Give me a minute or two... this can take a while...');
   apigeetool.deployProxy(opts, function(err) {
     if (err) {
@@ -171,7 +211,7 @@ function deployProxyWithPassword(managementUri,authUri, options, dir, callback) 
 
       return callback(err);
     } else {
-      console.log('App %s deployed.', options.proxyName);
+		console.log('App %s deployed.', options.proxyName);
       callback(null, options.runtimeUrl ? authUri + '/publicKey' : util.format(authUri + '/publicKey', options.org, options.env));
     }
 

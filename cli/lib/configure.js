@@ -51,7 +51,6 @@ Configure.prototype.configure = function configure(options, cb) {
     options.proxyName = 'edgemicro-auth';
   }
 
-
   if (options.url) {
     if (options.url.indexOf('://') === -1) {
       options.url = 'https://' + options.url;
@@ -109,11 +108,10 @@ Configure.prototype.configure = function configure(options, cb) {
 function configureEdgemicroWithCreds(options, cb) {
   var tasks = [],
     agentConfigPath;
-
+	
   const jwtSearch = _.find(options.deployments, function (proxy) {
     return proxy.name === options.proxyName;
   });
-
   if (!jwtSearch) {
     tasks.push(function (callback) {
       deployAuth.deployWithLeanPayload(options, callback);
@@ -162,7 +160,7 @@ function configureEdgemicroWithCreds(options, cb) {
     addEnvVars(agentConfig);
 
     if (!jwtSearch) {
-      agentConfig['edge_config']['jwt_public_key'] = results[0]; // get deploy results
+      agentConfig['edge_config']['jwt_public_key'] = (options.url ? options.url+"/edgemicro-auth/publicKey" : results[0]); // get deploy results
       agentConfig['edge_config'].bootstrap = results[2].bootstrap; // get genkeys results
     } else {
       agentConfig['edge_config']['jwt_public_key'] = authUri + '/publicKey';
