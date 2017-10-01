@@ -4,6 +4,7 @@ const commander = require('commander');
 const url = require('url');
 const fs = require('fs');
 const os = require('os');
+const path = require('path');
 const debug = require('debug')('start');
 const request = require('request');
 const configure = require('./lib/configure')();
@@ -15,6 +16,8 @@ const run = require('./lib/gateway')();
 const keyGenerator = require('./lib/key-gen')();
 const prompt = require('cli-prompt');
 const init = require('./lib/init');
+const foreverOptions = require('../forever.json');
+const forever = require('forever-monitor');
 var portastic = require('portastic');
 
 const setup = function setup() {
@@ -199,6 +202,15 @@ const setup = function setup() {
     .description('Status of the edgemicro cluster')
     .action((options)=> {
       run.status(options);
+    });
+  
+  commander
+    .command('forever')
+    .description('Start microgateway using forever-monitor')
+    .action((options)=> {
+      foreverOptions ? foreverOptions : { max: 3, silent: false, killTree: true, minUptime: 2000 };
+      var child = new (forever.Monitor)(path.join(__dirname,'..','app.js'), foreverOptions);
+      child.start(); 
     });
 
 commander
