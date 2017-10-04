@@ -1,6 +1,12 @@
 'use strict';
 
 const commander = require('commander');
+const url = require('url');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const debug = require('debug')('start');
+const request = require('request');
 const configure = require('./lib/configure')();
 const upgradekvm = require('./lib/upgrade-kvm')();
 const upgradeauth = require('./lib/upgrade-edgeauth')();
@@ -10,6 +16,8 @@ const run = require('./lib/gateway')();
 const keyGenerator = require('./lib/key-gen')();
 const prompt = require('cli-prompt');
 const init = require('./lib/init');
+const foreverOptions = require('../forever.json');
+const forever = require('forever-monitor');
 var portastic = require('portastic');
 
 const setup = function setup() {
@@ -100,6 +108,7 @@ const setup = function setup() {
     .option('-d, --pluginDir <pluginDir>','absolute path to plugin directory')
     .option('-r, --port <portNumber>','override port in the config.yaml file')
     .option('-c, --configDir <configDir>', 'Set the directory where configs are read from.')
+    .option('-u, --configUrl <configUrl>', 'Provide the endpoint to download the edgemicro config file')
     .description('start the gateway based on configuration')
     .action((options)=>{
       options.error = optionError;
@@ -109,6 +118,7 @@ const setup = function setup() {
       options.env = options.env || process.env.EDGEMICRO_ENV;
       options.processes =  options.processes || process.env.EDGEMICRO_PROCESSES;
       options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
+      options.configUrl = options.configUrl || process.env.EDGEMICRO_CONFIG_URL;
 
       if (options.port) {
         portastic.test(options.port)
@@ -124,7 +134,38 @@ const setup = function setup() {
       if (!options.secret ) {return  options.error('secret is required');}
       if (!options.org ) { return  options.error('org is required'); }
       if (!options.env ) { return  options.error('env is required'); }
-      run.start(options);
+      if (options.configUrl) {
+        options.configDir = options.configDir || os.homedir() +"/" + ".edgemicro";
+        if (!fs.existsSync(options.configDir)) fs.mkdirSync(options.configDir);
+        var fileName = options.org+"-"+options.env+"-config.yaml";
+        debug(fileName);
+        var filePath = options.configDir + "/" + fileName;
+        debug(filePath);
+        var parsedUrl = url.parse(options.configUrl, true);
+        debug(options.configUrl);
+
+        if (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") {
+          debug("downloading file...");
+          request.get(options.configUrl, function(error, response, body) {
+            if (error) {
+              console.error("config file did not download: "+error);
+              process.exit(1);
+            }
+            try {
+              debug(body);
+              fs.writeFileSync(filePath, body, 'utf8');
+              run.start(options);
+            } catch (err) {
+              console.error("config file could not be written: " + err);
+              process.exit(1);
+            }        
+          });
+        } else {
+          console.error("url protocol not supported: "+parsedUrl.protocol);
+          process.exit(1);
+        }
+      }
+      else run.start(options);
     });
 
   commander
@@ -133,6 +174,7 @@ const setup = function setup() {
     .option('-e, --env <env>', 'the environment')
     .option('-k, --key <key>', 'key for authenticating with Edge')
     .option('-s, --secret <secret>', 'secret for authenticating with Edge')
+    .option('-c, --configDir <configDir>', 'Set the directory where configs are written.')
     .description('reload the edgemicro cluster by pulling new configuration')
     .action((options)=> {
       options.error = optionError;
@@ -140,6 +182,7 @@ const setup = function setup() {
       options.key = options.key || process.env.EDGEMICRO_KEY;
       options.org = options.org || process.env.EDGEMICRO_ORG;
       options.env = options.env || process.env.EDGEMICRO_ENV;
+      options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
       if (!options.key ) {return  options.error('key is required');}
       if (!options.secret ) {return  options.error('secret is required');}
       if (!options.org ) { return  options.error('org is required'); }
@@ -159,6 +202,15 @@ const setup = function setup() {
     .description('Status of the edgemicro cluster')
     .action((options)=> {
       run.status(options);
+    });
+  
+  commander
+    .command('forever')
+    .description('Start microgateway using forever-monitor')
+    .action((options)=> {
+      foreverOptions ? foreverOptions : { max: 3, silent: false, killTree: true, minUptime: 2000 };
+      var child = new (forever.Monitor)(path.join(__dirname,'..','app.js'), foreverOptions);
+      child.start(); 
     });
 
 commander
@@ -231,6 +283,7 @@ commander
       .option('-u, --username <user>', 'username of the organization admin')
       .option('-p, --password <password>', 'password of the organization admin')
       .option('-k, --kid <kid>', 'new key identifier')
+	  .option('-P,--prev-kid <oldkid>', 'previous key identifier')
       .option('-b, --baseuri <baseuri>', 'baseuri for management apis')
       .description('Rotate JWT Keys')
       .action((options)=>{

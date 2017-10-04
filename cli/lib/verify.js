@@ -112,7 +112,8 @@ Verify.prototype.verify = function verify(options) {
     },
     function (cb) {
       // verify products endpoint availability
-      const productsUrl = util.format(authUri + '/products', options.org, options.env);
+      const productsUrl = (authUri.indexOf("%s") == -1) ? authUri + '/products' : util.format(authUri + '/products', options.org, options.env);
+      //const productsUrl = util.format(authUri + '/products', options.org, options.env);
       request({
         method: 'GET',
         uri: productsUrl
