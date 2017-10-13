@@ -140,6 +140,7 @@ Deployment.prototype.checkDeployedProxies = function checkDeployedProxies(option
 }
 
 function editVirtualHosts(file, virtualhosts) {
+        if (virtualhosts == DEFAULT_HOSTS) return;
 	var beginVH = "<VirtualHost>";
 	var endVH = "</VirtualHost>";
 	var defaultVH = "<VirtualHost>default</VirtualHost>";
@@ -173,7 +174,7 @@ function editVirtualHosts(file, virtualhosts) {
 		} 
 	}
 
-	fs.unlink(file);
+	fs.unlinkSync(file);
 	debug('editing virtual hosts');
 	fs.writeFileSync(file, content, 'utf8');
 	
