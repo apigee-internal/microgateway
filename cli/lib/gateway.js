@@ -250,6 +250,7 @@ Gateway.prototype.status = (options) => {
     if (error) {
       if (error.code == 'ENOENT') {
         console.error('edgemicro is not running.');
+        process.exit(1);
       }
     }
   });
