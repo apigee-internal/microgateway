@@ -209,6 +209,7 @@ const setup = function setup() {
             options.org = options.org || process.env.EDGEMICRO_ORG;
             options.env = options.env || process.env.EDGEMICRO_ENV;
             options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
+            options.configUrl = options.configUrl || process.env.EDGEMICRO_CONFIG_URL;
             if (!options.key) {
                 return options.error('key is required');
             }
@@ -268,8 +269,12 @@ const setup = function setup() {
 
     commander
         .command('forever')
+        .option('-f, --file <file>', 'forever-monitor options file')
         .description('Start microgateway using forever-monitor')
         .action((options) => {
+            if (options.file) {
+              foreverOptions = JSON.parse(fs.readFileSync(options.file), {encoding: 'utf8'});
+            }
             foreverOptions ? foreverOptions : {
                 max: 3,
                 silent: false,
