@@ -1,7 +1,7 @@
 var cluster = require('cluster');
 var EventEmitter = require('events').EventEmitter;
 var cpuCount = require('os').cpus().length;
-
+const cache = require('memored');
 /**
  * Creates a Wrapper around node Cluster module. Gives ability to reload the cluster gracefully
  * @param file                    {String} path to the server file
@@ -180,6 +180,7 @@ var ReloadCluster = (file, opt) => {
    */
   self.run = () => {
     if (!cluster.isMaster) return;
+    cache.setup();
     cluster.setupMaster({exec: file});
     cluster.settings.args = opt.args;
 
