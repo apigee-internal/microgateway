@@ -171,7 +171,7 @@ Gateway.prototype.start =  (options) => {
 };
 
 Gateway.prototype.reload = (options) => {
-console.log(options);
+
   const source = configLocations.getSourcePath(options.org, options.env, options.configDir);
   const cache = configLocations.getCachePath(options.org, options.env, options.configDir);
   const keys = {key: options.key, secret: options.secret};
