@@ -16,7 +16,7 @@ const run = require('./lib/gateway')();
 const keyGenerator = require('./lib/key-gen')();
 const prompt = require('cli-prompt');
 const init = require('./lib/init');
-const foreverOptions = require('../forever.json');
+var foreverOptions = require('../forever.json');
 const forever = require('forever-monitor');
 var portastic = require('portastic');
 
@@ -273,7 +273,7 @@ const setup = function setup() {
         .description('Start microgateway using forever-monitor')
         .action((options) => {
             if (options.file) {
-              foreverOptions = JSON.parse(fs.readFileSync(options.file), {encoding: 'utf8'});
+              foreverOptions = JSON.parse(fs.readFileSync(options.file, {encoding: 'utf8'}));
             }
             foreverOptions ? foreverOptions : {
                 max: 3,
