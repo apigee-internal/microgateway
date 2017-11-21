@@ -36,7 +36,7 @@ Gateway.prototype.start =  (options) => {
 
   const source = configLocations.getSourcePath(options.org, options.env, options.configDir);
   const cache = configLocations.getCachePath(options.org, options.env, options.configDir);
-
+  const configurl = options.configUrl;
   const keys = {key: options.key, secret: options.secret};
   const args = {target: cache, keys: keys, pluginDir: options.pluginDir};
 
@@ -138,6 +138,7 @@ Gateway.prototype.start =  (options) => {
     //start the polling mechanism to look for config changes
     var reloadOnConfigChange = (oldConfig, cache, opts) => {
       console.log('Checking for change in configuration');
+      if (configurl) opts.configurl = configurl;
       var self = this;
       edgeconfig.get(opts, (err, newConfig) => {
         if (err) {
@@ -170,6 +171,7 @@ Gateway.prototype.start =  (options) => {
 };
 
 Gateway.prototype.reload = (options) => {
+
   const source = configLocations.getSourcePath(options.org, options.env, options.configDir);
   const cache = configLocations.getCachePath(options.org, options.env, options.configDir);
   const keys = {key: options.key, secret: options.secret};
