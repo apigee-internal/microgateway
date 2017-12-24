@@ -2,6 +2,9 @@ var cluster = require('cluster');
 var EventEmitter = require('events').EventEmitter;
 var cpuCount = require('os').cpus().length;
 const cache = require('memored');
+
+const PURGE_INTERVAL = 60000;
+
 /**
  * Creates a Wrapper around node Cluster module. Gives ability to reload the cluster gracefully
  * @param file                    {String} path to the server file
@@ -180,7 +183,10 @@ var ReloadCluster = (file, opt) => {
    */
   self.run = () => {
     if (!cluster.isMaster) return;
-    cache.setup();
+    //setup memored - a cache shared between worker processes. intro in 2.5.9
+    cache.setup({
+        purgeInterval: PURGE_INTERVAL
+    });
     cluster.setupMaster({exec: file});
     cluster.settings.args = opt.args;
 
