@@ -13,6 +13,7 @@ const ipcPath = configLocations.getIPCFilePath();
 const defaultPollInterval = 600;
 const uuid = require('uuid');
 const debug = require('debug')('microgateway');
+const jsdiff = require('diff');
 
 const Gateway = function () {
 };
@@ -260,6 +261,25 @@ Gateway.prototype.status = (options) => {
 
 function hasConfigChanged(oldConfig, newConfig) {
   // This may not be the best way to do the check. But it works for now.
-  return JSON.stringify(oldConfig) != JSON.stringify(newConfig);
+  //return JSON.stringify(oldConfig) != JSON.stringify(newConfig);
+  
+  //do not compare uid
+  delete oldConfig['uid'];
+  
+  var diff = jsdiff.diffWords(JSON.stringify(oldConfig), JSON.stringify(newConfig));
+  if (diff.length == 1) {
+	  debug("no changes detected");
+	  return false;
+  } else {
+	  diff.forEach(function(part) {
+		if (part.added)
+	    	debug("Added->" + part.value);
+		else if(part.removed)
+			debug("Removed->" + part.value);
+		else
+			debug("Unchanged->" + part.value);
+	  });
+	  return true;  	
+  }
 }
 
