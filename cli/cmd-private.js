@@ -2,6 +2,10 @@
 
 var app = require('commander');
 var privateOperations = require('./lib/private')();
+const upgradekvm = require('./lib/upgrade-kvm')();
+const upgradeauth = require('./lib/upgrade-edgeauth')();
+const rotatekey = require('./lib/rotate-key')();
+
 var prompt = require('cli-prompt');
 
 module.exports = function() {

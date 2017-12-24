@@ -3,7 +3,9 @@
 const util = require("util");
 const debug = require("debug")("jwkrotatekey");
 const request = require("request");
-const apigeetool = require('apigeetool');
+var deployAuthLib = require('./deploy-auth');
+var deployAuth;
+
 const path = require('path');
 
 const UpgradeAuth = function () {
@@ -16,30 +18,33 @@ module.exports = function () {
 
 UpgradeAuth.prototype.upgradeauth = function upgradeauth(options, cb) {
     const opts = {
-        organization: options.org,
-        environments: options.env,
-        baseuri: options.mgmtUrl || "https://api.enterprise.apigee.com",
+        org: options.org,
+        env: options.env,
         username: options.username,
         password: options.password,
         basepath: '/edgemicro-auth',
+        debug: false,
         verbose: true,
-        api: 'edgemicro-auth',
+        proxyName: 'edgemicro-auth',
         directory:  path.join(__dirname,'../..','node_modules','microgateway-edgeauth'),
         'import-only': false,
         'resolve-modules': false,
-        virtualhosts: options.virtualhost || 'secure'
+        virtualHosts: options.virtualhost || 'secure'
       };
 
-    apigeetool.deployProxy(opts, function(err, res) {
-        if (err) {
-            console.error(err);
-            process.exit(1);
-            cb ? cb(err) : process.exit(1);
-            return;
-        } else {
-            console.log("edgemicro-auth proxy upgraded");
-            process.exit(0);
+    var edge_config = {
+        managementUri: options.mgmtUrl || 'na',
+        authUri: 'na',
+        virtualhosts: opts.virtualhosts
+    };
+
+    deployAuth = deployAuthLib(edge_config, null);
+
+    deployAuth.deployProxyWithPassword(options.mgmtUrl, 'na', opts, opts.directory, function(err, result){
+        if(err) {
+            console.log(err);
         }
     });
+
 }
   

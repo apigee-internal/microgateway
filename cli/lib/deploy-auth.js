@@ -180,7 +180,7 @@ function editVirtualHosts(file, virtualhosts) {
 	
 }
 
-function deployProxyWithPassword(managementUri,authUri, options, dir, callback) {
+Deployment.prototype.deployProxyWithPassword = function deployProxyWithPassword(managementUri,authUri, options, dir, callback) {
   assert(dir, 'dir must be configured')
   assert(callback, 'callback must be present')
   var opts = {
@@ -188,7 +188,7 @@ function deployProxyWithPassword(managementUri,authUri, options, dir, callback) 
     environments: options.env,
     baseuri: managementUri,
     debug: options.debug,
-    verbose: options.debug,
+    verbose: options.verbose,
     api: options.proxyName,
     directory: dir,
     virtualhosts: options.virtualHosts || DEFAULT_HOSTS
