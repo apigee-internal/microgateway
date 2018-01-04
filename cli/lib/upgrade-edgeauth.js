@@ -8,12 +8,12 @@ var deployAuth;
 
 const path = require('path');
 
-const UpgradeAuth = function () {
+const UpgradeAuth = function() {
 
 }
 
-module.exports = function () {
-  return new UpgradeAuth();
+module.exports = function() {
+    return new UpgradeAuth();
 }
 
 UpgradeAuth.prototype.upgradeauth = function upgradeauth(options, cb) {
@@ -26,25 +26,24 @@ UpgradeAuth.prototype.upgradeauth = function upgradeauth(options, cb) {
         debug: false,
         verbose: true,
         proxyName: 'edgemicro-auth',
-        directory:  path.join(__dirname,'../..','node_modules','microgateway-edgeauth'),
+        directory: path.join(__dirname, '../..', 'node_modules', 'microgateway-edgeauth'),
         'import-only': false,
         'resolve-modules': false,
         virtualHosts: options.virtualhost || 'secure'
-      };
+    };
 
     var edge_config = {
         managementUri: options.mgmtUrl || 'na',
         authUri: 'na',
-        virtualhosts: opts.virtualhosts
+        virtualhosts: opts.virtualHosts
     };
 
     deployAuth = deployAuthLib(edge_config, null);
 
-    deployAuth.deployProxyWithPassword(options.mgmtUrl, 'na', opts, opts.directory, function(err, result){
-        if(err) {
+    deployAuth.deployProxyWithPassword(options.mgmtUrl, 'na', opts, opts.directory, function(err, result) {
+        if (err) {
             console.log(err);
         }
     });
 
 }
-  
