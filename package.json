@@ -1,6 +1,6 @@
 {
   "name": "edgemicro",
-  "version": "2.5.10-beta",
+  "version": "2.5.11",
   "description": "Apigee Edge Microgateway",
   "main": "index.js",
   "license": "Apache-2.0",
@@ -24,16 +24,19 @@
     "lodash": "^3.9.3",
     "log-symbols": "^1.0.2",
     "memored": "^1.1.1",
-    "microgateway-config": "^2.4.3",
-    "microgateway-core": "^2.5.3",
+    "microgateway-config": "^2.4.7",
+    "microgateway-core": "^2.5.4",
     "microgateway-edgeauth": "^2.3.0",
-    "microgateway-plugins": "^2.3.17",
+    "microgateway-plugins": "^2.3.19",
     "pem": "^1.8.1",
     "portastic": "^1.0.1",
     "request": "^2.67.0",
     "rimraf": "^2.4.3",
     "tmp": "0.0.28",
     "uuid": "^2.0.1",
+    "volos-cache-memory": "^0.10.1",
+    "volos-spikearrest-common": "^0.10.3",
+    "volos-spikearrest-memory": "^0.10.1",
     "xml2js": "^0.4.16"
   },
   "devDependencies": {
@@ -89,7 +92,7 @@
   ],
   "author": "Kevin Swiber <kswiber@gmail.com>",
   "engines": {
-    "node": ">= 4.8.4",
+    "node": ">= 4.8.7",
     "npm": ">=3.10.8"
   },
   "cpu": [
