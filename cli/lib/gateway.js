@@ -279,12 +279,13 @@ Gateway.prototype.status = (options) => {
             process.exit(0);
         });
     });
-    socket.on('error', (error) => {
-        if (error) {
-            if (error.code == 'ENOENT') {
-                console.error('edgemicro is not running.');
-            }
+    socket.on('error', (error)=> {
+      if (error) {
+        if (error.code == 'ENOENT') {
+          console.error('edgemicro is not running.');
+          process.exit(1);
         }
+      }
     });
     socket.connect(ipcPath);
 };
