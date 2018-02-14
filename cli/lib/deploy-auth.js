@@ -66,6 +66,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
   var tmpDir = tmp.dirSync({ keep: true, dir: path.resolve(homeDir, '.edgemicro') });
   var tasks = [];
   var publicKeyUri;
+  var self = this;
 
   // copy bin folder into tmp
   tasks.push(function(cb) {
@@ -92,7 +93,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
   // deploy lean payload
   tasks.push(function(cb) {
     const dir = tmpDir.name;
-    deployProxyWithPassword(managementUri,authUri, options, dir, (err,uri)=>{
+    self.deployProxyWithPassword(managementUri,authUri, options, dir, (err,uri)=>{
       publicKeyUri = uri;
       cb(err,uri)
     });
