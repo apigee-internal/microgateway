@@ -11,7 +11,7 @@ const configLocations = require('../../config/locations');
 const isWin = /^win/.test(process.platform);
 const ipcPath = configLocations.getIPCFilePath();
 const defaultPollInterval = 600;
-const uuid = require('uuid');
+const uuid = require('uuid/v1');
 const debug = require('debug')('microgateway');
 const jsdiff = require('diff');
 
@@ -32,6 +32,7 @@ Gateway.prototype.start = (options) => {
     } catch (e) {
         // Socket does not exist
         // so ignore and proceed
+        debug(e);
     }
 
     const source = configLocations.getSourcePath(options.org, options.env, options.configDir);
@@ -117,6 +118,7 @@ Gateway.prototype.start = (options) => {
 
         mgCluster.run();
         console.log('PROCESS PID : ' + process.pid);
+        fs.appendFileSync(configLocations.getPIDFilePath(), process.pid);
 
         process.on('exit', () => {
             if (!isWin) {
@@ -133,7 +135,7 @@ Gateway.prototype.start = (options) => {
             process.exit(0);
         });
 
-        process.on('uncaughtException', () => {
+        process.on('uncaughtException',(err) => {
             console.error(err);
             debug('Caught Unhandled Exception:');
             debug(err);
