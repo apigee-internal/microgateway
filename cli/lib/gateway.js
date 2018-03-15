@@ -75,7 +75,7 @@ Gateway.prototype.start = (options) => {
             edgeconfig.save(config, cache);
         }
 
-        config.uid = uuid.v1();
+        config.uid = uuid();
         var logger = gateway.Logging.init(config);
         var opt = {};
         delete args.keys;
