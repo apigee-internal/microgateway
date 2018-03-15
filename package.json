@@ -33,7 +33,7 @@
     "request": "^2.67.0",
     "rimraf": "^2.4.3",
     "tmp": "0.0.28",
-    "uuid": "^2.0.1",
+    "uuid": "^3.2.1",
     "volos-cache-memory": "^0.10.1",
     "volos-spikearrest-common": "^0.10.3",
     "volos-spikearrest-memory": "^0.10.1",

@@ -14,10 +14,12 @@ const rotatekey = require('./lib/rotate-key')();
 const verify = require('./lib/verify')();
 const run = require('./lib/gateway')();
 const keyGenerator = require('./lib/key-gen')();
+const configLocations = require('../config/locations');
 const prompt = require('cli-prompt');
 const init = require('./lib/init');
 var foreverOptions = require('../forever.json');
 const forever = require('forever-monitor');
+const pidpath = configLocations.getPIDFilePath();
 var portastic = require('portastic');
 
 const setup = function setup() {
@@ -249,8 +251,7 @@ const setup = function setup() {
                         }
                     });
                 }
-            }
-            else run.reload(options);
+            } else run.reload(options);
         });
 
     commander
@@ -270,10 +271,18 @@ const setup = function setup() {
     commander
         .command('forever')
         .option('-f, --file <file>', 'forever-monitor options file')
+        .option('-a,--action <action>', 'action can be start or stop; default is start')
         .description('Start microgateway using forever-monitor')
         .action((options) => {
+            options.action = options.action || "start";
+            options.error = optionError;
             if (options.file) {
-              foreverOptions = JSON.parse(fs.readFileSync(options.file, {encoding: 'utf8'}));
+                foreverOptions = JSON.parse(fs.readFileSync(options.file, {
+                    encoding: 'utf8'
+                }));
+            }
+            if (options.action !== "start" && options.action !== "stop") {
+                return options.error('action must be start or stop');
             }
             foreverOptions ? foreverOptions : {
                 max: 3,
@@ -282,7 +291,30 @@ const setup = function setup() {
                 minUptime: 2000
             };
             var child = new(forever.Monitor)(path.join(__dirname, '..', 'app.js'), foreverOptions);
-            child.start();
+            if (options.action == "start") {
+				try {
+					fs.appendFileSync(pidpath, process.pid+'|');
+	                child.start();					
+				} catch (piderr) {
+					console.error('failed to start microgateway: ' + piderr);
+					process.exit(1);
+				}
+            } else {
+				try {
+					var pids = fs.readFileSync(pidpath,'utf8').split('|');
+					if (pids) {
+						pids.forEach(function(pid){
+							process.kill(parseInt(pid), 'SIGINT');
+						});
+						fs.unlinkSync(pidpath);
+					} else {
+						console.log('pid file not found. please run this command from the folder where microgateway was started.')
+					}					
+				} catch (piderr) {
+					console.error('failed to stop microgateway: ' + piderr);
+					process.exit(1);					
+				}
+            }
         });
 
     commander
