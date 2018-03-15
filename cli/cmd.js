@@ -292,13 +292,28 @@ const setup = function setup() {
             };
             var child = new(forever.Monitor)(path.join(__dirname, '..', 'app.js'), foreverOptions);
             if (options.action == "start") {
-                child.start();
-                fs.appendFileSync(pidpath, process.pid+'|');
+				try {
+					fs.appendFileSync(pidpath, process.pid+'|');
+	                child.start();					
+				} catch (piderr) {
+					console.error('failed to start microgateway: ' + piderr);
+					process.exit(1);
+				}
             } else {
-				var pids = fs.readFileSync(pidpath,'utf8').split('|');
-                process.kill(pids[1], 'SIGINT');
-				fs.unlinkSync(pidpath);
-                process.kill(pids[0], 'SIGINT');
+				try {
+					var pids = fs.readFileSync(pidpath,'utf8').split('|');
+					if (pids) {
+						pids.forEach(function(pid){
+							process.kill(parseInt(pid), 'SIGINT');
+						});
+						fs.unlinkSync(pidpath);
+					} else {
+						console.log('pid file not found. please run this command from the folder where microgateway was started.')
+					}					
+				} catch (piderr) {
+					console.error('failed to stop microgateway: ' + piderr);
+					process.exit(1);					
+				}
             }
         });
 

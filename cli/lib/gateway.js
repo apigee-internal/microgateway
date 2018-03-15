@@ -10,6 +10,7 @@ const JsonSocket = require('./json-socket');
 const configLocations = require('../../config/locations');
 const isWin = /^win/.test(process.platform);
 const ipcPath = configLocations.getIPCFilePath();
+const pidPath = configLocations.getPIDFilePath();
 const defaultPollInterval = 600;
 const uuid = require('uuid/v1');
 const debug = require('debug')('microgateway');
@@ -118,12 +119,13 @@ Gateway.prototype.start = (options) => {
 
         mgCluster.run();
         console.log('PROCESS PID : ' + process.pid);
-        fs.appendFileSync(configLocations.getPIDFilePath(), process.pid);
+        fs.appendFileSync(pidPath, process.pid);
 
         process.on('exit', () => {
             if (!isWin) {
                 console.log('Removing the socket file as part of cleanup');
                 fs.unlinkSync(ipcPath);
+				fs.unlinkSync(pidPath)
             }
         });
 
