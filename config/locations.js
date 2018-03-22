@@ -47,6 +47,14 @@ module.exports = {
       return path.join('\\\\?\\pipe', process.cwd(), defaultIPCFileName);
     }
   },
+  getPIDFilePath: function getPIDFilePath() {
+      if (!isWin) {
+        return path.join(process.cwd(), defaultIPCFileName + '.pid');
+      } else {
+        return path.join('\\\\?\\pipe', process.cwd(), defaultIPCFileName+'.pid');
+      }
+
+  },  
   homeDir: homeDir,
   defaultDir: configDir,
 };
