@@ -1,6 +1,6 @@
 {
   "name": "edgemicro",
-  "version": "2.5.14",
+  "version": "2.5.15",
   "description": "Apigee Edge Microgateway",
   "main": "index.js",
   "license": "Apache-2.0",
