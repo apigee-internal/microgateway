@@ -125,8 +125,8 @@ Gateway.prototype.start = (options) => {
             if (!isWin) {
                 console.log('Removing the socket file as part of cleanup');
                 fs.unlinkSync(ipcPath);
-				fs.unlinkSync(pidPath)
             }
+			fs.unlinkSync(pidPath);
         });
 
         process.on('SIGTERM', () => {
