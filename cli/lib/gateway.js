@@ -95,6 +95,11 @@ Gateway.prototype.start = (options) => {
         server.listen(ipcPath);
 
         server.on('connection', (socket) => {
+            //enable TCP_NODELAY
+            if (config.edgemicro.nodelay === true) {
+              debug("tcp nodelay set");
+              socket.setNoDelay(true);
+            }
             socket = new JsonSocket(socket);
             socket.on('message', (message) => {
                 if (message.command == 'reload') {
