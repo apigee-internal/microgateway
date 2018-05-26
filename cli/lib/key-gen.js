@@ -15,6 +15,65 @@ const configLocations = require('../../config/locations');
 const KeyGen = function() {
 
 };
+
+KeyGen.prototype.revoke = function(options, cb) {
+    const config = edgeconfig.load({
+        source: configLocations.getSourcePath(options.org, options.env)
+    });
+
+    const baseUri = config.edge_config.baseUri;
+    const regionUrl = util.format(baseUri, 'region', options.org, options.env);
+    const keys = {
+        key: options.key
+    };
+
+    debug('getting region from', regionUrl);
+
+    request({
+            uri: regionUrl,
+            auth: {
+                username: options.key,
+                password: options.secret
+            },
+            json: true
+        }, function(err, res) {
+            err = translateError(err, res);
+            if (err) {
+				console.log(err);
+                return cb(err);
+            }
+            if (res.statusCode >= 200 && res.statusCode <= 202) {
+                if (!res.body.region || !res.body.host) {
+                    cb(console.error('invalid response from region api', regionUrl, res.text));
+                    return;
+                } else {
+                    const credentialUrl = util.format('https://%s/edgemicro/%s/organization/%s/environment/%s', res.body.host, 'credential', options.org, options.env);
+                    debug('sending', JSON.stringify(keys), 'to', credentialUrl);
+                    request({
+                            uri: credentialUrl,
+                            method: 'DELETE',
+                            auth: {
+                                username: options.username,
+                                password: options.password
+                            },
+                            json: keys
+                        }, function(er, re) {
+                            er = translateError(er, re);
+                            if (er) {
+								console.log(er);
+                                return cb(er);
+                            }
+							if (res.statusCode >= 200 && res.statusCode <= 202) {
+								console.log("key " + options.key + " revoked successfully");
+							} else {
+								console.log("revoking key " + options.key + " failed with reason code " + res.StatusCode)
+							}
+                    });
+				}
+			}			
+		});
+}
+
 KeyGen.prototype.generate = function generate(options, cb) {
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org,options.env) });
   this.baseUri = config.edge_config.baseUri;

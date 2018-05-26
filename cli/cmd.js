@@ -347,6 +347,43 @@ const setup = function setup() {
         });
 
     commander
+        .command('revokekeys')
+        .option('-o, --org <org>', 'the organization')
+        .option('-e, --env <env>', 'the environment')
+        .option('-u, --username <user>', 'username of the organization admin')
+        .option('-p, --password <password>', 'password of the organization admin')
+                .option('-k, --key <key>', 'Microgateway Key to be revoked')
+                .option('-s, --secret <secret>', 'Microgateway secret to be revoked')
+        .description('revoke authentication keys for runtime auth between Microgateway and Edge')
+        .action((options) => {
+            options.error = optionError;
+            if (!options.username) {
+                return options.error('username is required');
+            }
+            if (!options.org) {
+                return options.error('org is required');
+            }
+            if (!options.env) {
+                return options.error('env is required');
+            }
+            if (!options.key) {
+                return options.error('key is required');
+            }
+            if (!options.secret) {
+                return options.error('secret is required');
+            }
+            promptForPassword(options, (options) => {
+                if (!options.password) {
+                    return options.error('password is required');
+                }
+                keyGenerator.revoke(options, (err) => {
+                    err ? process.exit(1) : process.exit(0);
+                });
+            })
+
+        });
+
+    commander
         .command('upgradekvm')
         .option('-o, --org <org>', 'the organization')
         .option('-e, --env <env>', 'the environment')
