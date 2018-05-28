@@ -1080,6 +1080,11 @@
       "resolved": "https://registry.npmjs.org/commander/-/commander-2.15.1.tgz",
       "integrity": "sha512-VlfT9F3V0v+jr4yxPc5gg9s62/fIVWsd2Bk2iD435um1NlGMYdVCq+MjcXnhYq2icNOizHr1kK+5TI6H0Hy0ag=="
     },
+    "compare-versions": {
+      "version": "3.2.1",
+      "resolved": "https://registry.npmjs.org/compare-versions/-/compare-versions-3.2.1.tgz",
+      "integrity": "sha512-2y2nHcopMG/NAyk6vWXlLs86XeM9sik4jmx1tKIgzMi9/RQ2eo758RGpxQO3ErihHmg0RlQITPqgz73y6s7quA=="
+    },
     "component-emitter": {
       "version": "1.2.1",
       "resolved": "https://registry.npmjs.org/component-emitter/-/component-emitter-1.2.1.tgz",
