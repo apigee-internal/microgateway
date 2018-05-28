@@ -19,12 +19,12 @@ assert(tokenId, 'Must set environment variable MOCHA_TOKEN_SECRET');
 assert(tokenSecret, 'Must set environment variable MOCHA_TOKEN_ID');
 
 module.exports = {
-  password: password,
-  key: key,
-  secret: secret,
-  user: user,
-  org: org,
-  env: env,
-  tokenSecret: tokenSecret,
-  tokenId: tokenId,
+    password: password,
+    key: key,
+    secret: secret,
+    user: user,
+    org: org,
+    env: env,
+    tokenSecret: tokenSecret,
+    tokenId: tokenId,
 };

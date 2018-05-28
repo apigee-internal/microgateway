@@ -1,6 +1,9 @@
 {
     "extends": "./node_modules/eslint-config-google/index.js",
-    "rules": {},
+    "rules": {
+        "require-jsdoc": [0],
+        "no-var": [0]
+    },
     "parserOptions": {
         "ecmaVersion": 6
     }

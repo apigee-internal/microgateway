@@ -32,7 +32,7 @@ function generateCredentialsObject(options) {
 
 function isCPS(property) {
     let cpsenabled = false;
-	debug(property);
+    debug(property);
     for (let p in property) {
         if (property.hasOwnProperty(p)) {
             if (property[p].name == 'features.isCpsEnabled' && property[p].value == 'true') {
@@ -40,12 +40,12 @@ function isCPS(property) {
             }
         }
     }
-	return cpsenabled;
+    return cpsenabled;
 }
 
 function updateNonCPSKVM(options, serviceKey, newCertificate, newPublicKey, oldPublicKey) {
-	let updatekvmuri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s',
-    		options.baseuri, options.org, options.env, options.kvm);
+    let updatekvmuri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s',
+        options.baseuri, options.org, options.env, options.kvm);
 
     let payload = {
         'name': options.kvm,
@@ -80,24 +80,24 @@ function updateNonCPSKVM(options, serviceKey, newCertificate, newPublicKey, oldP
             },
         ],
     };
-	debug(payload);
+    debug(payload);
     request({
-       uri: updatekvmuri,
-       auth: generateCredentialsObject(options),
-       method: 'POST',
-       json: payload,
+        uri: updatekvmuri,
+        auth: generateCredentialsObject(options),
+        method: 'POST',
+        json: payload,
     }, function(err, res, body) {
-       if (err || res.statusCode > 299) {
-           console.error(err);
-       } else {
-           console.log('Key Rotation successfully completed!');
-       }
+        if (err || res.statusCode > 299) {
+            console.error(err);
+        } else {
+            console.log('Key Rotation successfully completed!');
+        }
     });
 }
 
 function checkKVMEntry(options, key) {
-	let entryuri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/%s',
-	options.baseuri, options.org, options.env, options.kvm, key);
+    let entryuri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/%s',
+        options.baseuri, options.org, options.env, options.kvm, key);
 
     request({
         uri: entryuri,
@@ -105,161 +105,161 @@ function checkKVMEntry(options, key) {
         method: 'GET',
     }, function(err, res, body) {
         if (err || res.statusCode > 299) return false;
-		else return true;
+        else return true;
     });
 }
 
 function insertKVMEntry(options, key, value, cb) {
-	let entryuri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries',
-	options.baseuri, options.org, options.env, options.kvm);
-	let entry = {
-		'name': key,
-		'value': value,
-	};
+    let entryuri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries',
+        options.baseuri, options.org, options.env, options.kvm);
+    let entry = {
+        'name': key,
+        'value': value,
+    };
     debug(entry);
     request({
         uri: entryuri,
         auth: generateCredentialsObject(options),
         method: 'POST',
-		json: entry,
+        json: entry,
     }, function(err, res, body) {
         if (err || res.statusCode > 299) cb(err);
-		else cb(null, true);
+        else cb(null, true);
     });
 }
 
 function updateKVMEntry(options, key, value, cb) {
-	let entryuri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/%s',
-	options.baseuri, options.org, options.env, options.kvm, key);
-	let entry = {
-		'name': key,
-		'value': value,
-	};
+    let entryuri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/%s',
+        options.baseuri, options.org, options.env, options.kvm, key);
+    let entry = {
+        'name': key,
+        'value': value,
+    };
     debug(entry);
     request({
         uri: entryuri,
         auth: generateCredentialsObject(options),
         method: 'POST',
-		json: entry,
+        json: entry,
     }, function(err, res, body) {
         if (err || res.statusCode > 299) cb(err);
-		else cb(null, true);
+        else cb(null, true);
     });
 }
 
 function updateOrInsertEntry(options, key, value, cb) {
-	if (checkKVMEntry(options, key)) {
-		debug('entry exists, updating..');
-		updateKVMEntry(options, key, value, function(err, result) {
-			if (err) cb(err);
-			else cb(null, true);
-		});
-	} else {
-		debug('entry does not exist. inserting entry...');
-		insertKVMEntry(options, key, value, function(err, result) {
-			if (err) cb(err);
-			else cb(null, true);
-		});
-	}
+    if (checkKVMEntry(options, key)) {
+        debug('entry exists, updating..');
+        updateKVMEntry(options, key, value, function(err, result) {
+            if (err) cb(err);
+            else cb(null, true);
+        });
+    } else {
+        debug('entry does not exist. inserting entry...');
+        insertKVMEntry(options, key, value, function(err, result) {
+            if (err) cb(err);
+            else cb(null, true);
+        });
+    }
 }
 
 function updateCPSKVM(options, serviceKey, newCertificate, newPublicKey, oldPublicKey) {
-	let updatecpskvmuri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/',
-                    options.baseuri, options.org, options.env, options.kvm);
+    let updatecpskvmuri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/',
+        options.baseuri, options.org, options.env, options.kvm);
 
-	async.parallel([
-		function(cb) {
-			let entry = {
-				name: 'private_key',
-				value: serviceKey,
-			};
-			debug(entry);
+    async.parallel([
+        function(cb) {
+            let entry = {
+                name: 'private_key',
+                value: serviceKey,
+            };
+            debug(entry);
             request({
-                uri: updatecpskvmuri+'private_key',
+                uri: updatecpskvmuri + 'private_key',
                 auth: generateCredentialsObject(options),
                 method: 'POST',
                 json: entry,
             }, function(err, res, body) {
                 cb(err, body);
             });
-		},
-		function(cb) {
-			let entry = {
-				name: 'private_key_kid',
-				value: options.kid,
-			};
-			debug(entry);
+        },
+        function(cb) {
+            let entry = {
+                name: 'private_key_kid',
+                value: options.kid,
+            };
+            debug(entry);
             request({
-                uri: updatecpskvmuri+'private_key_kid',
+                uri: updatecpskvmuri + 'private_key_kid',
                 auth: generateCredentialsObject(options),
                 method: 'POST',
                 json: entry,
             }, function(err, res, body) {
                 cb(err, body);
             });
-		},
-		function(cb) {
-			let entry = {
-				name: 'public_key',
-				value: newCertificate,
-			};
-			debug(entry);
+        },
+        function(cb) {
+            let entry = {
+                name: 'public_key',
+                value: newCertificate,
+            };
+            debug(entry);
             request({
-                uri: updatecpskvmuri+'public_key',
+                uri: updatecpskvmuri + 'public_key',
                 auth: generateCredentialsObject(options),
                 method: 'POST',
                 json: entry,
             }, function(err, res, body) {
                 cb(err, body);
             });
-		},
-		function(cb) {
-			let entry = {
-				name: 'public_key1',
-				value: newPublicKey,
-			};
-			debug(entry);
+        },
+        function(cb) {
+            let entry = {
+                name: 'public_key1',
+                value: newPublicKey,
+            };
+            debug(entry);
             request({
-                uri: updatecpskvmuri+'public_key1',
+                uri: updatecpskvmuri + 'public_key1',
                 auth: generateCredentialsObject(options),
                 method: 'POST',
                 json: entry,
             }, function(err, res, body) {
                 cb(err, body);
             });
-		},
-		function(cb) {
-			let entry = {
-				name: 'public_key1_kid',
-				value: options.kid,
-			};
-			debug(entry);
+        },
+        function(cb) {
+            let entry = {
+                name: 'public_key1_kid',
+                value: options.kid,
+            };
+            debug(entry);
             request({
-                uri: updatecpskvmuri+'public_key1_kid',
+                uri: updatecpskvmuri + 'public_key1_kid',
                 auth: generateCredentialsObject(options),
                 method: 'POST',
                 json: entry,
             }, function(err, res, body) {
                 cb(err, body);
             });
-		},
-		function(cb) {
-			updateOrInsertEntry(options, 'public_key2', oldPublicKey, function(err, result) {
-				cb(err, result);
-			});
-		},
-		function(cb) {
-			updateOrInsertEntry(options, 'public_key2_kid', options.oldkid, function(err, result) {
-				cb(err, result);
-			});
-		},
-	], function(err, results) {
-		if (err) {
-			console.error(err);
-			process.exit(1);
-		} else {
-			console.log('Key Rotation successfully completed!');
-		}
+        },
+        function(cb) {
+            updateOrInsertEntry(options, 'public_key2', oldPublicKey, function(err, result) {
+                cb(err, result);
+            });
+        },
+        function(cb) {
+            updateOrInsertEntry(options, 'public_key2_kid', options.oldkid, function(err, result) {
+                cb(err, result);
+            });
+        },
+    ], function(err, results) {
+        if (err) {
+            console.error(err);
+            process.exit(1);
+        } else {
+            console.log('Key Rotation successfully completed!');
+        }
     });
 }
 
@@ -268,31 +268,31 @@ const RotateKey = function() {
 };
 
 module.exports = function() {
-  return new RotateKey();
+    return new RotateKey();
 };
 
 RotateKey.prototype.rotatekey = function rotatekey(options, cb) {
     options.baseuri = options.mgmtUrl || 'https://api.enterprise.apigee.com';
     options.kvm = 'microgateway';
     options.kid = options.kid || '2';
-	options.oldkid = options['prevKid'] || '1';
+    options.oldkid = options['prevKid'] || '1';
 
     async.series([
-    	function(cb) {
-		    let privateKeyURI = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/private_key',
-		        options.baseuri, options.org, options.env, options.kvm);
-		    console.log('Checking if private key exists in the KVM...');
-		    request({
-		        uri: privateKeyURI,
-		        auth: generateCredentialsObject(options),
-		        method: 'GET',
-		    }, function(err, resp, body) {
-		    	if (err) cb(err);
-				else cb(null, body);
-		    });
-    	},
-		function(cb) {
-			console.log('Checking for certificate...');
+        function(cb) {
+            let privateKeyURI = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/private_key',
+                options.baseuri, options.org, options.env, options.kvm);
+            console.log('Checking if private key exists in the KVM...');
+            request({
+                uri: privateKeyURI,
+                auth: generateCredentialsObject(options),
+                method: 'GET',
+            }, function(err, resp, body) {
+                if (err) cb(err);
+                else cb(null, body);
+            });
+        },
+        function(cb) {
+            console.log('Checking for certificate...');
             let publicKeyURI = util.format('https://%s-%s.apigee.net/edgemicro-auth/publicKey',
                 options.org, options.env);
             request({
@@ -300,65 +300,65 @@ RotateKey.prototype.rotatekey = function rotatekey(options, cb) {
                 auth: generateCredentialsObject(options),
                 method: 'GET',
             }, function(err, resp, body) {
-				if (err) cb(err);
-				else cb(null, body);
+                if (err) cb(err);
+                else cb(null, body);
             });
-		},
+        },
     ], function(err, results) {
-    	if (err) {
-    		console.error(err);
-			process.exit(1);
-    	} else {
-    		let oldCertificate = results[1];
-			console.log('Found Certificate');
-			// debug("Old Certificate: \n" + oldCertificate);
-			async.series([
-				function(cb) {
-					pem.getPublicKey(oldCertificate, function(e, oldPublicKey) {
-						if (e) cb(e);
-						else cb(null, oldPublicKey);
-					});
-				},
-				function(cb) {
-					console.log('Generating New key/cert pair...');
-					createCert(function(e, newkeys) {
-						if (e) cb(e);
-						else cb(null, newkeys);
-					});
-				},
-			], function(e, res) {
-				if (err) {
-					console.error(e);
-					process.exit(1);
-				} else {
-					console.log('Extract new public key');
-					let newCertificate = res[1].certificate;
-					pem.getPublicKey(newCertificate, function(ee, newkey) {
-						if (ee) {
-							console.error(ee);
-							process.exit(1);
-						} else {
-							debug('Checking for CPS...');
-							let cpsuri = util.format('%s/v1/o/%s', options.baseuri, options.org);
-							request({
+        if (err) {
+            console.error(err);
+            process.exit(1);
+        } else {
+            let oldCertificate = results[1];
+            console.log('Found Certificate');
+            // debug("Old Certificate: \n" + oldCertificate);
+            async.series([
+                function(cb) {
+                    pem.getPublicKey(oldCertificate, function(e, oldPublicKey) {
+                        if (e) cb(e);
+                        else cb(null, oldPublicKey);
+                    });
+                },
+                function(cb) {
+                    console.log('Generating New key/cert pair...');
+                    createCert(function(e, newkeys) {
+                        if (e) cb(e);
+                        else cb(null, newkeys);
+                    });
+                },
+            ], function(e, res) {
+                if (err) {
+                    console.error(e);
+                    process.exit(1);
+                } else {
+                    console.log('Extract new public key');
+                    let newCertificate = res[1].certificate;
+                    pem.getPublicKey(newCertificate, function(ee, newkey) {
+                        if (ee) {
+                            console.error(ee);
+                            process.exit(1);
+                        } else {
+                            debug('Checking for CPS...');
+                            let cpsuri = util.format('%s/v1/o/%s', options.baseuri, options.org);
+                            request({
                                 uri: cpsuri,
                                 auth: generateCredentialsObject(options),
                                 method: 'GET',
                             }, function(eee, rs, body) {
-								let payload = JSON.parse(body);
-								let property = payload.properties.property;
-								if (isCPS(property)) {
-									debug('CPS is enabled');
-									updateCPSKVM(options, res[1].serviceKey, newCertificate, newkey.publicKey, res[0].publicKey);
-								} else {
-									debug('CPS is not enabled');
-									updateNonCPSKVM(options, res[1].serviceKey, newCertificate, newkey.publicKey, res[0].publicKey);
-								}
-							});
-						}
-					});
-				}
-			});
-    	}
+                                let payload = JSON.parse(body);
+                                let property = payload.properties.property;
+                                if (isCPS(property)) {
+                                    debug('CPS is enabled');
+                                    updateCPSKVM(options, res[1].serviceKey, newCertificate, newkey.publicKey, res[0].publicKey);
+                                } else {
+                                    debug('CPS is not enabled');
+                                    updateNonCPSKVM(options, res[1].serviceKey, newCertificate, newkey.publicKey, res[0].publicKey);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
     });
 };

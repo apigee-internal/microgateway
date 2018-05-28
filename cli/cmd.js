@@ -347,8 +347,8 @@ const setup = function setup() {
         .option('-e, --env <env>', 'the environment')
         .option('-u, --username <user>', 'username of the organization admin')
         .option('-p, --password <password>', 'password of the organization admin')
-                .option('-k, --key <key>', 'Microgateway Key to be revoked')
-                .option('-s, --secret <secret>', 'Microgateway secret to be revoked')
+        .option('-k, --key <key>', 'Microgateway Key to be revoked')
+        .option('-s, --secret <secret>', 'Microgateway secret to be revoked')
         .description('revoke authentication keys for runtime auth between Microgateway and Edge')
         .action((options) => {
             options.error = optionError;

@@ -97,8 +97,8 @@ Gateway.prototype.start = (options) => {
         server.on('connection', (socket) => {
             // enable TCP_NODELAY
             if (config.edgemicro.nodelay === true) {
-              debug('tcp nodelay set');
-              socket.setNoDelay(true);
+                debug('tcp nodelay set');
+                socket.setNoDelay(true);
             }
             socket = new JsonSocket(socket);
             socket.on('message', (message) => {
@@ -131,7 +131,7 @@ Gateway.prototype.start = (options) => {
                 console.log('Removing the socket file as part of cleanup');
                 fs.unlinkSync(ipcPath);
             }
-			fs.unlinkSync(pidPath);
+            fs.unlinkSync(pidPath);
         });
 
         process.on('SIGTERM', () => {
@@ -287,13 +287,13 @@ Gateway.prototype.status = (options) => {
             process.exit(0);
         });
     });
-    socket.on('error', (error)=> {
-      if (error) {
-        if (error.code == 'ENOENT') {
-          console.error('edgemicro is not running.');
-          process.exit(1);
+    socket.on('error', (error) => {
+        if (error) {
+            if (error.code == 'ENOENT') {
+                console.error('edgemicro is not running.');
+                process.exit(1);
+            }
         }
-      }
     });
     socket.connect(ipcPath);
 };
@@ -312,12 +312,12 @@ function hasConfigChanged(oldConfig, newConfig) {
     } else {
         diff.forEach(function(part) {
             if (part.added) {
-debug('Added->' + part.value);
-} else if (part.removed) {
-debug('Removed->' + part.value);
-} else {
-debug('Unchanged->' + part.value);
-}
+                debug('Added->' + part.value);
+            } else if (part.removed) {
+                debug('Removed->' + part.value);
+            } else {
+                debug('Unchanged->' + part.value);
+            }
         });
         return true;
     }

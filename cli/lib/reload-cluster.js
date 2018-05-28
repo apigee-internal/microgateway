@@ -20,306 +20,317 @@ const PURGE_INTERVAL = 60000;
  */
 
 var ReloadCluster = (file, opt) => {
-  // initializing opt with defaults if not provided
-  opt = opt || {};
-  opt.workers = opt.workers || cpuCount;
-  opt.timeout = opt.timeout || 30; // default timeout for reload is set as 30 sec
-  opt.workerReadyWhen = opt.workerReadyWhen || 'listening';
-  opt.args = opt.args || [];
-  opt.log = opt.log || {respawns: true};
+    // initializing opt with defaults if not provided
+    opt = opt || {};
+    opt.workers = opt.workers || cpuCount;
+    opt.timeout = opt.timeout || 30; // default timeout for reload is set as 30 sec
+    opt.workerReadyWhen = opt.workerReadyWhen || 'listening';
+    opt.args = opt.args || [];
+    opt.log = opt.log || {
+        respawns: true
+    };
 
-  let logger = opt.logger || console;
-  let respawnIntervalManager = RespawnIntervalManager({minRespawnInterval: opt.minRespawnInterval});
-  let respawnerTimers = RespawnTimerList();
-  let readyEvent = opt.workerReadyWhen == 'started' ? 'online' : opt.workerReadyWhen == 'listening' ? 'listening' : 'message';
-  let readyCommand = 'ready';
-  let self = new EventEmitter();
-  let channel = new EventEmitter();
-  let workers = [];
-  let activeWorkers = {length: opt.workers};
-
-  /**
-   * removes worker from activeWorkers array
-   * @param w - worker
-   */
-  function removeWorkerFromActiveWorkers(w) {
-    if (activeWorkers[w._rc_wid] == w) {
-      activeWorkers[w._rc_wid] = null;
-    }
-  }
-
-  /**
-   * emits events on the channel and propogates the event to self.
-   * This will make sure for anyone who is listening on an event on
-   * reload-cluster instance, the event will be emitted for any underlying events.
-   */
-  function emit() {
-    channel.emit.apply(self, arguments);
-    self.emit.apply(channel, arguments);
-  }
-
-
-  /**
-   * Fork a new worker. Give it a reloadCluster ID and
-   * also redirect all its messages to the cluster.
-   * @param wid
-   * @return worker object
-   */
-  function fork(wid) {
-    let w = cluster.fork({WORKER_ID: wid});
-    w._rc_wid = wid;
-    w._rc_isReplaced = false;
-    // whenever worker sends a message, emit it to the channels
-    w.on('message', (message) => {
-      opt.logger.writeLogRecord(message);
-      emit('message', w, message);
+    let logger = opt.logger || console;
+    let respawnIntervalManager = RespawnIntervalManager({
+        minRespawnInterval: opt.minRespawnInterval
     });
-    // When a worker exits remove the worker reference from workers array, which holds all the workers
-    w.process.on('exit', () => {
-      removeItem(workers, w);
-      removeWorkerFromActiveWorkers(w);
-    });
-    // push the forked worker to the workers array which holds all the workers
-    workers.push(w);
-    return w;
-  }
+    let respawnerTimers = RespawnTimerList();
+    let readyEvent = opt.workerReadyWhen == 'started' ? 'online' : opt.workerReadyWhen == 'listening' ? 'listening' : 'message';
+    let readyCommand = 'ready';
+    let self = new EventEmitter();
+    let channel = new EventEmitter();
+    let workers = [];
+    let activeWorkers = {
+        length: opt.workers
+    };
 
-  /**
-   * Replace a dysfunctional worker
-   * @param worker
-   */
-  function replaceWorker(worker) {
-    if (worker._rc_isReplaced) return;
-    worker._rc_isReplaced = true;
-
-    removeWorkerFromActiveWorkers(worker);
-
-    let now = Date.now();
-    let interval = respawnIntervalManager.getIntervalForNextSpawn(now);
-
-    if (opt.log.respawns) {
-      logger.log('[' + worker.process.pid + '] worker (' + worker._rc_wid
-        + ':' + worker.id + ') must be replaced, respawning in', interval);
-    }
-
-    var respawnerTimer = setTimeout(() => {
-      respawnerTimers.remove(respawnerTimer);
-      fork(worker._rc_wid);
-    }, interval);
-
-    respawnerTimers.add(respawnerTimer);
-  }
-
-  /**
-   * Replace a worker that has closed the IPC channel
-   * or signaled that its dysfunctional. Will also
-   * terminate the worker after the specified time has passed.
-   *
-   * @param w - worker
-   */
-  function replaceAndTerminateWorker(w) {
-    replaceWorker(w);
-    disconnectAndShutdownWorker(w);
-  }
-
-  /**
-   * Sets up a kill timeout for a worker. Closes the
-   * IPC channel immediately.
-   * @param worker
-   */
-  function disconnectAndShutdownWorker(worker) {
-    function forceKillWorker() {
-      try {
-        if (worker.kill) {
-          worker.kill();
-        } else {
-          worker.destroy();
+    /**
+     * removes worker from activeWorkers array
+     * @param w - worker
+     */
+    function removeWorkerFromActiveWorkers(w) {
+        if (activeWorkers[w._rc_wid] == w) {
+            activeWorkers[w._rc_wid] = null;
         }
-      } catch (e) {
-      }
     }
 
-    if (opt.timeout > 0) {
-      let timeout = setTimeout(forceKillWorker, opt.timeout * 1000);
-      worker.once('exit', clearTimeout.bind(this, timeout));
-      // possibly a leftover worker that has no channel
-      // estabilished will throw error. Ignore.
-      try {
-        worker.send({cmd: 'disconnect'});
-        worker.disconnect();
-      } catch (e) {
-      }
-    } else {
-      process.nextTick(forceKillWorker);
+    /**
+     * emits events on the channel and propogates the event to self.
+     * This will make sure for anyone who is listening on an event on
+     * reload-cluster instance, the event will be emitted for any underlying events.
+     */
+    function emit() {
+        channel.emit.apply(self, arguments);
+        self.emit.apply(channel, arguments);
     }
 
-    removeWorkerFromActiveWorkers(worker);
-  }
 
-
-  function emitWorkerListening(w, adr) {
-    emit('listening', w, adr);
-  }
-
-  function emitWorkerOnline(w) {
-    emit('online', w);
-  }
-
-  function emitWorkerDisconnect(w) {
-    emit('disconnect', w);
-  }
-
-  function emitWorkerExit(w) {
-    emit('exit', w);
-  }
-
-  // setting maxListeners to avoid leaks
-  channel.setMaxListeners(opt.workers * 4 + 10);
-
-  /**
-   * Method to run the cluster
-   */
-  self.run = () => {
-    if (!cluster.isMaster) return;
-    // setup memored - a cache shared between worker processes. intro in 2.5.9
-    cache.setup({
-        purgeInterval: PURGE_INTERVAL,
-    });
-    cluster.setupMaster({exec: file});
-    cluster.settings.args = opt.args;
-
-    const argv = cluster.settings ? cluster.settings.execArgv || [] : [];
-    let j = 0;
-    argv && argv.forEach((arg) => {
-      if (arg.includes('--debug-brk=')) {
-        argv[j] = arg.replace('--debug-brk', '--debug');
-      }
-      j++;
-    });
-
-    // fork workers
-    for (let i = 0; i < opt.workers; i++) {
-      fork(i);
-    }
-    // Event handlers on the cluster
-    // This exit event happens, whenever a worker exits.
-    cluster.on('exit', emitWorkerExit);
-    // This event is emitted when a worker IPC channel has disconnected
-    cluster.on('disconnect', emitWorkerDisconnect);
-    // Whenever a server.listen() is called in the worker, this event is emitted.
-    cluster.on('listening', emitWorkerListening);
-    // Whenever a worker goes online, this event is emitted.
-    cluster.on('online', emitWorkerOnline);
-
-    // Event handlers on the channel
-    channel.on(readyEvent, (w, arg) => {
-      // ignore unrelated messages when readyEvent = message
-      if (readyEvent === 'message'
-        && (!arg || arg.cmd != readyCommand)) return;
-      emit('ready', w, arg);
-    });
-    // When a worker exits, try to replace it
-    channel.on('exit', replaceWorker);
-    // When it closes the IPC channel or signals that it can no longer
-    // do any processing, replace it and then set up a termination timeout
-    channel.on('disconnect', replaceAndTerminateWorker);
-    channel.on('message', (w, arg) => {
-      if (arg && arg.cmd === 'disconnect') {
-replaceAndTerminateWorker(w);
-}
-    });
-    // When a worker becomes ready, add it to the active list
-    channel.on('ready', (w) => {
-      activeWorkers[w._rc_wid] = w;
-    });
-  };
-
-  /**
-   * Method to reload the cluster
-   */
-  self.reload = function(cb) {
-    if (!cluster.isMaster) return;
-    respawnerTimers.clear();
-
-    function allReady(cb) {
-      let listenCount = opt.workers;
-      let self = this;
-      return (w, arg) => {
-        if (!--listenCount) cb.apply(self, arguments);
-      };
+    /**
+     * Fork a new worker. Give it a reloadCluster ID and
+     * also redirect all its messages to the cluster.
+     * @param wid
+     * @return worker object
+     */
+    function fork(wid) {
+        let w = cluster.fork({
+            WORKER_ID: wid
+        });
+        w._rc_wid = wid;
+        w._rc_isReplaced = false;
+        // whenever worker sends a message, emit it to the channels
+        w.on('message', (message) => {
+            opt.logger.writeLogRecord(message);
+            emit('message', w, message);
+        });
+        // When a worker exits remove the worker reference from workers array, which holds all the workers
+        w.process.on('exit', () => {
+            removeItem(workers, w);
+            removeWorkerFromActiveWorkers(w);
+        });
+        // push the forked worker to the workers array which holds all the workers
+        workers.push(w);
+        return w;
     }
 
-    workers.forEach((worker) => {
-      let id = worker.id;
-
-      var stopOld = allReady(() => {
-        // dont respawn this worker. It has already been replaced.
+    /**
+     * Replace a dysfunctional worker
+     * @param worker
+     */
+    function replaceWorker(worker) {
+        if (worker._rc_isReplaced) return;
         worker._rc_isReplaced = true;
 
-        // Kill the worker after the appropriate timeout has passed
-        disconnectAndShutdownWorker(worker);
-        channel.removeListener('ready', stopOld);
-      });
+        removeWorkerFromActiveWorkers(worker);
 
-      channel.on('ready', stopOld);
-    });
+        let now = Date.now();
+        let interval = respawnIntervalManager.getIntervalForNextSpawn(now);
 
-    if (cb) {
-      var allReadyCb = allReady(() => {
-        channel.removeListener('ready', allReadyCb);
-        cb();
-      });
-      channel.on('ready', allReadyCb);
+        if (opt.log.respawns) {
+            logger.log('[' + worker.process.pid + '] worker (' + worker._rc_wid +
+                ':' + worker.id + ') must be replaced, respawning in', interval);
+        }
+
+        var respawnerTimer = setTimeout(() => {
+            respawnerTimers.remove(respawnerTimer);
+            fork(worker._rc_wid);
+        }, interval);
+
+        respawnerTimers.add(respawnerTimer);
     }
-    for (let i = 0; i < opt.workers; ++i) fork(i);
-  };
 
-  /**
-   * Method to terminate the cluster
-   */
-  self.terminate = (cb) => {
-    self.stop();
-    cluster.on('exit', allDone);
-    workers.forEach((worker) => {
-      if (worker.kill) {
-worker.kill('SIGKILL');
-} else {
-worker.destroy();
-}
-    });
-    allDone();
-    function allDone() {
-      let active = Object.keys(cluster.workers).length;
-      if (active === 0) {
-        cluster.removeListener('exit', allDone);
-        cb && cb();
-      }
+    /**
+     * Replace a worker that has closed the IPC channel
+     * or signaled that its dysfunctional. Will also
+     * terminate the worker after the specified time has passed.
+     *
+     * @param w - worker
+     */
+    function replaceAndTerminateWorker(w) {
+        replaceWorker(w);
+        disconnectAndShutdownWorker(w);
     }
-  };
 
-  /**
-   * Method to stop the cluster
-   */
-  self.stop = () => {
-    if (!cluster.isMaster) return;
-    cluster.removeListener('exit', emitWorkerExit);
-    cluster.removeListener('disconnect', emitWorkerDisconnect);
-    cluster.removeListener('listening', emitWorkerListening);
-    cluster.removeListener('online', emitWorkerOnline);
-    respawnerTimers.clear();
+    /**
+     * Sets up a kill timeout for a worker. Closes the
+     * IPC channel immediately.
+     * @param worker
+     */
+    function disconnectAndShutdownWorker(worker) {
+        function forceKillWorker() {
+            try {
+                if (worker.kill) {
+                    worker.kill();
+                } else {
+                    worker.destroy();
+                }
+            } catch (e) {}
+        }
 
-    channel.removeAllListeners();
-  };
+        if (opt.timeout > 0) {
+            let timeout = setTimeout(forceKillWorker, opt.timeout * 1000);
+            worker.once('exit', clearTimeout.bind(this, timeout));
+            // possibly a leftover worker that has no channel
+            // estabilished will throw error. Ignore.
+            try {
+                worker.send({
+                    cmd: 'disconnect'
+                });
+                worker.disconnect();
+            } catch (e) {}
+        } else {
+            process.nextTick(forceKillWorker);
+        }
 
-  self.workers = () => {
-    return workers;
-  };
+        removeWorkerFromActiveWorkers(worker);
+    }
 
-  self.activeWorkers = () => {
-    return activeWorkers;
-  };
 
-  return self;
+    function emitWorkerListening(w, adr) {
+        emit('listening', w, adr);
+    }
+
+    function emitWorkerOnline(w) {
+        emit('online', w);
+    }
+
+    function emitWorkerDisconnect(w) {
+        emit('disconnect', w);
+    }
+
+    function emitWorkerExit(w) {
+        emit('exit', w);
+    }
+
+    // setting maxListeners to avoid leaks
+    channel.setMaxListeners(opt.workers * 4 + 10);
+
+    /**
+     * Method to run the cluster
+     */
+    self.run = () => {
+        if (!cluster.isMaster) return;
+        // setup memored - a cache shared between worker processes. intro in 2.5.9
+        cache.setup({
+            purgeInterval: PURGE_INTERVAL,
+        });
+        cluster.setupMaster({
+            exec: file
+        });
+        cluster.settings.args = opt.args;
+
+        const argv = cluster.settings ? cluster.settings.execArgv || [] : [];
+        let j = 0;
+        argv && argv.forEach((arg) => {
+            if (arg.includes('--debug-brk=')) {
+                argv[j] = arg.replace('--debug-brk', '--debug');
+            }
+            j++;
+        });
+
+        // fork workers
+        for (let i = 0; i < opt.workers; i++) {
+            fork(i);
+        }
+        // Event handlers on the cluster
+        // This exit event happens, whenever a worker exits.
+        cluster.on('exit', emitWorkerExit);
+        // This event is emitted when a worker IPC channel has disconnected
+        cluster.on('disconnect', emitWorkerDisconnect);
+        // Whenever a server.listen() is called in the worker, this event is emitted.
+        cluster.on('listening', emitWorkerListening);
+        // Whenever a worker goes online, this event is emitted.
+        cluster.on('online', emitWorkerOnline);
+
+        // Event handlers on the channel
+        channel.on(readyEvent, (w, arg) => {
+            // ignore unrelated messages when readyEvent = message
+            if (readyEvent === 'message' &&
+                (!arg || arg.cmd != readyCommand)) return;
+            emit('ready', w, arg);
+        });
+        // When a worker exits, try to replace it
+        channel.on('exit', replaceWorker);
+        // When it closes the IPC channel or signals that it can no longer
+        // do any processing, replace it and then set up a termination timeout
+        channel.on('disconnect', replaceAndTerminateWorker);
+        channel.on('message', (w, arg) => {
+            if (arg && arg.cmd === 'disconnect') {
+                replaceAndTerminateWorker(w);
+            }
+        });
+        // When a worker becomes ready, add it to the active list
+        channel.on('ready', (w) => {
+            activeWorkers[w._rc_wid] = w;
+        });
+    };
+
+    /**
+     * Method to reload the cluster
+     */
+    self.reload = function(cb) {
+        if (!cluster.isMaster) return;
+        respawnerTimers.clear();
+
+        function allReady(cb) {
+            let listenCount = opt.workers;
+            let self = this;
+            return (w, arg) => {
+                if (!--listenCount) cb.apply(self, arguments);
+            };
+        }
+
+        workers.forEach((worker) => {
+            let id = worker.id;
+
+            var stopOld = allReady(() => {
+                // dont respawn this worker. It has already been replaced.
+                worker._rc_isReplaced = true;
+
+                // Kill the worker after the appropriate timeout has passed
+                disconnectAndShutdownWorker(worker);
+                channel.removeListener('ready', stopOld);
+            });
+
+            channel.on('ready', stopOld);
+        });
+
+        if (cb) {
+            var allReadyCb = allReady(() => {
+                channel.removeListener('ready', allReadyCb);
+                cb();
+            });
+            channel.on('ready', allReadyCb);
+        }
+        for (let i = 0; i < opt.workers; ++i) fork(i);
+    };
+
+    /**
+     * Method to terminate the cluster
+     */
+    self.terminate = (cb) => {
+        self.stop();
+        cluster.on('exit', allDone);
+        workers.forEach((worker) => {
+            if (worker.kill) {
+                worker.kill('SIGKILL');
+            } else {
+                worker.destroy();
+            }
+        });
+        allDone();
+
+        function allDone() {
+            let active = Object.keys(cluster.workers).length;
+            if (active === 0) {
+                cluster.removeListener('exit', allDone);
+                cb && cb();
+            }
+        }
+    };
+
+    /**
+     * Method to stop the cluster
+     */
+    self.stop = () => {
+        if (!cluster.isMaster) return;
+        cluster.removeListener('exit', emitWorkerExit);
+        cluster.removeListener('disconnect', emitWorkerDisconnect);
+        cluster.removeListener('listening', emitWorkerListening);
+        cluster.removeListener('online', emitWorkerOnline);
+        respawnerTimers.clear();
+
+        channel.removeAllListeners();
+    };
+
+    self.workers = () => {
+        return workers;
+    };
+
+    self.activeWorkers = () => {
+        return activeWorkers;
+    };
+
+    return self;
 };
 
 module.exports = ReloadCluster;
@@ -331,18 +342,18 @@ module.exports = ReloadCluster;
  * @constructor
  */
 function RespawnIntervalManager(opt) {
-  let respawnInterval = opt.minRespawnInterval || 1; // default to 1 sec
-  let lastSpawn = Date.now();
+    let respawnInterval = opt.minRespawnInterval || 1; // default to 1 sec
+    let lastSpawn = Date.now();
 
-  function getIntervalForNextSpawn(now) {
-    let nextSpawn = Math.max(now, lastSpawn + respawnInterval * 1000),
-      intervalForNextSpawn = nextSpawn - now;
-    lastSpawn = nextSpawn;
+    function getIntervalForNextSpawn(now) {
+        let nextSpawn = Math.max(now, lastSpawn + respawnInterval * 1000),
+            intervalForNextSpawn = nextSpawn - now;
+        lastSpawn = nextSpawn;
 
-    return intervalForNextSpawn;
-  }
+        return intervalForNextSpawn;
+    }
 
-  return this;
+    return this;
 }
 
 /**
@@ -351,21 +362,21 @@ function RespawnIntervalManager(opt) {
  * @constructor
  */
 function RespawnTimerList() {
-  let items = [];
-  let self = {};
-  self.clear = () => {
-    items.forEach((item) => {
-      clearTimeout(item);
-    });
-    items = [];
-  };
-  self.add = (t) => {
-    items.push(t);
-  };
-  self.remove = (t) => {
-    items.splice(items.indexOf(t), 1);
-  };
-  return self;
+    let items = [];
+    let self = {};
+    self.clear = () => {
+        items.forEach((item) => {
+            clearTimeout(item);
+        });
+        items = [];
+    };
+    self.add = (t) => {
+        items.push(t);
+    };
+    self.remove = (t) => {
+        items.splice(items.indexOf(t), 1);
+    };
+    return self;
 }
 
 /**
@@ -374,8 +385,8 @@ function RespawnTimerList() {
  * @param item
  */
 function removeItem(arr, item) {
-  let index = arr.indexOf(item);
-  if (index >= 0) arr.splice(index, 1);
+    let index = arr.indexOf(item);
+    if (index >= 0) arr.splice(index, 1);
 }
 
 // Idea and Implementations are inspired from the following repositories

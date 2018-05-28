@@ -24,7 +24,7 @@ const UpgradeKVM = function() {
 };
 
 module.exports = function() {
-  return new UpgradeKVM();
+    return new UpgradeKVM();
 };
 
 UpgradeKVM.prototype.upgradekvm = function upgradekvm(options, cb) {
@@ -52,8 +52,7 @@ UpgradeKVM.prototype.upgradekvm = function upgradekvm(options, cb) {
                 let payload = {
                     'name': options.kvm,
                     'encrypted': 'true',
-                    'entry': [
-                        {
+                    'entry': [{
                             'name': 'private_key_kid',
                             'value': options.kid,
                         },
@@ -83,6 +82,5 @@ UpgradeKVM.prototype.upgradekvm = function upgradekvm(options, cb) {
                 });
             });
         }
-       }
-    );
+    });
 };

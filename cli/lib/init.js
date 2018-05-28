@@ -4,56 +4,56 @@ const path = require('path');
 const configLocations = require('../../config/locations');
 
 module.exports = function init(opts, cb) {
-  if (typeof opts == 'function') {
-    cb = opts;
-  }
-
-  const setupConfigPath = (srcFile, destFile, destFileDir, cb) => {
-    if (fs.existsSync(destFile)) {
-      fs.unlinkSync(destFile);
+    if (typeof opts == 'function') {
+        cb = opts;
     }
 
-    fs.mkdir(destFileDir, () => {
-      copyFile(srcFile, destFile, (err) => {
-        err && console.log('failed to init configpath file %s', err);
-        cb(err, destFile);
-      });
-    });
-  };
+    const setupConfigPath = (srcFile, destFile, destFileDir, cb) => {
+        if (fs.existsSync(destFile)) {
+            fs.unlinkSync(destFile);
+        }
 
-  if (!opts.configDir) {
-    const initConfigPath = configLocations.getInitPath();
-    const defaultConfigPath = configLocations.getDefaultPath();
+        fs.mkdir(destFileDir, () => {
+            copyFile(srcFile, destFile, (err) => {
+                err && console.log('failed to init configpath file %s', err);
+                cb(err, destFile);
+            });
+        });
+    };
 
-    setupConfigPath(initConfigPath, defaultConfigPath, configLocations.homeDir, cb);
-  } else {
-    const initConfigPath = configLocations.getInitPath();
-    const customConfigPath = path.join(opts.configDir, configLocations.defaultFile);
+    if (!opts.configDir) {
+        const initConfigPath = configLocations.getInitPath();
+        const defaultConfigPath = configLocations.getDefaultPath();
 
-    setupConfigPath(initConfigPath, customConfigPath, opts.configDir, cb);
-  }
+        setupConfigPath(initConfigPath, defaultConfigPath, configLocations.homeDir, cb);
+    } else {
+        const initConfigPath = configLocations.getInitPath();
+        const customConfigPath = path.join(opts.configDir, configLocations.defaultFile);
+
+        setupConfigPath(initConfigPath, customConfigPath, opts.configDir, cb);
+    }
 };
+
 function copyFile(source, target, cb) {
-  let cbCalled = false;
+    let cbCalled = false;
 
-  let rd = fs.createReadStream(source);
-  rd.on('error', function(err) {
-    done(err);
-  });
-  let wr = fs.createWriteStream(target);
-  wr.on('error', function(err) {
-    done(err);
-  });
-  wr.on('close', function(ex) {
-    done();
-  });
-  rd.pipe(wr);
+    let rd = fs.createReadStream(source);
+    rd.on('error', function(err) {
+        done(err);
+    });
+    let wr = fs.createWriteStream(target);
+    wr.on('error', function(err) {
+        done(err);
+    });
+    wr.on('close', function(ex) {
+        done();
+    });
+    rd.pipe(wr);
 
-  function done(err) {
-    if (!cbCalled) {
-      cb(err);
-      cbCalled = true;
+    function done(err) {
+        if (!cbCalled) {
+            cb(err);
+            cbCalled = true;
+        }
     }
-  }
 }
-

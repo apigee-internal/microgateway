@@ -8,11 +8,11 @@ const token = require('./cli/lib/token')();
 const generateKeys = require('./cli/lib/key-gen')();
 
 
-module.exports ={
-  configure: configure,
-  edgemicro: gateway,
-  configurePrivate: configurePrivate,
-  token: token,
-  cert: cert,
-  generateKeys: generateKeys,
+module.exports = {
+    configure: configure,
+    edgemicro: gateway,
+    configurePrivate: configurePrivate,
+    token: token,
+    cert: cert,
+    generateKeys: generateKeys,
 };
