@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+
+/* eslint spaced-comment: 0*/
+
 /****************************************************************************
  The MIT License (MIT)
  Copyright (c) 2015 Apigee Corporation
@@ -20,13 +23,15 @@
  ****************************************************************************/
 
 'use strict';
-var edgemicroVersion = require('../package.json').version;
-const version = process.version;
-const lts_version = "v4.8.4";
-console.log('current nodejs version is %s',version)
-console.log('current edgemicro version is %s',edgemicroVersion);
-if(version < lts_version){
-  console.error('You are using an older version of NodeJS version %s, please update nodejs to %s+',version,lts_version)
-}else{
-  require('./cmd')()
+const edgemicroVersion = require('../package.json').version;
+const compareVersions = require('compare-versions');
+const currentVersion = process.version;
+const ltsVersion = 'v4.8.4';
+console.log('current nodejs version is %s', version);
+console.log('current edgemicro version is %s', edgemicroVersion);
+if (compareVersions(ltsVersion, currentVersion) >= 0) {
+    console.error('You are using an older version of NodeJS version %s,' +
+        ' please update nodejs to %s+', currentVersion, ltsVersion);
+} else {
+    require('./cmd')();
 }
