@@ -41,21 +41,21 @@ Gateway.prototype.start = (options) => {
     const configurl = options.configUrl;
     const keys = {
         key: options.key,
-        secret: options.secret
+        secret: options.secret,
     };
     const args = {
         target: cache,
         keys: keys,
-        pluginDir: options.pluginDir
+        pluginDir: options.pluginDir,
     };
 
     edgeconfig.get({
         source: source,
-        keys: keys
+        keys: keys,
     }, (err, config) => {
         if (err) {
             const exists = fs.existsSync(cache);
-            console.error("failed to retieve config from gateway. continuing, will try cached copy..");
+            console.error('failed to retieve config from gateway. continuing, will try cached copy..');
             console.error(err);
             if (!exists) {
                 console.error('cache configuration ' + cache + ' does not exist. exiting.');
@@ -63,7 +63,7 @@ Gateway.prototype.start = (options) => {
             } else {
                 console.log('using cached configuration from %s', cache);
                 config = edgeconfig.load({
-                    source: cache
+                    source: cache,
                 });
                 if (options.port) {
                     config.edgemicro.port = parseInt(options.port);
@@ -77,28 +77,28 @@ Gateway.prototype.start = (options) => {
         }
 
         config.uid = uuid();
-        var logger = gateway.Logging.init(config);
-        var opt = {};
+        let logger = gateway.Logging.init(config);
+        let opt = {};
         delete args.keys;
         opt.args = [JSON.stringify(args)];
         opt.timeout = 10;
         opt.logger = gateway.Logging.getLogger();
 
-        //Let reload cluster know how many processes to use if the user doesn't want the default
+        // Let reload cluster know how many processes to use if the user doesn't want the default
         if (options.processes) {
             opt.workers = Number(options.processes);
         }
 
-        var mgCluster = reloadCluster(path.join(__dirname, 'start-agent.js'), opt);
+        let mgCluster = reloadCluster(path.join(__dirname, 'start-agent.js'), opt);
 
-        var server = net.createServer();
+        let server = net.createServer();
         server.listen(ipcPath);
 
         server.on('connection', (socket) => {
-            //enable TCP_NODELAY
+            // enable TCP_NODELAY
             if (config.edgemicro.nodelay === true) {
-              debug("tcp nodelay set");
-              socket.setNoDelay(true);
+                debug('tcp nodelay set');
+                socket.setNoDelay(true);
             }
             socket = new JsonSocket(socket);
             socket.on('message', (message) => {
@@ -116,7 +116,7 @@ Gateway.prototype.start = (options) => {
                         process.exit(0);
                     });
                 } else if (message.command == 'status') {
-                    var activeWorkers = mgCluster.activeWorkers();
+                    let activeWorkers = mgCluster.activeWorkers();
                     socket.sendMessage(activeWorkers ? activeWorkers.length : 0);
                 }
             });
@@ -131,7 +131,7 @@ Gateway.prototype.start = (options) => {
                 console.log('Removing the socket file as part of cleanup');
                 fs.unlinkSync(ipcPath);
             }
-			fs.unlinkSync(pidPath);
+            fs.unlinkSync(pidPath);
         });
 
         process.on('SIGTERM', () => {
@@ -142,25 +142,25 @@ Gateway.prototype.start = (options) => {
             process.exit(0);
         });
 
-        process.on('uncaughtException',(err) => {
+        process.on('uncaughtException', (err) => {
             console.error(err);
             debug('Caught Unhandled Exception:');
             debug(err);
             process.exit(0);
         });
 
-        var shouldNotPoll = config.edgemicro.disable_config_poll_interval || false;
-        var pollInterval = config.edgemicro.config_change_poll_interval || defaultPollInterval;
+        let shouldNotPoll = config.edgemicro.disable_config_poll_interval || false;
+        let pollInterval = config.edgemicro.config_change_poll_interval || defaultPollInterval;
         // Client Socket for auto reload
         // send reload message to socket.
-        var clientSocket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
+        let clientSocket = new JsonSocket(new net.Socket()); // Decorate a standard net.Socket with JsonSocket
         clientSocket.connect(ipcPath);
 
-        //start the polling mechanism to look for config changes
+        // start the polling mechanism to look for config changes
         var reloadOnConfigChange = (oldConfig, cache, opts) => {
             console.log('Checking for change in configuration');
             if (configurl) opts.configurl = configurl;
-            var self = this;
+            let self = this;
             edgeconfig.get(opts, (err, newConfig) => {
                 if (err) {
                     // failed to check new config. so try to check again after pollInterval
@@ -170,12 +170,12 @@ Gateway.prototype.start = (options) => {
                     }, pollInterval * 1000);
                 } else {
                     pollInterval = config.edgemicro.config_change_poll_interval ? config.edgemicro.config_change_poll_interval : pollInterval;
-                    var isConfigChanged = hasConfigChanged(oldConfig, newConfig);
+                    let isConfigChanged = hasConfigChanged(oldConfig, newConfig);
                     if (isConfigChanged) {
                         console.log('Configuration change detected. Saving new config and Initiating reload');
                         edgeconfig.save(newConfig, cache);
                         clientSocket.sendMessage({
-                            command: 'reload'
+                            command: 'reload',
                         });
                     }
                     setTimeout(() => {
@@ -189,7 +189,7 @@ Gateway.prototype.start = (options) => {
             setTimeout(() => {
                 reloadOnConfigChange(config, cache, {
                     source: source,
-                    keys: keys
+                    keys: keys,
                 });
             }, pollInterval * 1000);
         }
@@ -197,23 +197,22 @@ Gateway.prototype.start = (options) => {
 };
 
 Gateway.prototype.reload = (options) => {
-
     const source = configLocations.getSourcePath(options.org, options.env, options.configDir);
     const cache = configLocations.getCachePath(options.org, options.env, options.configDir);
     const keys = {
         key: options.key,
-        secret: options.secret
+        secret: options.secret,
     };
 
-    var socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
+    let socket = new JsonSocket(new net.Socket()); // Decorate a standard net.Socket with JsonSocket
     socket.on('connect', () => {
         edgeconfig.get({
             source: source,
-            keys: keys
+            keys: keys,
         }, (err, config) => {
             if (err) {
                 const exists = fs.existsSync(cache);
-                console.error("failed to retieve config from gateway. continuing, will try cached copy..");
+                console.error('failed to retieve config from gateway. continuing, will try cached copy..');
                 console.error(err);
                 if (!exists) {
                     console.error('cache configuration ' + cache + ' does not exist. exiting.');
@@ -221,15 +220,15 @@ Gateway.prototype.reload = (options) => {
                 } else {
                     console.log('using cached configuration from %s', cache);
                     config = edgeconfig.load({
-                        source: cache
-                    })
+                        source: cache,
+                    });
                 }
             } else {
                 edgeconfig.save(config, cache);
             }
 
             socket.sendMessage({
-                command: 'reload'
+                command: 'reload',
             });
             socket.on('message', (success) => {
                 if (success) {
@@ -253,10 +252,10 @@ Gateway.prototype.reload = (options) => {
 
 
 Gateway.prototype.stop = (options) => {
-    var socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
+    let socket = new JsonSocket(new net.Socket()); // Decorate a standard net.Socket with JsonSocket
     socket.on('connect', () => {
         socket.sendMessage({
-            command: 'stop'
+            command: 'stop',
         });
         socket.on('message', (success) => {
             if (success) {
@@ -278,46 +277,47 @@ Gateway.prototype.stop = (options) => {
 };
 
 Gateway.prototype.status = (options) => {
-    var socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
+    let socket = new JsonSocket(new net.Socket()); // Decorate a standard net.Socket with JsonSocket
     socket.on('connect', () => {
         socket.sendMessage({
-            command: 'status'
+            command: 'status',
         });
         socket.on('message', (result) => {
             console.log('edgemicro is running with ' + result + ' workers');
             process.exit(0);
         });
     });
-    socket.on('error', (error)=> {
-      if (error) {
-        if (error.code == 'ENOENT') {
-          console.error('edgemicro is not running.');
-          process.exit(1);
+    socket.on('error', (error) => {
+        if (error) {
+            if (error.code == 'ENOENT') {
+                console.error('edgemicro is not running.');
+                process.exit(1);
+            }
         }
-      }
     });
     socket.connect(ipcPath);
 };
 
 function hasConfigChanged(oldConfig, newConfig) {
     // This may not be the best way to do the check. But it works for now.
-    //return JSON.stringify(oldConfig) != JSON.stringify(newConfig);
+    // return JSON.stringify(oldConfig) != JSON.stringify(newConfig);
 
-    //do not compare uid
+    // do not compare uid
     delete oldConfig['uid'];
 
-    var diff = jsdiff.diffWords(JSON.stringify(oldConfig), JSON.stringify(newConfig));
+    let diff = jsdiff.diffWords(JSON.stringify(oldConfig), JSON.stringify(newConfig));
     if (diff.length == 1) {
-        debug("no changes detected");
+        debug('no changes detected');
         return false;
     } else {
         diff.forEach(function(part) {
-            if (part.added)
-                debug("Added->" + part.value);
-            else if (part.removed)
-                debug("Removed->" + part.value);
-            else
-                debug("Unchanged->" + part.value);
+            if (part.added) {
+debug('Added->' + part.value);
+} else if (part.removed) {
+debug('Removed->' + part.value);
+} else {
+debug('Unchanged->' + part.value);
+}
         });
         return true;
     }
