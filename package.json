@@ -13,6 +13,7 @@
     "body-parser": "^1.12.4",
     "cli-prompt": "^0.5.0",
     "commander": "^2.9.0",
+    "compare-versions": "^3.2.1",
     "config": "^1.13.0",
     "cpr": "^1.0.0",
     "debug": "^2.2.0",
