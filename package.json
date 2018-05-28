@@ -40,6 +40,8 @@
     "xml2js": "^0.4.16"
   },
   "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-google": "^0.9.1",
     "gulp": "^3.8.11",
     "gulp-shell": "^0.4.1",
     "gulp-sourcemaps": "^1.5.2",
@@ -48,11 +50,6 @@
     "mocha": "^2.2.5",
     "restify": "^4.0.4",
     "run-sequence": "^1.1.0"
-  },
-  "eslintConfig": {
-    "env": {
-      "es6": true
-    }
   },
   "scripts": {
     "start": "node app.js",
