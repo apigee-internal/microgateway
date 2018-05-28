@@ -5,9 +5,9 @@ const async = require('async');
 const crypto = require('crypto');
 const _ = require('lodash');
 const request = require('request');
-const url = require('url')
+const url = require('url');
 const util = require('util');
-const assert = require('assert')
+const assert = require('assert');
 const edgeconfig = require('microgateway-config');
 const configLocations = require('../../config/locations');
 
@@ -18,13 +18,13 @@ const KeyGen = function() {
 
 KeyGen.prototype.revoke = function(options, cb) {
     const config = edgeconfig.load({
-        source: configLocations.getSourcePath(options.org, options.env)
+        source: configLocations.getSourcePath(options.org, options.env),
     });
 
     const baseUri = config.edge_config.baseUri;
     const regionUrl = util.format(baseUri, 'region', options.org, options.env);
     const keys = {
-        key: options.key
+        key: options.key,
     };
 
     debug('getting region from', regionUrl);
@@ -33,9 +33,9 @@ KeyGen.prototype.revoke = function(options, cb) {
             uri: regionUrl,
             auth: {
                 username: options.key,
-                password: options.secret
+                password: options.secret,
             },
-            json: true
+            json: true,
         }, function(err, res) {
             err = translateError(err, res);
             if (err) {
@@ -54,9 +54,9 @@ KeyGen.prototype.revoke = function(options, cb) {
                             method: 'DELETE',
                             auth: {
                                 username: options.username,
-                                password: options.password
+                                password: options.password,
                             },
-                            json: keys
+                            json: keys,
                         }, function(er, re) {
                             er = translateError(er, re);
                             if (er) {
@@ -64,23 +64,23 @@ KeyGen.prototype.revoke = function(options, cb) {
                                 return cb(er);
                             }
 							if (res.statusCode >= 200 && res.statusCode <= 202) {
-								console.log("key " + options.key + " revoked successfully");
+								console.log('key ' + options.key + ' revoked successfully');
 							} else {
-								console.log("revoking key " + options.key + " failed with reason code " + res.StatusCode)
+								console.log('revoking key ' + options.key + ' failed with reason code ' + res.StatusCode);
 							}
                     });
 				}
-			}			
+			}
 		});
-}
+};
 
 KeyGen.prototype.generate = function generate(options, cb) {
-  const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org,options.env) });
+  const config = edgeconfig.load({source: configLocations.getSourcePath(options.org, options.env)});
   this.baseUri = config.edge_config.baseUri;
   this._generate(options, (err, result) => {
-    if(err){
-      console.error("failed")
-      console.error(err)
+    if (err) {
+      console.error('failed');
+      console.error(err);
 
       cb(err);
     }
@@ -92,7 +92,7 @@ KeyGen.prototype.generate = function generate(options, cb) {
     console.info('  secret:', result.secret);
     console.log();
     console.log('finished');
-    cb(err,result)
+    cb(err, result);
   });
 };
 
@@ -106,7 +106,9 @@ KeyGen.prototype._generate = function _generate(options, cb) {
     const hash = crypto.createHash('sha256');
     hash.update(Date.now().toString());
     crypto.randomBytes(byteLength, function(err, buf) {
-      if (err) { return callback(err); }
+      if (err) {
+ return callback(err);
+}
 
       hash.update(buf);
       hash.update(Date.now().toString());
@@ -115,14 +117,18 @@ KeyGen.prototype._generate = function _generate(options, cb) {
   }
 
   async.series([
-    function(callback) { genkey(callback); }, // generate the key
-    function(callback) { genkey(callback); }  // generate the secret
+    function(callback) {
+ genkey(callback);
+}, // generate the key
+    function(callback) {
+ genkey(callback);
+}, // generate the secret
   ], function(err, results) {
     const key = results[0];
     const secret = results[1];
     const keys = {
       key: key,
-      secret: secret
+      secret: secret,
     };
 
     const credentialUrl = util.format(baseUri, 'credential', options.org, options.env);
@@ -133,9 +139,9 @@ KeyGen.prototype._generate = function _generate(options, cb) {
       method: 'POST',
       auth: {
         username: options.username,
-        password: options.password
+        password: options.password,
       },
-      json: keys
+      json: keys,
     }, function(err, res) {
       err = translateError(err, res);
       if (err) {
@@ -143,17 +149,16 @@ KeyGen.prototype._generate = function _generate(options, cb) {
       }
 
       if (res.statusCode >= 200 && res.statusCode <= 202) {
-
         const regionUrl = util.format(baseUri, 'region', options.org, options.env);
 
         debug('getting region from', regionUrl);
         request({
           uri: regionUrl,
-          auth: {   // switch authorization to use the key/secret we just uploaded
+          auth: { // switch authorization to use the key/secret we just uploaded
             username: key,
-            password: secret
+            password: secret,
           },
-          json: true
+          json: true,
         }, function(err, res) {
           err = translateError(err, res);
           if (err) {
@@ -175,33 +180,23 @@ KeyGen.prototype._generate = function _generate(options, cb) {
             return cb(null, {
               bootstrap: updatedUrl,
               key: key,
-              secret: secret
+              secret: secret,
             });
-
-
-
           } else {
-
             cb(console.error('error retrieving region for org', res.statusCode, res.text));
-
           }
         });
       } else {
-
         cb(console.error('error uploading credentials', res.statusCode, res.text));
-
       }
     });
   });
-
-
-}
+};
 
 
 function translateError(err, res) {
   if (!err && res.statusCode >= 400) {
-
-    var msg = 'cannot ' + res.request.method + ' ' + url.format(res.request.uri) + ' (' + res.statusCode + ')';
+    let msg = 'cannot ' + res.request.method + ' ' + url.format(res.request.uri) + ' (' + res.statusCode + ')';
     err = new Error(msg);
     err.text = res.body;
     res.error = err;
@@ -211,4 +206,4 @@ function translateError(err, res) {
 
 module.exports = function() {
   return new KeyGen();
-}
+};

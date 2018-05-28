@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/// <reference path="../typings/node/node.d.ts"/>
+// / <reference path="../typings/node/node.d.ts"/>
 
 'use strict';
 
@@ -27,8 +27,12 @@ if (fs.existsSync(buildDir)) {
 }
 
 async.parallel([
-  function(cb) { available('gulp', cb); },
-  function(cb) { available('tsc', cb); }
+  function(cb) {
+ available('gulp', cb);
+},
+  function(cb) {
+ available('tsc', cb);
+},
 ], function(err, results) {
   if (err) {
     console.error('gulp/tsc not found in path (try "npm i -g gulp typescript")');
@@ -42,8 +46,8 @@ console.info('building package in', buildDir);
 const topLevelFiles = [
   'build.yaml',
   'README',
-  'LICENSE'
-]
+  'LICENSE',
+];
 
 const excludes = [
   // dirs
@@ -63,24 +67,40 @@ const excludes = [
   'agent/bin/*',
   'agent/tsconfig.json',
   'agent/gulpfile.js',
-  'agent/config/default-*.yaml'
+  'agent/config/default-*.yaml',
 ];
 
 const rootDir = path.join(buildDir, 'microgateway');
 
 const tasks = [];
-tasks.push(function(cb) { git_clone('git@revision.aeip.apigee.net:edgemicro/microgateway.git', 'master',  cb); });
-tasks.push(function(cb) { process.chdir(rootDir); cb(); });
-tasks.push(function(cb) { build_properties(rootDir, cb); });
-tasks.push(function(cb) { git_tag(rootDir, cb); });
+tasks.push(function(cb) {
+ git_clone('git@revision.aeip.apigee.net:edgemicro/microgateway.git', 'master', cb);
+});
+tasks.push(function(cb) {
+ process.chdir(rootDir); cb();
+});
+tasks.push(function(cb) {
+ build_properties(rootDir, cb);
+});
+tasks.push(function(cb) {
+ git_tag(rootDir, cb);
+});
 
 const dirs = ['gateway', 'agent', 'cli', 'plugins'];
 dirs.forEach(function(dir) {
-  tasks.push(function(cb) { update_version(dir, cb); });
-  tasks.push(function(cb) { npm_install(dir, true, cb); });
+  tasks.push(function(cb) {
+ update_version(dir, cb);
+});
+  tasks.push(function(cb) {
+ npm_install(dir, true, cb);
+});
   if (dir === 'agent') {
-    tasks.push(function(cb) { npm_install(dir, false, cb); }); // need dev dependecies for gulp, tsc
-    tasks.push(function(cb) { gulp(dir, 'build', cb); });
+    tasks.push(function(cb) {
+ npm_install(dir, false, cb);
+}); // need dev dependecies for gulp, tsc
+    tasks.push(function(cb) {
+ gulp(dir, 'build', cb);
+});
   }
 });
 
@@ -157,7 +177,7 @@ function build_properties(repo, callback) {
       } else {
         properties.head = stdout.trim();
         const props = yaml.safeDump(properties, {skipInvalid: true});
-        fs.writeFileSync(path.join(repo, "build.yaml"), props);
+        fs.writeFileSync(path.join(repo, 'build.yaml'), props);
         callback();
       }
     }
@@ -216,7 +236,7 @@ function zip(zipfile, dir, dirs, excludes, callback) {
   console.log(dir, command, args.join(' '));
   const zip = spawn(command, args, {
     cwd: dir,
-    stdio: 'inherit'
+    stdio: 'inherit',
   });
 
   zip.on('exit', function(error) {

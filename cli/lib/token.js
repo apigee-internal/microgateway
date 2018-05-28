@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const edgeconfig = require('microgateway-config');
 const jwt = require('jsonwebtoken');
-const assert = require('assert')
+const assert = require('assert');
 
 const configLocations = require('../../config/locations');
 
@@ -19,30 +19,31 @@ module.exports = function() {
 };
 
 Token.prototype.decodeToken = function( options ) {
-  assert(options.file,"file is required")
+  assert(options.file, 'file is required');
   const jtw = require('../api/helpers/jwt');
   const token = fs.readFileSync(path.resolve(options.file), 'utf8').trim();
   jtw.decode(token, function(err, result) {
-    if (err) { return printError(err); }
+    if (err) {
+ return printError(err);
+}
     console.log(result);
   });
-}
+};
 
 Token.prototype.verifyToken = function(options, cb) {
-
   assert(options.file);
-  assert(options.org)
-  assert(options.env)
+  assert(options.org);
+  assert(options.env);
   const targetPath = configLocations.getSourcePath(options.org, options.env);
-  cb = cb || function() { }
+  cb = cb || function() { };
 
   const key = options.key;
   const secret = options.secret;
-  const keys = { key: key, secret: secret };
+  const keys = {key: key, secret: secret};
 
   const token = fs.readFileSync(path.resolve(options.file), 'utf8').trim();
 
-  const config = edgeconfig.load({ source: targetPath, keys: keys });
+  const config = edgeconfig.load({source: targetPath, keys: keys});
 
   const authUri = config.edge_config['authUri'];
   this.isPublicCloud = config.edge_config['managementUri'] === 'https://api.enterprise.apigee.com' ||
@@ -56,24 +57,21 @@ Token.prototype.verifyToken = function(options, cb) {
 
     const opts = {
       algorithms: ['RS256'],
-      ignoreExpiration: false
+      ignoreExpiration: false,
     };
 
     jwt.verify(token, certificate, opts, function(err, result) {
       if (err) {
-        cb(err)
+        cb(err);
         return printError(err);
       }
       console.log(result);
-      cb(null,result)
+      cb(null, result);
     });
   });
-
-
-}
+};
 
 Token.prototype.getToken = function(options, cb) {
-
   assert(options.org);
   assert(options.env);
   assert(options.id);
@@ -83,8 +81,8 @@ Token.prototype.getToken = function(options, cb) {
 
   const key = options.key;
   const secret = options.secret;
-  const keys = { key: key, secret: secret };
-  const config = edgeconfig.load({ source: targetPath, keys: keys });
+  const keys = {key: key, secret: secret};
+  const config = edgeconfig.load({source: targetPath, keys: keys});
   const authUri = config.edge_config['authUri'];
   this.isPublicCloud = config.edge_config['managementUri'] === 'https://api.enterprise.apigee.com' ||
     config.edge_config['managementUri'] === 'https://api.e2e.apigee.net';
@@ -92,29 +90,30 @@ Token.prototype.getToken = function(options, cb) {
   const body = {
     client_id: options.id,
     client_secret: options.secret,
-    grant_type: 'client_credentials'
+    grant_type: 'client_credentials',
   };
   request({
     uri: uri,
     method: 'POST',
-    json: body
+    json: body,
   }, function(err, res) {
     if (err) {
-      cb && cb(err)
-      return printError(err)
+      cb && cb(err);
+      return printError(err);
     }
-    console.log(res.body)
-    cb && cb(null, res.body)
+    console.log(res.body);
+    cb && cb(null, res.body);
   });
-}
+};
 
 function getPublicKey(organization, environment, authUri, isPublicCloud, cb) {
-
   const uri = isPublicCloud ? util.format(authUri + '/publicKey', organization, environment) : authUri + '/publicKey';
   request({
-    uri: uri
+    uri: uri,
   }, function(err, res) {
-    if (err) { return cb(err); }
+    if (err) {
+ return cb(err);
+}
     cb(null, res.body);
   });
 }

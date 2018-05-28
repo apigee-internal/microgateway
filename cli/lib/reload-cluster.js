@@ -20,7 +20,6 @@ const PURGE_INTERVAL = 60000;
  */
 
 var ReloadCluster = (file, opt) => {
-
   // initializing opt with defaults if not provided
   opt = opt || {};
   opt.workers = opt.workers || cpuCount;
@@ -29,15 +28,15 @@ var ReloadCluster = (file, opt) => {
   opt.args = opt.args || [];
   opt.log = opt.log || {respawns: true};
 
-  var logger = opt.logger || console;
-  var respawnIntervalManager = RespawnIntervalManager({minRespawnInterval: opt.minRespawnInterval});
-  var respawnerTimers = RespawnTimerList();
-  var readyEvent = opt.workerReadyWhen == 'started' ? 'online' : opt.workerReadyWhen == 'listening' ? 'listening' : 'message';
-  var readyCommand = 'ready';
-  var self = new EventEmitter();
-  var channel = new EventEmitter();
-  var workers = [];
-  var activeWorkers = {length: opt.workers};
+  let logger = opt.logger || console;
+  let respawnIntervalManager = RespawnIntervalManager({minRespawnInterval: opt.minRespawnInterval});
+  let respawnerTimers = RespawnTimerList();
+  let readyEvent = opt.workerReadyWhen == 'started' ? 'online' : opt.workerReadyWhen == 'listening' ? 'listening' : 'message';
+  let readyCommand = 'ready';
+  let self = new EventEmitter();
+  let channel = new EventEmitter();
+  let workers = [];
+  let activeWorkers = {length: opt.workers};
 
   /**
    * removes worker from activeWorkers array
@@ -64,10 +63,10 @@ var ReloadCluster = (file, opt) => {
    * Fork a new worker. Give it a reloadCluster ID and
    * also redirect all its messages to the cluster.
    * @param wid
-   * @returns worker object
+   * @return worker object
    */
   function fork(wid) {
-    var w = cluster.fork({WORKER_ID: wid});
+    let w = cluster.fork({WORKER_ID: wid});
     w._rc_wid = wid;
     w._rc_isReplaced = false;
     // whenever worker sends a message, emit it to the channels
@@ -95,8 +94,8 @@ var ReloadCluster = (file, opt) => {
 
     removeWorkerFromActiveWorkers(worker);
 
-    var now = Date.now();
-    var interval = respawnIntervalManager.getIntervalForNextSpawn(now);
+    let now = Date.now();
+    let interval = respawnIntervalManager.getIntervalForNextSpawn(now);
 
     if (opt.log.respawns) {
       logger.log('[' + worker.process.pid + '] worker (' + worker._rc_wid
@@ -109,7 +108,6 @@ var ReloadCluster = (file, opt) => {
     }, interval);
 
     respawnerTimers.add(respawnerTimer);
-
   }
 
   /**
@@ -142,7 +140,7 @@ var ReloadCluster = (file, opt) => {
     }
 
     if (opt.timeout > 0) {
-      var timeout = setTimeout(forceKillWorker, opt.timeout * 1000);
+      let timeout = setTimeout(forceKillWorker, opt.timeout * 1000);
       worker.once('exit', clearTimeout.bind(this, timeout));
       // possibly a leftover worker that has no channel
       // estabilished will throw error. Ignore.
@@ -183,24 +181,24 @@ var ReloadCluster = (file, opt) => {
    */
   self.run = () => {
     if (!cluster.isMaster) return;
-    //setup memored - a cache shared between worker processes. intro in 2.5.9
+    // setup memored - a cache shared between worker processes. intro in 2.5.9
     cache.setup({
-        purgeInterval: PURGE_INTERVAL
+        purgeInterval: PURGE_INTERVAL,
     });
     cluster.setupMaster({exec: file});
     cluster.settings.args = opt.args;
 
     const argv = cluster.settings ? cluster.settings.execArgv || [] : [];
-    var j = 0;
+    let j = 0;
     argv && argv.forEach((arg) => {
       if (arg.includes('--debug-brk=')) {
-        argv[j] = arg.replace('--debug-brk', '--debug')
+        argv[j] = arg.replace('--debug-brk', '--debug');
       }
       j++;
     });
 
     // fork workers
-    for (var i = 0; i < opt.workers; i++) {
+    for (let i = 0; i < opt.workers; i++) {
       fork(i);
     }
     // Event handlers on the cluster
@@ -226,33 +224,33 @@ var ReloadCluster = (file, opt) => {
     // do any processing, replace it and then set up a termination timeout
     channel.on('disconnect', replaceAndTerminateWorker);
     channel.on('message', (w, arg) => {
-      if (arg && arg.cmd === 'disconnect')
-        replaceAndTerminateWorker(w);
+      if (arg && arg.cmd === 'disconnect') {
+replaceAndTerminateWorker(w);
+}
     });
     // When a worker becomes ready, add it to the active list
     channel.on('ready', (w) => {
       activeWorkers[w._rc_wid] = w;
-    })
-
+    });
   };
 
   /**
    * Method to reload the cluster
    */
-  self.reload = function (cb) {
+  self.reload = function(cb) {
     if (!cluster.isMaster) return;
     respawnerTimers.clear();
 
     function allReady(cb) {
-      var listenCount = opt.workers;
-      var self = this;
+      let listenCount = opt.workers;
+      let self = this;
       return (w, arg) => {
         if (!--listenCount) cb.apply(self, arguments);
       };
     }
 
     workers.forEach((worker) => {
-      var id = worker.id;
+      let id = worker.id;
 
       var stopOld = allReady(() => {
         // dont respawn this worker. It has already been replaced.
@@ -273,7 +271,7 @@ var ReloadCluster = (file, opt) => {
       });
       channel.on('ready', allReadyCb);
     }
-    for (var i = 0; i < opt.workers; ++i) fork(i);
+    for (let i = 0; i < opt.workers; ++i) fork(i);
   };
 
   /**
@@ -283,14 +281,15 @@ var ReloadCluster = (file, opt) => {
     self.stop();
     cluster.on('exit', allDone);
     workers.forEach((worker) => {
-      if (worker.kill)
-        worker.kill('SIGKILL');
-      else
-        worker.destroy();
+      if (worker.kill) {
+worker.kill('SIGKILL');
+} else {
+worker.destroy();
+}
     });
     allDone();
     function allDone() {
-      var active = Object.keys(cluster.workers).length;
+      let active = Object.keys(cluster.workers).length;
       if (active === 0) {
         cluster.removeListener('exit', allDone);
         cb && cb();
@@ -328,16 +327,15 @@ module.exports = ReloadCluster;
 /**
  *
  * @param opt
- * @returns {RespawnIntervalManager}
+ * @return {RespawnIntervalManager}
  * @constructor
  */
 function RespawnIntervalManager(opt) {
-
-  var respawnInterval = opt.minRespawnInterval || 1;  // default to 1 sec
-  var lastSpawn = Date.now();
+  let respawnInterval = opt.minRespawnInterval || 1; // default to 1 sec
+  let lastSpawn = Date.now();
 
   function getIntervalForNextSpawn(now) {
-    var nextSpawn = Math.max(now, lastSpawn + respawnInterval * 1000),
+    let nextSpawn = Math.max(now, lastSpawn + respawnInterval * 1000),
       intervalForNextSpawn = nextSpawn - now;
     lastSpawn = nextSpawn;
 
@@ -353,8 +351,8 @@ function RespawnIntervalManager(opt) {
  * @constructor
  */
 function RespawnTimerList() {
-  var items = [];
-  var self = {};
+  let items = [];
+  let self = {};
   self.clear = () => {
     items.forEach((item) => {
       clearTimeout(item);
@@ -376,8 +374,8 @@ function RespawnTimerList() {
  * @param item
  */
 function removeItem(arr, item) {
-  var index = arr.indexOf(item);
-  if (index >= 0) arr.splice(index, 1)
+  let index = arr.indexOf(item);
+  if (index >= 0) arr.splice(index, 1);
 }
 
 // Idea and Implementations are inspired from the following repositories

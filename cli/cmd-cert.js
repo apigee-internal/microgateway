@@ -5,7 +5,6 @@ const cert = require('./lib/cert')();
 const prompt = require('cli-prompt');
 
 const setup = function setup() {
-
   commander
     .command('install')
     .option('-o, --org <org>', 'the organization')
@@ -16,12 +15,20 @@ const setup = function setup() {
     .description('install a certificate for your organization')
     .action((options) => {
       options.error = optionError;
-      if (!options.username) { return  options.error('username is required'); }
-      if (!options.org) { return  options.error('org is required'); }
-      if (!options.env) { return  options.error('env is required'); }
-      promptForPassword(options,(options)=>{
-        if (!options.password) { return  options.error('password is required'); }
-        cert.installCert(options)
+      if (!options.username) {
+ return options.error('username is required');
+}
+      if (!options.org) {
+ return options.error('org is required');
+}
+      if (!options.env) {
+ return options.error('env is required');
+}
+      promptForPassword(options, (options)=>{
+        if (!options.password) {
+ return options.error('password is required');
+}
+        cert.installCert(options);
       });
     });
 
@@ -34,12 +41,20 @@ const setup = function setup() {
     .description('delete the certificate for your organization')
     .action((options) => {
       options.error = optionError;
-      if (!options.username) { return  options.error('username is required'); }
-      if (!options.org) { return  options.error('org is required'); }
-      if (!options.env) { return  options.error('env is required'); }
-      promptForPassword(options,(options)=>{
-        if (!options.password) { return  options.error('password is required'); }
-        cert.deleteCert(options)
+      if (!options.username) {
+ return options.error('username is required');
+}
+      if (!options.org) {
+ return options.error('org is required');
+}
+      if (!options.env) {
+ return options.error('env is required');
+}
+      promptForPassword(options, (options)=>{
+        if (!options.password) {
+ return options.error('password is required');
+}
+        cert.deleteCert(options);
       });
     });
 
@@ -52,12 +67,20 @@ const setup = function setup() {
     .description('check that your organization has a certificate installed')
     .action((options) => {
       options.error = optionError;
-      if (!options.username) { return  options.error('username is required'); }
-      if (!options.org) { return  options.error('org is required'); }
-      if (!options.env) { return  options.error('env is required'); }
-      promptForPassword(options,(options)=>{
-        if (!options.password) { return  options.error('password is required'); }
-        cert.checkCert(options)
+      if (!options.username) {
+ return options.error('username is required');
+}
+      if (!options.org) {
+ return options.error('org is required');
+}
+      if (!options.env) {
+ return options.error('env is required');
+}
+      promptForPassword(options, (options)=>{
+        if (!options.password) {
+ return options.error('password is required');
+}
+        cert.checkCert(options);
       });
     });
 
@@ -68,14 +91,18 @@ const setup = function setup() {
     .description('retrieve the public key')
     .action((options) => {
       options.error = optionError;
-      if (!options.org) { return  options.error('org is required'); }
-      if (!options.env) { return  options.error('env is required'); }
-      cert.retrievePublicKey(options)
+      if (!options.org) {
+ return options.error('org is required');
+}
+      if (!options.env) {
+ return options.error('env is required');
+}
+      cert.retrievePublicKey(options);
     });
 
   commander.parse(process.argv);
 
-  var running = false;
+  let running = false;
   commander.commands.forEach(function(command) {
     if (command._name == commander.rawArgs[2]) {
       running = true;
@@ -91,11 +118,10 @@ function optionError(message) {
 }
 // prompt for a password if it is not specified
 function promptForPassword( options, cb) {
-
   if (options.password) {
     cb(options);
   } else {
-    prompt.password("password:", function(pw) {
+    prompt.password('password:', function(pw) {
       options.password = pw;
       cb(options);
     });

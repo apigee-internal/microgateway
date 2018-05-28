@@ -20,18 +20,18 @@ const deploymentFx = require('./deploy-auth');
 
 const DEFAULT_HOSTS = 'default,secure';
 
-const Private = function () {
+const Private = function() {
 };
-module.exports = function () {
+module.exports = function() {
   return new Private();
 };
 
 
 // begins edgemicro configuration process
-Private.prototype.configureEdgemicro = function (options, cb) {
+Private.prototype.configureEdgemicro = function(options, cb) {
   if (!fs.existsSync(configLocations.getDefaultPath(options.configDir))) {
-    console.error("Missing %s, Please run 'edgemicro init'",configLocations.getDefaultPath(options.configDir))
-    return cb("Please call edgemicro init first")
+    console.error('Missing %s, Please run \'edgemicro init\'', configLocations.getDefaultPath(options.configDir));
+    return cb('Please call edgemicro init first');
   }
   assert(options.username, 'username is required');
   assert(options.org, 'org is required');
@@ -60,7 +60,7 @@ Private.prototype.configureEdgemicro = function (options, cb) {
   this.virtualHosts = options.virtualHosts || 'default';
 
 
-  const config = edgeconfig.load({ source: configLocations.getDefaultPath(options.configDir) });
+  const config = edgeconfig.load({source: configLocations.getDefaultPath(options.configDir)});
   this.config = config;
   this.authUri = config.edge_config.authUri = this.runtimeUrl + this.basePath;
   this.config.edge_config.managementUri = this.managementUri;
@@ -76,7 +76,7 @@ Private.prototype.configureEdgemicro = function (options, cb) {
   this.cert = cert(this.config);
   this.sourcePath = configLocations.getSourcePath(options.org, options.env);
 
-  var configFileDirectory = options.configDir || configLocations.homeDir;
+  let configFileDirectory = options.configDir || configLocations.homeDir;
 
   const that = this;
   console.log('init config');
@@ -84,8 +84,8 @@ Private.prototype.configureEdgemicro = function (options, cb) {
     source: configLocations.getDefaultPath(options.configDir),
     targetDir: configFileDirectory,
     targetFile: configLocations.getSourceFile(options.org, options.env),
-    overwrite: true
-  }, function (err, configPath) {
+    overwrite: true,
+  }, function(err, configPath) {
     edgeconfig.save(that.config, that.sourcePath);
     that.deployment.checkDeployedProxies(options, (err, options) => {
       if (err) {
@@ -99,12 +99,11 @@ Private.prototype.configureEdgemicro = function (options, cb) {
           cb ? cb(err) : process.exit(1);
           return;
         }
-        cb ? cb(err) : process.exit(0)
+        cb ? cb(err) : process.exit(0);
       });
     });
   });
-
-}
+};
 
 
 // configures Callout.xml & default.xml of apiproxy being deployed
@@ -112,7 +111,7 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
   const that = this;
   const apipath = path.join(__dirname, '..', '..', 'edge', 'apiproxy');
   options.proxyName = 'edgemicro-auth';
-  var resPath;
+  let resPath;
   try {
     resPath = fs.realpathSync(apipath);
   } catch (e) {
@@ -120,18 +119,18 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
   }
 
   const calloutFlow = [
-    function (cb) {
+    function(cb) {
       fs.readFile(path.join(resPath, 'policies', 'Callout.xml'), cb);
     },
-    function (calloutData, cb) {
+    function(calloutData, cb) {
       parser.parseString(calloutData, cb);
     },
-    function (calloutObj, cb) {
+    function(calloutObj, cb) {
       // change proxy url
       calloutObj.JavaCallout.Properties[0].Property[1]['_'] = 'DN=' + that.runtimeUrl;
 
       // add management server location
-      const mgmtSearch = _.findIndex(calloutObj.JavaCallout.Properties[0].Property, function (prop) {
+      const mgmtSearch = _.findIndex(calloutObj.JavaCallout.Properties[0].Property, function(prop) {
         return prop['$'].name === 'MGMT_URL_PREFIX';
       });
 
@@ -139,28 +138,28 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
         calloutObj.JavaCallout.Properties[0].Property.push({
           '_': that.managementUri,
           '$': {
-            name: 'MGMT_URL_PREFIX'
-          }
+            name: 'MGMT_URL_PREFIX',
+          },
         });
       } else {
         calloutObj.JavaCallout.Properties[0].Property[mgmtSearch]['_'] = that.managementUri;
       }
 
       // build js obj back into xml
-      calloutObj = builder.buildObject(calloutObj)
+      calloutObj = builder.buildObject(calloutObj);
 
       // continue with callout as xml
       cb(null, calloutObj);
     },
-    function (calloutXml, cb) {
+    function(calloutXml, cb) {
       // write xml back to file
       fs.writeFile(path.join(path.join(resPath, 'policies', 'Callout.xml')), calloutXml, cb);
-    }
+    },
   ];
 
   const tasks = [
-    function (parallelCb) {
-      async.waterfall(calloutFlow, function (err, result) {
+    function(parallelCb) {
+      async.waterfall(calloutFlow, function(err, result) {
         if (err) {
           console.log('error - editing apiproxy Callout.xml');
           return parallelCb(err);
@@ -168,23 +167,22 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
 
         parallelCb(null, null);
       });
-    }
+    },
   ];
 
 
   // only edit default.xml when virutalHosts is not default
   if (that.virtualHosts !== DEFAULT_HOSTS) {
-
     const defaultFlow = [
-      function (cb) {
+      function(cb) {
         // read defaul xml
         fs.readFile(path.join(resPath, 'proxies', 'default.xml'), cb);
       },
-      function (defaultData, cb) {
+      function(defaultData, cb) {
         // parse default xml into object
         parser.parseString(defaultData, cb);
       },
-      function (defaultObj, cb) {
+      function(defaultObj, cb) {
         const vhosts = that.virtualHosts.split(',');
 
         // edit default obj values
@@ -194,14 +192,14 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
 
         cb(null, defaultObj);
       },
-      function (defaultXml, cb) {
+      function(defaultXml, cb) {
         // write default xml back to file
         fs.writeFile(path.join(resPath, 'proxies', 'default.xml'), defaultXml, cb);
-      }
+      },
     ];
 
-    tasks.push(function (parallelCb) {
-      async.waterfall(defaultFlow, function (err, result) {
+    tasks.push(function(parallelCb) {
+      async.waterfall(defaultFlow, function(err, result) {
         if (err) {
           console.log('error - editing apiproxy default.xml');
           return parallelCb(err);
@@ -213,37 +211,37 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
   }
 
   // run configuration editing in parallel
-  async.parallel(tasks, function (err, results) {
+  async.parallel(tasks, function(err, results) {
     if (err) {
       return callback(err);
     }
 
     callback(null, null);
-  })
-}
+  });
+};
 
 // checks deployments, deploys proxies as necessary, checks/installs certs, generates keys
 Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithCreds(options, cb) {
   const that = this;
   const sourcePath = that.sourcePath;
 
-  const emSearch = _.find(options.deployments, function (proxy) {
+  const emSearch = _.find(options.deployments, function(proxy) {
     return proxy.name === 'edgemicro-internal';
   });
 
-  const jwtSearch = _.find(options.deployments, function (proxy) {
+  const jwtSearch = _.find(options.deployments, function(proxy) {
     return proxy.name === that.name;
   });
 
   const tasks = [];
 
   if (!emSearch) {
-    tasks.push(function (callback) {
+    tasks.push(function(callback) {
       console.log('configuring edgemicro internal proxy');
       that.configureEdgeMicroInternalProxy(options, callback);
     });
 
-    tasks.push(function (callback) {
+    tasks.push(function(callback) {
       console.log('deploying edgemicro internal proxy');
       that.deployment.deployEdgeMicroInternalProxy(options, callback);
     });
@@ -252,7 +250,7 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
   }
 
   if (!jwtSearch) {
-    tasks.push(function (callback) {
+    tasks.push(function(callback) {
       console.log('deploying ', that.name, ' app');
       that.deployment.deployWithLeanPayload(options, callback);
     });
@@ -260,9 +258,9 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
     console.log(that.name, ' is already deployed');
   }
 
-  tasks.push(function (callback) {
+  tasks.push(function(callback) {
     console.log('checking org for existing KVM');
-    that.cert.checkPrivateCert(options, function (err, certs) {
+    that.cert.checkPrivateCert(options, function(err, certs) {
       if (err) {
         console.log('error checking for cert. Installing new cert.');
         that.cert.installPrivateCert(options, callback);
@@ -273,18 +271,18 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
     });
   });
 
-  tasks.push(function (callback) {
+  tasks.push(function(callback) {
     console.log('generating keys');
     that.generateKeysWithPassword(options, callback);
   });
 
   async.series(tasks,
-    function (err, results) {
+    function(err, results) {
       if (err) {
         return cb(err);
       }
       const agentConfigPath = sourcePath;
-      const agentConfig = that.config = edgeconfig.load({ source: agentConfigPath });
+      const agentConfig = that.config = edgeconfig.load({source: agentConfigPath});
 
       if (!emSearch && !jwtSearch) {
         agentConfig['edge_config']['jwt_public_key'] = results[2]; // get deploy results
@@ -297,7 +295,7 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
         agentConfig['edge_config'].bootstrap = results[1];
       }
 
-      var publicKeyUri = agentConfig['edge_config']['jwt_public_key'];
+      let publicKeyUri = agentConfig['edge_config']['jwt_public_key'];
       if (publicKeyUri) {
         agentConfig['edge_config']['products'] = publicKeyUri.replace('publicKey', 'products');
 
@@ -307,7 +305,7 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
         agentConfig['oauth']['verify_api_key_url'] = publicKeyUri.replace('publicKey', 'verifyApiKey');
       }
 
-      var bootstrapUri = agentConfig['edge_config']['bootstrap'];
+      let bootstrapUri = agentConfig['edge_config']['bootstrap'];
       if (bootstrapUri) {
         if (!agentConfig.hasOwnProperty('analytics') || agentConfig['analytics'] == null) {
           agentConfig['analytics'] = {};
@@ -329,12 +327,10 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
 
       console.log('edgemicro configuration complete!');
       cb();
-
     });
 };
 
 Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(options, cb) {
-
   const that = this;
   // first: runtimeUri, second: credential, third: org, fourth: env
   const credentialUrl = that.credentialUrl;
@@ -347,8 +343,10 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
     const byteLength = 256;
     const hash = crypto.createHash('sha256');
     hash.update(Date.now().toString());
-    crypto.randomBytes(byteLength, function (err, buf) {
-      if (err) { return cb(err); }
+    crypto.randomBytes(byteLength, function(err, buf) {
+      if (err) {
+ return cb(err);
+}
 
       hash.update(buf);
       hash.update(Date.now().toString());
@@ -357,14 +355,18 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
   }
 
   async.series([
-    function (callback) { genkey(callback); }, // generate the key
-    function (callback) { genkey(callback); }  // generate the secret
-  ], function (err, results) {
+    function(callback) {
+ genkey(callback);
+}, // generate the key
+    function(callback) {
+ genkey(callback);
+}, // generate the secret
+  ], function(err, results) {
     const key = results[0];
     const secret = results[1];
     const keys = {
       key: key,
-      secret: secret
+      secret: secret,
     };
 
     // NOTE: getting classification failure
@@ -374,10 +376,10 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
       method: 'POST',
       auth: {
         username: options.username,
-        password: options.password
+        password: options.password,
       },
-      json: keys
-    }, function (err, res) {
+      json: keys,
+    }, function(err, res) {
       err = translateError(err, res);
       if (err) {
         return cb(err);
@@ -387,12 +389,12 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
         debug('getting region from', regionUrl);
         request({
           uri: regionUrl,
-          auth: {   // switch authorization to use the key/secret we just uploaded
+          auth: { // switch authorization to use the key/secret we just uploaded
             username: key,
-            password: secret
+            password: secret,
           },
-          json: true
-        }, function (err, res) {
+          json: true,
+        }, function(err, res) {
           err = translateError(err, res);
           if (err) {
             return cb(err);
@@ -424,7 +426,7 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
       }
     });
   });
-}
+};
 
 function translateError(err, res) {
   if (!err && res.statusCode >= 400) {

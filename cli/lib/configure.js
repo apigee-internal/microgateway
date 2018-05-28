@@ -1,53 +1,53 @@
 'use strict';
 
-const edgeconfig = require('microgateway-config')
+const edgeconfig = require('microgateway-config');
 const prompt = require('cli-prompt');
 const path = require('path');
 const apigeetool = require('apigeetool');
 const _ = require('lodash');
-const async = require('async')
-const util = require('util')
-const fs = require('fs')
+const async = require('async');
+const util = require('util');
+const fs = require('fs');
 const assert = require('assert');
 const configLocations = require('../../config/locations');
-const BUFFERSIZE    = 10000;
-const BATCHSIZE     = 500;
+const BUFFERSIZE = 10000;
+const BATCHSIZE = 500;
 const FLUSHINTERVAL = 5000;
-var defaultConfig ;
+var defaultConfig;
 
-var certLib = require('./cert-lib')
+var certLib = require('./cert-lib');
 var cert;
-var deployAuthLib = require('./deploy-auth')
+var deployAuthLib = require('./deploy-auth');
 var deployAuth;
 var authUri, managementUri, keySecretMessage, targetFile;
 
-const Configure = function () {
+const Configure = function() {
 
-}
+};
 
-module.exports = function () {
+module.exports = function() {
   return new Configure();
-}
+};
 
 Configure.prototype.configure = function configure(options, cb) {
   if (!fs.existsSync(configLocations.getDefaultPath(options.configDir))) {
-    console.error("Missing %s, Please run 'edgemicro init'",configLocations.getDefaultPath())
-    return cb("Please call edgemicro init first")
+    console.error('Missing %s, Please run \'edgemicro init\'', configLocations.getDefaultPath());
+    return cb('Please call edgemicro init first');
   }
-  defaultConfig = edgeconfig.load({ source: configLocations.getDefaultPath(options.configDir) });
+  defaultConfig = edgeconfig.load({source: configLocations.getDefaultPath(options.configDir)});
   addEnvVars(defaultConfig);
-  deployAuth = deployAuthLib(defaultConfig.edge_config, null)
+  deployAuth = deployAuthLib(defaultConfig.edge_config, null);
   managementUri = defaultConfig.edge_config.managementUri;
   keySecretMessage = defaultConfig.edge_config.keySecretMessage;
 
-  if(!options.token) {
+  if (!options.token) {
     assert(options.username, 'username is required');
     assert(options.password, 'password is required');
   }
   assert(options.org, 'org is required');
   assert(options.env, 'env is required');
 
-  if(!options.proxyName) {
+  if (!options.proxyName) {
     options.proxyName = 'edgemicro-auth';
   }
 
@@ -57,35 +57,35 @@ Configure.prototype.configure = function configure(options, cb) {
     }
     defaultConfig.edge_config.authUri = options.url + '/' + options.proxyName;
   } else {
-    var newAuthURI = util.format(defaultConfig.edge_config.authUri, options.org, options.env);
+    let newAuthURI = util.format(defaultConfig.edge_config.authUri, options.org, options.env);
     defaultConfig.edge_config.authUri = newAuthURI;
   }
 
   authUri = defaultConfig.edge_config.authUri;
 
-  cert = certLib(defaultConfig)
+  cert = certLib(defaultConfig);
 
   targetFile = configLocations.getSourceFile(options.org, options.env);
   const cache = configLocations.getCachePath(options.org, options.env);
   if (fs.existsSync(cache)) {
     fs.unlinkSync(cache);
-    //console.log('deleted ' + cache);
+    // console.log('deleted ' + cache);
   }
 
   const targetPath = configLocations.getSourcePath(options.org, options.env);
   if (fs.existsSync(targetPath)) {
     fs.unlinkSync(targetPath);
-    //console.log('deleted ' + targetPath);
+    // console.log('deleted ' + targetPath);
   }
 
-  var configFileDirectory = options.configDir || configLocations.homeDir;
-  //console.log('init config');
+  let configFileDirectory = options.configDir || configLocations.homeDir;
+  // console.log('init config');
   edgeconfig.init({
     source: configLocations.getDefaultPath(options.configDir),
     targetDir: configFileDirectory,
     targetFile: targetFile,
-    overwrite: true
-  }, function (err, configPath) {
+    overwrite: true,
+  }, function(err, configPath) {
     deployAuth.checkDeployedProxies(options, (err, options) => {
       if (err) {
         console.error(err);
@@ -97,34 +97,33 @@ Configure.prototype.configure = function configure(options, cb) {
           console.error(err);
           cb ? cb(err) : process.exit(1);
         }
-        cb ? cb(err) : process.exit(0)
+        cb ? cb(err) : process.exit(0);
       });
-    })
+    });
   });
-
 };
 
 
 function configureEdgemicroWithCreds(options, cb) {
-  var tasks = [],
+  let tasks = [],
     agentConfigPath;
-	
-  const jwtSearch = _.find(options.deployments, function (proxy) {
+
+  const jwtSearch = _.find(options.deployments, function(proxy) {
     return proxy.name === options.proxyName;
   });
   if (!jwtSearch) {
-    tasks.push(function (callback) {
+    tasks.push(function(callback) {
       deployAuth.deployWithLeanPayload(options, callback);
     });
   } else {
-    //console.log('App ', options.proxyName, ' is already deployed!');
+    // console.log('App ', options.proxyName, ' is already deployed!');
   }
 
   tasks.push(
-    function (callback) {
+    function(callback) {
       setTimeout(() => {
         console.log('checking org for existing KVM');
-        cert.checkCertWithPassword(options, function (err, certs) {
+        cert.checkCertWithPassword(options, function(err, certs) {
           if (err) {
             console.log('error checking for cert. Installing new cert.');
             cert.installCertWithPassword(options, callback);
@@ -133,41 +132,41 @@ function configureEdgemicroWithCreds(options, cb) {
             cert.retrievePublicKey(options, callback);
           }
         });
-      }, 250)
+      }, 250);
     }
   );
 
   tasks.push(
-    function (callback) {
+    function(callback) {
       cert.generateKeysWithPassword(options, callback);
     }
   );
 
-  async.series(tasks, function (err, results) {
+  async.series(tasks, function(err, results) {
     if (err) {
       return cb(err);
     }
-    assert(targetFile, 'must have an assigned target file')
+    assert(targetFile, 'must have an assigned target file');
 
     // console.log('updating agent configuration');
 
     if (err) {
-      return cb(err)
+      return cb(err);
     }
     agentConfigPath = configLocations.getSourcePath(options.org, options.env, options.configDir);
-    const agentConfig = edgeconfig.load({ source: agentConfigPath });
+    const agentConfig = edgeconfig.load({source: agentConfigPath});
 
     addEnvVars(agentConfig);
 
     if (!jwtSearch) {
-      agentConfig['edge_config']['jwt_public_key'] = (options.url ? options.url+"/edgemicro-auth/publicKey" : results[0]); // get deploy results
+      agentConfig['edge_config']['jwt_public_key'] = (options.url ? options.url+'/edgemicro-auth/publicKey' : results[0]); // get deploy results
       agentConfig['edge_config'].bootstrap = results[2].bootstrap; // get genkeys results
     } else {
       agentConfig['edge_config']['jwt_public_key'] = authUri + '/publicKey';
       agentConfig['edge_config'].bootstrap = results[1].bootstrap;
     }
 
-    var publicKeyUri = agentConfig['edge_config']['jwt_public_key'];
+    let publicKeyUri = agentConfig['edge_config']['jwt_public_key'];
     if (publicKeyUri) {
       agentConfig['edge_config']['products'] = publicKeyUri.replace('publicKey', 'products');
 
@@ -177,15 +176,15 @@ function configureEdgemicroWithCreds(options, cb) {
       agentConfig['oauth']['verify_api_key_url'] = publicKeyUri.replace('publicKey', 'verifyApiKey');
     }
 
-    var bootstrapUri = agentConfig['edge_config']['bootstrap'];
+    let bootstrapUri = agentConfig['edge_config']['bootstrap'];
     if (bootstrapUri) {
       if (!agentConfig.hasOwnProperty('analytics') || agentConfig['analytics'] == null) {
         agentConfig['analytics'] = {};
       }
 
       agentConfig['analytics']['uri'] = bootstrapUri.replace('bootstrap', 'axpublisher');
-      agentConfig['analytics']['bufferSize']    = BUFFERSIZE;
-      agentConfig['analytics']['batchSize']     = BATCHSIZE;
+      agentConfig['analytics']['bufferSize'] = BUFFERSIZE;
+      agentConfig['analytics']['batchSize'] = BATCHSIZE;
       agentConfig['analytics']['flushInterval'] = FLUSHINTERVAL;
     }
 
@@ -213,7 +212,7 @@ function configureEdgemicroWithCreds(options, cb) {
     process.env.EDGEMICRO_SECRET = secret;
 
     console.log('edgemicro configuration complete!');
-    setTimeout(cb, 50)
+    setTimeout(cb, 50);
   });
 }
 

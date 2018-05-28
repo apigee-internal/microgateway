@@ -1,6 +1,6 @@
 'use strict';
 
-const cert = require('./cert-lib')
+const cert = require('./cert-lib');
 const edgeconfig = require('microgateway-config');
 const prompt = require('cli-prompt');
 const path = require('path');
@@ -9,7 +9,7 @@ const _ = require('lodash');
 const async = require('async');
 const util = require('util');
 const configLocations = require('../../config/locations');
-const assert = require('assert')
+const assert = require('assert');
 const Cert = function() {
 };
 
@@ -18,126 +18,119 @@ module.exports = function() {
 };
 
 Cert.prototype.installCert = function(options, cb) {
-  if ( !options.username ){
-    return  options.error('username is required');
+  if ( !options.username ) {
+    return options.error('username is required');
   }
   if ( !options.org ) {
-    return  options.error('org is required');
+    return options.error('org is required');
   }
   if ( !options.env ) {
-    return  options.error('env is required');
+    return options.error('env is required');
   }
   if ( !options.password ) {
-    return  options.error('password is required');
+    return options.error('password is required');
   }
-  const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
+  const config = edgeconfig.load({source: configLocations.getSourcePath(options.org, options.env)});
   cert(config).installCertWithPassword(options, (err, res) => {
     if (err) {
-      cb && cb(err)
-      return console.error(err, 'failed to update cert')
+      cb && cb(err);
+      return console.error(err, 'failed to update cert');
     }
     console.log('installed cert');
-    cb && cb(null,res)
+    cb && cb(null, res);
     !cb && process.exit(0);
   });
 };
 
 Cert.prototype.checkCert = function(options, cb) {
+  assert(options.org, 'org is required');
+  assert(options.env, 'env is required');
 
-  assert(options.org,"org is required");
-  assert(options.env,"env is required")
+  assert(options.username, 'username is required');
+  assert(options.password, 'password is required');
 
-  assert(options.username,"username is required");
-  assert(options.password,"password is required")
-
-  const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
+  const config = edgeconfig.load({source: configLocations.getSourcePath(options.org, options.env)});
   if (options.url) {
     if (options.url.indexOf('://') === -1) {
       options.url = 'https://' + options.url;
     }
     config.edge_config.authUri = options.url + '/edgemicro-auth';
   } else {
-    var newAuthURI = util.format(config.edge_config.authUri, options.org, options.env);
+    let newAuthURI = util.format(config.edge_config.authUri, options.org, options.env);
     config.edge_config.authUri = newAuthURI;
   }
 
   cert(config).checkCertWithPassword(options, (err, res) => {
     if (err) {
-      if(cb){
+      if (cb) {
         return cb(err);
       }
-      return console.error(err, 'failed to update cert')
+      return console.error(err, 'failed to update cert');
     }
     console.log('checked cert successfully');
-    cb && cb(null,res);
+    cb && cb(null, res);
     !cb && process.exit(0);
   });
+};
 
-}
+Cert.prototype.deleteCert = function(options, cb) {
+  assert(options.org, 'org is required');
+  assert(options.env, 'env is required');
 
-Cert.prototype.deleteCert = function(options,cb) {
-
-  assert(options.org,"org is required");
-  assert(options.env,"env is required")
-
-  assert(options.username,"username is required");
-  assert(options.password,"password is required")
+  assert(options.username, 'username is required');
+  assert(options.password, 'password is required');
 
 
-
-  const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
+  const config = edgeconfig.load({source: configLocations.getSourcePath(options.org, options.env)});
 
   cert(config).deleteCertWithPassword(options, function(err, msg) {
     err && console.error(err);
     msg && console.log(msg);
-    cb && cb(err,msg);
+    cb && cb(err, msg);
     !cb && process.exit(0);
-  })
-
+  });
 };
 
-Cert.prototype.retrievePublicKey = function(options,cb) {
+Cert.prototype.retrievePublicKey = function(options, cb) {
+ assert(options.org, 'org is required');
+ assert(options.env, 'env is required');
 
- assert(options.org,"org is required");
- assert(options.env,"env is required")
-
-  const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
+  const config = edgeconfig.load({source: configLocations.getSourcePath(options.org, options.env)});
   if (options.url) {
     if (options.url.indexOf('://') === -1) {
       options.url = 'https://' + options.url;
     }
     config.edge_config.authUri = options.url + '/edgemicro-auth';
   } else {
-    var newAuthURI = util.format(config.edge_config.authUri, options.org, options.env);
+    let newAuthURI = util.format(config.edge_config.authUri, options.org, options.env);
     config.edge_config.authUri = newAuthURI;
   }
   cert(config).retrievePublicKey(options, (err, certificate) => {
     if (err) {
       cb && cb(err);
-      return console.error(err, 'failed to retrieve public key')
+      return console.error(err, 'failed to retrieve public key');
     }
     console.log('succeeded');
     console.log(certificate);
-    cb && cb(null,certificate);
+    cb && cb(null, certificate);
     !cb && process.exit(0);
-  })
+  });
 };
 
 
 Cert.prototype.retrievePublicKeyPrivate = function(options) {
+  assert(options.org, 'org is required');
+  assert(options.env, 'env is required');
 
-  assert(options.org,"org is required");
-  assert(options.env,"env is required")
-
-  const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
+  const config = edgeconfig.load({source: configLocations.getSourcePath(options.org, options.env)});
   cert(config).retrievePublicKeyPrivate((err, certificate) => {
     if (err) {
-      return console.error(err, 'failed to retrieve public key')
+      return console.error(err, 'failed to retrieve public key');
     }
     console.log('succeeded');
     console.log(certificate);
-  })
-}
+  });
+};
 
 function optionError(message) {
   console.error(message);

@@ -49,7 +49,7 @@ const setup = function setup() {
             options.token = options.token || process.env.EDGEMICRO_SAML_TOKEN;
 
             if (options.token) {
-                //If there is a token lets configure with standard opts.
+                // If there is a token lets configure with standard opts.
                 if (!options.org) {
                     return options.error('org is required');
                 }
@@ -58,9 +58,8 @@ const setup = function setup() {
                 }
                 options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
                 configure.configure(options, () => {});
-
             } else {
-                //If there is no token then we can go through the password process
+                // If there is no token then we can go through the password process
                 if (!options.username) {
                     return options.error('username is required');
                 }
@@ -76,10 +75,8 @@ const setup = function setup() {
                         return options.error('password is required');
                     }
                     configure.configure(options, () => {});
-                })
+                });
             }
-
-
         });
 
     commander
@@ -89,8 +86,8 @@ const setup = function setup() {
         .action((options) => {
             options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
             init(options, (err, location) => {
-                console.log("config initialized to %s", location)
-            })
+                console.log('config initialized to %s', location);
+            });
         });
 
     commander
@@ -147,7 +144,6 @@ const setup = function setup() {
                             options.error('port is not available.');
                             process.exit(1);
                         }
-
                     });
             }
             if (!options.key) {
@@ -163,20 +159,20 @@ const setup = function setup() {
                 return options.error('env is required');
             }
             if (options.configUrl) {
-                options.configDir = options.configDir || os.homedir() + "/" + ".edgemicro";
+                options.configDir = options.configDir || os.homedir() + '/' + '.edgemicro';
                 if (!fs.existsSync(options.configDir)) fs.mkdirSync(options.configDir);
-                var fileName = options.org + "-" + options.env + "-config.yaml";
+                let fileName = options.org + '-' + options.env + '-config.yaml';
                 debug(fileName);
-                var filePath = options.configDir + "/" + fileName;
+                let filePath = options.configDir + '/' + fileName;
                 debug(filePath);
-                var parsedUrl = url.parse(options.configUrl, true);
+                let parsedUrl = url.parse(options.configUrl, true);
                 debug(options.configUrl);
 
-                if (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") {
-                    debug("downloading file...");
+                if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+                    debug('downloading file...');
                     request.get(options.configUrl, function(error, response, body) {
                         if (error) {
-                            console.error("config file did not download: " + error);
+                            console.error('config file did not download: ' + error);
                             process.exit(1);
                         }
                         try {
@@ -184,12 +180,12 @@ const setup = function setup() {
                             fs.writeFileSync(filePath, body, 'utf8');
                             run.start(options);
                         } catch (err) {
-                            console.error("config file could not be written: " + err);
+                            console.error('config file could not be written: ' + err);
                             process.exit(1);
                         }
                     });
                 } else {
-                    console.error("url protocol not supported: " + parsedUrl.protocol);
+                    console.error('url protocol not supported: ' + parsedUrl.protocol);
                     process.exit(1);
                 }
             } else run.start(options);
@@ -225,20 +221,20 @@ const setup = function setup() {
                 return options.error('env is required');
             }
             if (options.configUrl) {
-                options.configDir = options.configDir || os.homedir() + "/" + ".edgemicro";
+                options.configDir = options.configDir || os.homedir() + '/' + '.edgemicro';
                 if (!fs.existsSync(options.configDir)) fs.mkdirSync(options.configDir);
-                var fileName = options.org + "-" + options.env + "-config.yaml";
+                let fileName = options.org + '-' + options.env + '-config.yaml';
                 debug(fileName);
-                var filePath = options.configDir + "/" + fileName;
+                let filePath = options.configDir + '/' + fileName;
                 debug(filePath);
-                var parsedUrl = url.parse(options.configUrl, true);
+                let parsedUrl = url.parse(options.configUrl, true);
                 debug(options.configUrl);
 
-                if (parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:") {
-                    debug("downloading file...");
+                if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+                    debug('downloading file...');
                     request.get(options.configUrl, function(error, response, body) {
                         if (error) {
-                            console.error("config file did not download: " + error);
+                            console.error('config file did not download: ' + error);
                             process.exit(1);
                         }
                         try {
@@ -246,7 +242,7 @@ const setup = function setup() {
                             fs.writeFileSync(filePath, body, 'utf8');
                             run.reload(options);
                         } catch (err) {
-                            console.error("config file could not be written: " + err);
+                            console.error('config file could not be written: ' + err);
                             process.exit(1);
                         }
                     });
@@ -274,24 +270,24 @@ const setup = function setup() {
         .option('-a,--action <action>', 'action can be start or stop; default is start')
         .description('Start microgateway using forever-monitor')
         .action((options) => {
-            options.action = options.action || "start";
+            options.action = options.action || 'start';
             options.error = optionError;
             if (options.file) {
                 foreverOptions = JSON.parse(fs.readFileSync(options.file, {
-                    encoding: 'utf8'
+                    encoding: 'utf8',
                 }));
             }
-            if (options.action !== "start" && options.action !== "stop") {
+            if (options.action !== 'start' && options.action !== 'stop') {
                 return options.error('action must be start or stop');
             }
             foreverOptions ? foreverOptions : {
                 max: 3,
                 silent: false,
                 killTree: true,
-                minUptime: 2000
+                minUptime: 2000,
             };
-            var child = new(forever.Monitor)(path.join(__dirname, '..', 'app.js'), foreverOptions);
-            if (options.action == "start") {
+            let child = new(forever.Monitor)(path.join(__dirname, '..', 'app.js'), foreverOptions);
+            if (options.action == 'start') {
                 try {
                     fs.appendFileSync(pidpath, process.pid + '|');
                     child.start();
@@ -301,14 +297,14 @@ const setup = function setup() {
                 }
             } else {
                 try {
-                    var pids = fs.readFileSync(pidpath, 'utf8').split('|');
+                    let pids = fs.readFileSync(pidpath, 'utf8').split('|');
                     if (pids) {
                         pids.forEach(function(pid) {
                             process.kill(parseInt(pid), 'SIGINT');
                         });
                         fs.unlinkSync(pidpath);
                     } else {
-                        console.log('pid file not found. please run this command from the folder where microgateway was started.')
+                        console.log('pid file not found. please run this command from the folder where microgateway was started.');
                     }
                 } catch (piderr) {
                     console.error('failed to stop microgateway: ' + piderr);
@@ -342,8 +338,7 @@ const setup = function setup() {
                 keyGenerator.generate(options, (err) => {
                     err ? process.exit(1) : process.exit(0);
                 });
-            })
-
+            });
         });
 
     commander
@@ -379,8 +374,7 @@ const setup = function setup() {
                 keyGenerator.revoke(options, (err) => {
                     err ? process.exit(1) : process.exit(0);
                 });
-            })
-
+            });
         });
 
     commander
@@ -408,7 +402,7 @@ const setup = function setup() {
                     return options.error('password is required');
                 }
                 upgradekvm.upgradekvm(options, () => {});
-            })
+            });
         });
 
     commander
@@ -436,7 +430,7 @@ const setup = function setup() {
                     return options.error('password is required');
                 }
                 upgradeauth.upgradeauth(options, () => {});
-            })
+            });
         });
 
     commander
@@ -468,13 +462,13 @@ const setup = function setup() {
                     return options.error('password is required');
                 }
                 rotatekey.rotatekey(options, () => {});
-            })
+            });
         });
 
     commander.parse(process.argv);
 
 
-    var running = false;
+    let running = false;
     commander.commands.forEach(function(command) {
         if (command._name == commander.rawArgs[2]) {
             running = true;
@@ -492,11 +486,10 @@ function optionError(message) {
 
 // prompt for a password if it is not specified
 function promptForPassword(options, cb) {
-
     if (options.password) {
         cb(options);
     } else {
-        prompt.password("password:", function(pw) {
+        prompt.password('password:', function(pw) {
             options.password = pw;
             cb(options);
         });

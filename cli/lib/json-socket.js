@@ -1,6 +1,6 @@
 var net = require('net');
 
-var JsonSocket = function (socket) {
+var JsonSocket = function(socket) {
   this._socket = socket;
   this._contentLength = null;
   this._buffer = '';
@@ -12,7 +12,7 @@ var JsonSocket = function (socket) {
 
 JsonSocket.prototype = {
 
-  _onData: function (data) {
+  _onData: function(data) {
     data = data.toString();
     try {
       this._handleData(data);
@@ -21,18 +21,18 @@ JsonSocket.prototype = {
     }
   },
 
-  _handleData: function (data) {
+  _handleData: function(data) {
     this._buffer += data;
     if (this._contentLength == null) {
-      var i = this._buffer.indexOf('#');
-      //Check if the buffer has a #, if not, the end of the buffer string might be in the middle of a content length string
+      let i = this._buffer.indexOf('#');
+      // Check if the buffer has a #, if not, the end of the buffer string might be in the middle of a content length string
       if (i !== -1) {
-        var rawContentLength = this._buffer.substring(0, i);
+        let rawContentLength = this._buffer.substring(0, i);
         this._contentLength = parseInt(rawContentLength);
         if (isNaN(this._contentLength)) {
           this._contentLength = null;
           this._buffer = '';
-          var err = new Error('Invalid content length supplied (' + rawContentLength + ') in: ' + this._buffer);
+          let err = new Error('Invalid content length supplied (' + rawContentLength + ') in: ' + this._buffer);
           err.code = 'E_INVALID_CONTENT_LENGTH';
           throw err;
         }
@@ -43,22 +43,22 @@ JsonSocket.prototype = {
       if (this._buffer.length == this._contentLength) {
         this._handleMessage(this._buffer);
       } else if (this._buffer.length > this._contentLength) {
-        var message = this._buffer.substring(0, this._contentLength);
-        var rest = this._buffer.substring(this._contentLength);
+        let message = this._buffer.substring(0, this._contentLength);
+        let rest = this._buffer.substring(this._contentLength);
         this._handleMessage(message);
         this._onData(rest);
       }
     }
   },
 
-  _handleMessage: function (data) {
+  _handleMessage: function(data) {
     this._contentLength = null;
     this._buffer = '';
-    var message;
+    let message;
     try {
       message = JSON.parse(data);
     } catch (e) {
-      var err = new Error('Could not parse JSON: ' + e.message + '\nRequest data: ' + data);
+      let err = new Error('Could not parse JSON: ' + e.message + '\nRequest data: ' + data);
       err.code = 'E_INVALID_JSON';
       throw err;
     }
@@ -66,15 +66,15 @@ JsonSocket.prototype = {
     this._socket.emit('message', message);
   },
 
-  sendError: function (err) {
+  sendError: function(err) {
     this.sendMessage(this._formatError(err));
   },
 
-  _formatError: function (err) {
+  _formatError: function(err) {
     return {success: false, error: err.toString()};
   },
 
-  sendMessage: function (message, callback) {
+  sendMessage: function(message, callback) {
     if (this._closed) {
       if (callback) {
         callback(new Error('The socket is closed.'));
@@ -84,37 +84,37 @@ JsonSocket.prototype = {
     this._socket.write(this._formatMessageData(message), 'utf-8', callback);
   },
 
-  _formatMessageData: function (message) {
-    var messageData = JSON.stringify(message);
-    var data = messageData.length + '#' + messageData;
+  _formatMessageData: function(message) {
+    let messageData = JSON.stringify(message);
+    let data = messageData.length + '#' + messageData;
     return data;
   },
 
-  _onClose: function () {
+  _onClose: function() {
     this._closed = true;
   },
 
-  _onError: function () {
+  _onError: function() {
     this._closed = true;
   },
 
-  isClosed: function () {
+  isClosed: function() {
     return this._closed;
-  }
+  },
 
 };
 
 var delegates = [
   'connect',
   'on',
-  'end'
+  'end',
 ];
 
-delegates.forEach(function (method) {
-  JsonSocket.prototype[method] = function () {
+delegates.forEach(function(method) {
+  JsonSocket.prototype[method] = function() {
     this._socket[method].apply(this._socket, arguments);
-    return this
-  }
+    return this;
+  };
 });
 
 module.exports = JsonSocket;
