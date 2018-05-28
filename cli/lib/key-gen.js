@@ -76,7 +76,7 @@ KeyGen.prototype.revoke = function(options, cb) {
 
 KeyGen.prototype.generate = function generate(options, cb) {
     const config = edgeconfig.load({
-        source: configLocations.getSourcePath(options.org, options.env)
+        source: configLocations.getSourcePath(options.org, options.env),
     });
     this.baseUri = config.edge_config.baseUri;
     this._generate(options, (err, result) => {

@@ -11,7 +11,7 @@ describe('configure', () => {
     describe('init module', () => {
         it('will copy file to custom dir', (done) => {
             init({
-                configDir: 'foo'
+                configDir: 'foo',
             }, (err, file) => {
                 assert.equal(file, 'foo/default.yaml');
 

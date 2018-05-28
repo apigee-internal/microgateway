@@ -28,7 +28,7 @@ describe('configured agent/server address', function() {
 
     const keys = {
         key: key,
-        secret: secret
+        secret: secret,
     };
     let config;
     before(function(done) {
@@ -40,11 +40,11 @@ describe('configured agent/server address', function() {
             env: env,
             error: (msg) => {
                 done(msg);
-            }
+            },
         }, () => {
             edgeConfig.get({
                 keys: keys,
-                source: configLocations.getSourcePath(org, env)
+                source: configLocations.getSourcePath(org, env),
             }, (err, configDownload) => {
                 config = configDownload;
                 delete config.edgemicro.plugins;
@@ -59,7 +59,7 @@ describe('configured agent/server address', function() {
         // close agent server before finishing
         restServer.close(() => {
             agent.close(done);
-        });;
+        }); ;
     });
     beforeEach(function(done) {
         done();
@@ -87,7 +87,7 @@ describe('configured agent/server address', function() {
             assert.equal(err.code, 'ECONNREFUSED');
             agent.start({
                 key: key,
-                secret: secret
+                secret: secret,
             }, null, config, done);
         });
     });
@@ -103,7 +103,7 @@ describe('configured agent/server address', function() {
             assert.equal(err.code, 'ECONNREFUSED');
             agent.start({
                 key: key,
-                secret: secret
+                secret: secret,
             }, null, config, () => {
                 request({
                     method: 'GET',

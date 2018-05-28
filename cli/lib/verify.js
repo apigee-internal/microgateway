@@ -21,13 +21,13 @@ Verify.prototype.verify = function verify(options) {
     const secret = options.secret;
     const keys = {
         key: key,
-        secret: secret
+        secret: secret,
     };
     let downloadedConfig;
     const sourcePath = configLocations.getSourcePath(options.org, options.env);
 
     const agentConfig = edgeconfig.load({
-        source: sourcePath
+        source: sourcePath,
     });
 
     const authUri = agentConfig['edge_config']['authUri'];
@@ -226,12 +226,12 @@ Verify.prototype.verify = function verify(options) {
 
     edgeconfig.get({
         source: sourcePath,
-        keys: keys
+        keys: keys,
     }, function(err, config) {
         edgeconfig.save(config, cachePath);
         agentLib({
             keys: keys,
-            target: cachePath
+            target: cachePath,
         }, (err, agent, config) => {
             if (err) {
                 return printError(err);

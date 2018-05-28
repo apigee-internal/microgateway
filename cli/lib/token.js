@@ -39,14 +39,14 @@ Token.prototype.verifyToken = function(options, cb) {
     const secret = options.secret;
     const keys = {
         key: key,
-        secret: secret
+        secret: secret,
     };
 
     const token = fs.readFileSync(path.resolve(options.file), 'utf8').trim();
 
     const config = edgeconfig.load({
         source: targetPath,
-        keys: keys
+        keys: keys,
     });
 
     const authUri = config.edge_config['authUri'];
@@ -87,11 +87,11 @@ Token.prototype.getToken = function(options, cb) {
     const secret = options.secret;
     const keys = {
         key: key,
-        secret: secret
+        secret: secret,
     };
     const config = edgeconfig.load({
         source: targetPath,
-        keys: keys
+        keys: keys,
     });
     const authUri = config.edge_config['authUri'];
     this.isPublicCloud = config.edge_config['managementUri'] === 'https://api.enterprise.apigee.com' ||

@@ -35,7 +35,7 @@ Configure.prototype.configure = function configure(options, cb) {
         return cb('Please call edgemicro init first');
     }
     defaultConfig = edgeconfig.load({
-        source: configLocations.getDefaultPath(options.configDir)
+        source: configLocations.getDefaultPath(options.configDir),
     });
     addEnvVars(defaultConfig);
     deployAuth = deployAuthLib(defaultConfig.edge_config, null);
@@ -157,7 +157,7 @@ function configureEdgemicroWithCreds(options, cb) {
         }
         agentConfigPath = configLocations.getSourcePath(options.org, options.env, options.configDir);
         const agentConfig = edgeconfig.load({
-            source: agentConfigPath
+            source: agentConfigPath,
         });
 
         addEnvVars(agentConfig);

@@ -18,7 +18,7 @@ var exec = require('child_process').exec;
 var run = function(cmd, cb) {
     // console.log('run %s',cmd)
     let child = exec(cmd, {
-        maxBuffer: 1024 * 500
+        maxBuffer: 1024 * 500,
     }, function(error, stdout, stderr) {
         cb(error);
     });
@@ -67,7 +67,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload(opti
     const homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
     let tmpDir = tmp.dirSync({
         keep: true,
-        dir: path.resolve(homeDir, '.edgemicro')
+        dir: path.resolve(homeDir, '.edgemicro'),
     });
     let tasks = [];
     let publicKeyUri;
@@ -245,7 +245,7 @@ function installJavaCallout(managementUri, opts, cb) {
         uri: uri,
         method: 'POST',
         headers: {
-            'Content-Type': 'application/octet-stream'
+            'Content-Type': 'application/octet-stream',
         },
         auth: {
             username: opts.username,
@@ -265,7 +265,7 @@ function installJavaCallout(managementUri, opts, cb) {
             uri: uri,
             method: 'POST',
             headers: {
-                'Content-Type': 'application/xml'
+                'Content-Type': 'application/xml',
             },
             auth: {
                 username: opts.username,

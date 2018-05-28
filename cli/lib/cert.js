@@ -30,7 +30,7 @@ Cert.prototype.installCert = function(options, cb) {
         return options.error('password is required');
     }
     const config = edgeconfig.load({
-        source: configLocations.getSourcePath(options.org, options.env)
+        source: configLocations.getSourcePath(options.org, options.env),
     });
     cert(config).installCertWithPassword(options, (err, res) => {
         if (err) {
@@ -51,7 +51,7 @@ Cert.prototype.checkCert = function(options, cb) {
     assert(options.password, 'password is required');
 
     const config = edgeconfig.load({
-        source: configLocations.getSourcePath(options.org, options.env)
+        source: configLocations.getSourcePath(options.org, options.env),
     });
     if (options.url) {
         if (options.url.indexOf('://') === -1) {
@@ -85,7 +85,7 @@ Cert.prototype.deleteCert = function(options, cb) {
 
 
     const config = edgeconfig.load({
-        source: configLocations.getSourcePath(options.org, options.env)
+        source: configLocations.getSourcePath(options.org, options.env),
     });
 
     cert(config).deleteCertWithPassword(options, function(err, msg) {
@@ -101,7 +101,7 @@ Cert.prototype.retrievePublicKey = function(options, cb) {
     assert(options.env, 'env is required');
 
     const config = edgeconfig.load({
-        source: configLocations.getSourcePath(options.org, options.env)
+        source: configLocations.getSourcePath(options.org, options.env),
     });
     if (options.url) {
         if (options.url.indexOf('://') === -1) {
@@ -130,7 +130,7 @@ Cert.prototype.retrievePublicKeyPrivate = function(options) {
     assert(options.env, 'env is required');
 
     const config = edgeconfig.load({
-        source: configLocations.getSourcePath(options.org, options.env)
+        source: configLocations.getSourcePath(options.org, options.env),
     });
     cert(config).retrievePublicKeyPrivate((err, certificate) => {
         if (err) {

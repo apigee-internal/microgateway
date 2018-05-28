@@ -32,7 +32,7 @@ var server;
 describe('test-cli', function() {
     configLocations.defaultDir = './tests/';
     const config = edgeConfig.load({
-        source: configLocations.getDefaultPath()
+        source: configLocations.getDefaultPath(),
     });
     const target = 'http://localhost:' + config.edgemicro.port + '/edgemicro_hello';
     before(function(done) {
@@ -45,14 +45,14 @@ describe('test-cli', function() {
             env: env,
             error: (msg) => {
                 done(msg);
-            }
+            },
         }, () => {
             // initialize agent
             agent.start({
                 key: key,
                 secret: secret,
                 org: org,
-                env: env
+                env: env,
             });
             setTimeout(() => done(), 10000);
         });
@@ -129,7 +129,7 @@ describe('test-cli', function() {
             org: org,
             env: env,
             username: user,
-            password: password
+            password: password,
         };
         cert.deleteCert(options, (err) => {
             assert(!err, err);
@@ -156,7 +156,7 @@ describe('test-cli', function() {
             org: org,
             env: env,
             username: user,
-            password: password
+            password: password,
         }, (err, certificate) => {
             assert(!err, err);
             assert(certificate, 'no certificate');
@@ -171,7 +171,7 @@ describe('test-cli', function() {
                 org: org,
                 env: env,
                 username: user,
-                password: 'badPassword'
+                password: 'badPassword',
             }, (err, res) => {
                 assert(err, 'Did not error out with callback');
                 done();
@@ -187,7 +187,7 @@ describe('test-cli', function() {
                 org: org,
                 env: env,
                 username: user,
-                password: 'badPassword'
+                password: 'badPassword',
             }, (err, res) => {
                 assert(err, 'Did not error out with callback');
                 done();
@@ -203,7 +203,7 @@ describe('test-cli', function() {
                 org: org,
                 env: env,
                 username: user,
-                password: 'badPassword'
+                password: 'badPassword',
             }, (err) => {
                 assert(err, 'Did not error out with callback');
                 done();
@@ -218,7 +218,7 @@ describe('test-cli', function() {
             org: org,
             env: env,
             username: user,
-            password: password
+            password: password,
         }, (err, result) => {
             assert(!err, err);
             assert(result, 'no result');
@@ -248,7 +248,7 @@ describe('test-cli', function() {
                 token.verifyToken({
                     org: org,
                     env: env,
-                    file: filePath
+                    file: filePath,
                 }, (err) => {
                     assert(!err, err);
                     fs.unlinkSync(filePath);

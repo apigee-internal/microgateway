@@ -73,7 +73,7 @@ JsonSocket.prototype = {
     _formatError: function(err) {
         return {
             success: false,
-            error: err.toString()
+            error: err.toString(),
         };
     },
 

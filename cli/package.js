@@ -147,7 +147,7 @@ function npm_install(dir, production, callback) {
     console.log('npm install', dir, production ? '(production)' : '(development)');
     exec(
         'npm install ' + (production ? '--production' : ''), {
-            cwd: dir
+            cwd: dir,
         },
         function(error, stdout, stderr) {
             // console.info(stdout);
@@ -170,7 +170,7 @@ function build_properties(repo, callback) {
     properties.date = (new Date()).toISOString();
     exec(
         'git show HEAD|grep commit|cut -f2 -d" "', {
-            cwd: repo
+            cwd: repo,
         },
         function(error, stdout, stderr) {
             console.error(stderr);
@@ -180,7 +180,7 @@ function build_properties(repo, callback) {
             } else {
                 properties.head = stdout.trim();
                 const props = yaml.safeDump(properties, {
-                    skipInvalid: true
+                    skipInvalid: true,
                 });
                 fs.writeFileSync(path.join(repo, 'build.yaml'), props);
                 callback();
@@ -203,7 +203,7 @@ function git_tag(repo, callback) {
     console.log('tagging repo', repo, 'with version', tag);
     exec(
         'git tag ' + tag, {
-            cwd: repo
+            cwd: repo,
         },
         function(error, stdout, stderr) {
             console.error(stderr);
@@ -221,7 +221,7 @@ function gulp(dir, target, callback) {
     console.log('gulp', target);
     exec(
         'gulp ' + target, {
-            cwd: dir
+            cwd: dir,
         },
         function(error, stdout, stderr) {
             // console.info(stdout);

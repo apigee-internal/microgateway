@@ -12,7 +12,7 @@ const env = envVars.env;
 const tokenSecret = envVars.tokenSecret;
 const tokenId = envVars.tokenId;
 const config = edgeConfig.load({
-    source: configLocations.getDefaultPath()
+    source: configLocations.getDefaultPath(),
 });
 const target = 'http://localhost:' + config.edgemicro.port + '/hello';
 var count = 0;

@@ -10,7 +10,7 @@ try {
         max: 3,
         silent: false,
         killTree: true,
-        minUptime: 2000
+        minUptime: 2000,
     };
 }
 

@@ -27,12 +27,12 @@ var ReloadCluster = (file, opt) => {
     opt.workerReadyWhen = opt.workerReadyWhen || 'listening';
     opt.args = opt.args || [];
     opt.log = opt.log || {
-        respawns: true
+        respawns: true,
     };
 
     let logger = opt.logger || console;
     let respawnIntervalManager = RespawnIntervalManager({
-        minRespawnInterval: opt.minRespawnInterval
+        minRespawnInterval: opt.minRespawnInterval,
     });
     let respawnerTimers = RespawnTimerList();
     let readyEvent = opt.workerReadyWhen == 'started' ? 'online' : opt.workerReadyWhen == 'listening' ? 'listening' : 'message';
@@ -41,7 +41,7 @@ var ReloadCluster = (file, opt) => {
     let channel = new EventEmitter();
     let workers = [];
     let activeWorkers = {
-        length: opt.workers
+        length: opt.workers,
     };
 
     /**
@@ -73,7 +73,7 @@ var ReloadCluster = (file, opt) => {
      */
     function fork(wid) {
         let w = cluster.fork({
-            WORKER_ID: wid
+            WORKER_ID: wid,
         });
         w._rc_wid = wid;
         w._rc_isReplaced = false;
@@ -153,7 +153,7 @@ var ReloadCluster = (file, opt) => {
             // estabilished will throw error. Ignore.
             try {
                 worker.send({
-                    cmd: 'disconnect'
+                    cmd: 'disconnect',
                 });
                 worker.disconnect();
             } catch (e) {}
@@ -194,7 +194,7 @@ var ReloadCluster = (file, opt) => {
             purgeInterval: PURGE_INTERVAL,
         });
         cluster.setupMaster({
-            exec: file
+            exec: file,
         });
         cluster.settings.args = opt.args;
 

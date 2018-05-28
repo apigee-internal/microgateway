@@ -60,7 +60,7 @@ Private.prototype.configureEdgemicro = function(options, cb) {
 
 
     const config = edgeconfig.load({
-        source: configLocations.getDefaultPath(options.configDir)
+        source: configLocations.getDefaultPath(options.configDir),
     });
     this.config = config;
     this.authUri = config.edge_config.authUri = this.runtimeUrl + this.basePath;
@@ -284,7 +284,7 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
             }
             const agentConfigPath = sourcePath;
             const agentConfig = that.config = edgeconfig.load({
-                source: agentConfigPath
+                source: agentConfigPath,
             });
 
             if (!emSearch && !jwtSearch) {
