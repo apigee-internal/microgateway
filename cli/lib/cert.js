@@ -1,3 +1,5 @@
+
+/* eslint-disable */
 'use strict';
 
 const cert = require('./cert-lib')
@@ -10,144 +12,153 @@ const async = require('async');
 const util = require('util');
 const configLocations = require('../../config/locations');
 const assert = require('assert')
-const Cert = function() {
-};
+const Cert = function() {};
 
 module.exports = function() {
-  return new Cert();
+    return new Cert();
 };
 
 Cert.prototype.installCert = function(options, cb) {
-  if ( !options.username ){
-    return  options.error('username is required');
-  }
-  if ( !options.org ) {
-    return  options.error('org is required');
-  }
-  if ( !options.env ) {
-    return  options.error('env is required');
-  }
-  if ( !options.password ) {
-    return  options.error('password is required');
-  }
-  const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
-  cert(config).installCertWithPassword(options, (err, res) => {
-    if (err) {
-      cb && cb(err)
-      return console.error(err, 'failed to update cert')
+    if (!options.username) {
+        return options.error('username is required');
     }
-    console.log('installed cert');
-    cb && cb(null,res)
-    !cb && process.exit(0);
-  });
+    if (!options.org) {
+        return options.error('org is required');
+    }
+    if (!options.env) {
+        return options.error('env is required');
+    }
+    if (!options.password) {
+        return options.error('password is required');
+    }
+    const config = edgeconfig.load({
+        source: configLocations.getSourcePath(options.org, options.env)
+    });
+    cert(config).installCertWithPassword(options, (err, res) => {
+        if (err) {
+            cb && cb(err)
+            return console.error(err, 'failed to update cert')
+        }
+        console.log('installed cert');
+        cb && cb(null, res);
+        !cb && process.exit(0);
+    });
 };
 
 Cert.prototype.checkCert = function(options, cb) {
 
-  assert(options.org,"org is required");
-  assert(options.env,"env is required")
+    assert(options.org, "org is required");
+    assert(options.env, "env is required")
 
-  assert(options.username,"username is required");
-  assert(options.password,"password is required")
+    assert(options.username, "username is required");
+    assert(options.password, "password is required")
 
-  const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
-  if (options.url) {
-    if (options.url.indexOf('://') === -1) {
-      options.url = 'https://' + options.url;
+    const config = edgeconfig.load({
+        source: configLocations.getSourcePath(options.org, options.env)
+    });
+    if (options.url) {
+        if (options.url.indexOf('://') === -1) {
+            options.url = 'https://' + options.url;
+        }
+        config.edge_config.authUri = options.url + '/edgemicro-auth';
+    } else {
+        var newAuthURI = util.format(config.edge_config.authUri, options.org, options.env);
+        config.edge_config.authUri = newAuthURI;
     }
-    config.edge_config.authUri = options.url + '/edgemicro-auth';
-  } else {
-    var newAuthURI = util.format(config.edge_config.authUri, options.org, options.env);
-    config.edge_config.authUri = newAuthURI;
-  }
 
-  cert(config).checkCertWithPassword(options, (err, res) => {
-    if (err) {
-      if(cb){
-        return cb(err);
-      }
-      return console.error(err, 'failed to update cert')
-    }
-    console.log('checked cert successfully');
-    cb && cb(null,res);
-    !cb && process.exit(0);
-  });
+    cert(config).checkCertWithPassword(options, (err, res) => {
+        if (err) {
+            if (cb) {
+                return cb(err);
+            }
+            return console.error(err, 'failed to update cert')
+        }
+        console.log('checked cert successfully');
+        cb && cb(null, res);
+        !cb && process.exit(0);
+    });
 
 }
 
-Cert.prototype.deleteCert = function(options,cb) {
+Cert.prototype.deleteCert = function(options, cb) {
 
-  assert(options.org,"org is required");
-  assert(options.env,"env is required")
+    assert(options.org, "org is required");
+    assert(options.env, "env is required")
 
-  assert(options.username,"username is required");
-  assert(options.password,"password is required")
+    assert(options.username, "username is required");
+    assert(options.password, "password is required")
 
 
 
-  const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
+    const config = edgeconfig.load({
+        source: configLocations.getSourcePath(options.org, options.env)
+    });
 
-  cert(config).deleteCertWithPassword(options, function(err, msg) {
-    err && console.error(err);
-    msg && console.log(msg);
-    cb && cb(err,msg);
-    !cb && process.exit(0);
-  })
+    cert(config).deleteCertWithPassword(options, function(err, msg) {
+        err && console.error(err);
+        msg && console.log(msg);
+        cb && cb(err, msg);
+        !cb && process.exit(0);
+    })
 
 };
 
-Cert.prototype.retrievePublicKey = function(options,cb) {
+Cert.prototype.retrievePublicKey = function(options, cb) {
 
- assert(options.org,"org is required");
- assert(options.env,"env is required")
+    assert(options.org, "org is required");
+    assert(options.env, "env is required")
 
-  const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
-  if (options.url) {
-    if (options.url.indexOf('://') === -1) {
-      options.url = 'https://' + options.url;
+    const config = edgeconfig.load({
+        source: configLocations.getSourcePath(options.org, options.env)
+    });
+    if (options.url) {
+        if (options.url.indexOf('://') === -1) {
+            options.url = 'https://' + options.url;
+        }
+        config.edge_config.authUri = options.url + '/edgemicro-auth';
+    } else {
+        var newAuthURI = util.format(config.edge_config.authUri, options.org, options.env);
+        config.edge_config.authUri = newAuthURI;
     }
-    config.edge_config.authUri = options.url + '/edgemicro-auth';
-  } else {
-    var newAuthURI = util.format(config.edge_config.authUri, options.org, options.env);
-    config.edge_config.authUri = newAuthURI;
-  }
-  cert(config).retrievePublicKey(options, (err, certificate) => {
-    if (err) {
-      cb && cb(err);
-      return console.error(err, 'failed to retrieve public key')
-    }
-    console.log('succeeded');
-    console.log(certificate);
-    cb && cb(null,certificate);
-    !cb && process.exit(0);
-  })
+    cert(config).retrievePublicKey(options, (err, certificate) => {
+        if (err) {
+            cb && cb(err);
+            return console.error(err, 'failed to retrieve public key')
+        }
+        console.log('succeeded');
+        console.log(certificate);
+        cb && cb(null, certificate);
+        !cb && process.exit(0);
+    })
 };
 
 
 Cert.prototype.retrievePublicKeyPrivate = function(options) {
 
-  assert(options.org,"org is required");
-  assert(options.env,"env is required")
+    assert(options.org, "org is required");
+    assert(options.env, "env is required")
 
-  const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
-  cert(config).retrievePublicKeyPrivate((err, certificate) => {
-    if (err) {
-      return console.error(err, 'failed to retrieve public key')
-    }
-    console.log('succeeded');
-    console.log(certificate);
-  })
+    const config = edgeconfig.load({
+        source: configLocations.getSourcePath(options.org, options.env)
+    });
+    cert(config).retrievePublicKeyPrivate((err, certificate) => {
+        if (err) {
+            return console.error(err, 'failed to retrieve public key')
+        }
+        console.log('succeeded');
+        console.log(certificate);
+    })
 }
 
 function optionError(message) {
-  console.error(message);
-  this.help();
+    console.error(message);
+    this.help();
 }
 
 function printError(err) {
-  if (err.response) {
-    console.log(err.response.error);
-  } else {
-    console.log(err);
-  }
+    if (err.response) {
+        console.log(err.response.error);
+    } else {
+        console.log(err);
+    }
 }

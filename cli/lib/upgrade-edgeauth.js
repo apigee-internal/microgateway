@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-const util = require("util");
-const debug = require("debug")("jwkrotatekey");
-const request = require("request");
+const util = require('util');
+const debug = require('debug')('jwkrotatekey');
+const request = require('request');
 var deployAuthLib = require('./deploy-auth');
 var deployAuth;
 
@@ -10,32 +10,32 @@ const path = require('path');
 
 const UpgradeAuth = function() {
 
-}
+};
 
 module.exports = function() {
     return new UpgradeAuth();
-}
+};
 
 UpgradeAuth.prototype.upgradeauth = function upgradeauth(options, cb) {
     const opts = {
-        org: options.org,
-        env: options.env,
-        username: options.username,
-        password: options.password,
-        basepath: '/edgemicro-auth',
-        debug: false,
-        verbose: true,
-        proxyName: 'edgemicro-auth',
-        directory: path.join(__dirname, '../..', 'node_modules', 'microgateway-edgeauth'),
+        'org': options.org,
+        'env': options.env,
+        'username': options.username,
+        'password': options.password,
+        'basepath': '/edgemicro-auth',
+        'debug': false,
+        'verbose': true,
+        'proxyName': 'edgemicro-auth',
+        'directory': path.join(__dirname, '../..', 'node_modules', 'microgateway-edgeauth'),
         'import-only': false,
         'resolve-modules': false,
-        virtualHosts: options.virtualhost || 'secure'
+        'virtualHosts': options.virtualhost || 'secure',
     };
 
-    var edge_config = {
+    let edge_config = {
         managementUri: options.mgmtUrl || 'na',
         authUri: 'na',
-        virtualhosts: opts.virtualHosts
+        virtualhosts: opts.virtualHosts,
     };
 
     deployAuth = deployAuthLib(edge_config, null);
@@ -45,5 +45,4 @@ UpgradeAuth.prototype.upgradeauth = function upgradeauth(options, cb) {
             console.log(err);
         }
     });
-
-}
+};
