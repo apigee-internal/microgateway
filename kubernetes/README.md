@@ -218,13 +218,13 @@ Use the svc parameter to pass your service file. See the helloworld sample below
 
 
 ### Helloworld sample
-[here](/docs/helloworld.md)
+[here](./docs/helloworld.md)
 
 ### Automatic Sidecar Injection
-[here](/docs/automatic_sidecar.md)
+[here](./docs/automatic_sidecar.md)
 
 ### Running Bookinfo sample
-[here](/docs/bookinfo.md)
+[here](./docs/bookinfo.md)
 
 ### Understanding edgemicroctl
 

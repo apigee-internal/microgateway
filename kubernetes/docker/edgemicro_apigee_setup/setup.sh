@@ -15,9 +15,9 @@ set -o pipefail
 #echo $POD_NAME >> /tmp/test.txt
 #echo $POD_NAMESPACE >> /tmp/test.txt
 #echo $INSTANCE_IP >> /tmp/test.txt
-SERVICE_NAME=`echo "${SERVICE_NAME}" | tr '[a-z]' '[A-Z]'`
+SERVICE_NAME_UPPERCASE=`echo "${SERVICE_NAME}" | tr '[a-z]' '[A-Z]'`
 #echo $SERVICE_NAME >> /tmp/test.txt
-SERVICE_PORT_NAME=${SERVICE_NAME}_SERVICE_PORT
+SERVICE_PORT_NAME=${SERVICE_NAME_UPPERCASE}_SERVICE_PORT
 SERVICE_PORT=${!SERVICE_PORT_NAME}
 #echo $SERVICE_PORT >> /tmp/test.txt
 
@@ -27,9 +27,9 @@ APIGEE_ADMINPW=$EDGEMICRO_ADMINPASSWORD
 mgmt_api=$EDGEMICRO_MGMTURL
 org=$EDGEMICRO_ORG
 env_name=$EDGEMICRO_ENV
-proxy_name=edgemicro_$POD_NAME
+proxy_name=edgemicro_${SERVICE_NAME}_service
 target_port=$SERVICE_PORT
-base_path=$POD_NAME
+base_path=$SERVICE_NAME
 
 
 curl -X POST -u $APIGEE_ADMIN_EMAIL:$APIGEE_ADMINPW -H "Content-Type:application/json" ${mgmt_api}/v1/organizations/${org}/apis  -d "{\"name\" : \"$proxy_name\"}" 
