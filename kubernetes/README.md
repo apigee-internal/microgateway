@@ -35,7 +35,7 @@ Edge Microgateway can be deployed as a service or as a sidecar gateway in front 
 
 1. If you are using a MacOS or Linux system, you can also run the following command to download and extract the latest release automatically:
       ```
-        curl -L https://git.io/getLatestEdgemicroK8 | sh - 
+        curl -L https://raw.githubusercontent.com/apigee-internal/microgateway/master/kubernetes/release/downloadEdgeMicrok8s.sh | sh - 
       ```
 2. It extracts the package in the current location with a folder named edgemicro-k8-<os>-<arch>
     * Installation .yaml files for Kubernetes in install/
