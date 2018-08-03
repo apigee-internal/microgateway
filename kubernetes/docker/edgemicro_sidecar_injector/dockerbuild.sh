@@ -12,5 +12,7 @@ docker pull docker.io/istio/sidecar_injector:0.6.0
 
 if [ $# -eq 2 ]; then
   docker tag docker.io/istio/sidecar_injector:0.6.0 gcr.io/$project_id/sidecar_injector:$version
+  docker tag docker.io/istio/sidecar_injector:0.6.0 gcr.io/$project_id/sidecar_injector:latest
   docker push gcr.io/$project_id/sidecar_injector:$version
+  docker push gcr.io/$project_id/sidecar_injector:latest
 fi

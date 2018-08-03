@@ -13,5 +13,7 @@ docker build -t edgemicro_proxy_init:$version $DIR
 
 if [ $# -eq 2 ]; then
   docker tag edgemicro_proxy_init:$version gcr.io/$project_id/edgemicro_proxy_init:$version
+  docker tag edgemicro_proxy_init:$version gcr.io/$project_id/edgemicro_proxy_init:latest
   docker push gcr.io/$project_id/edgemicro_proxy_init:$version
+  docker push gcr.io/$project_id/edgemicro_proxy_init:latest
 fi

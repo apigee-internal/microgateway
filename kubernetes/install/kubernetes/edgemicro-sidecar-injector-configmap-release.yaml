@@ -10,73 +10,6 @@ data:
     policy: enabled
     template: |-
       initContainers:
-      - name: edgemicro-apigee
-        image: gcr.io/apigee-microgateway/edgemicro_apigee_setup:latest
-        env:
-        - name: EDGEMICRO_ORG
-          valueFrom:
-            secretKeyRef:
-              name: mgwsecret
-              key: mgorg
-        - name: EDGEMICRO_ENV
-          valueFrom:
-            secretKeyRef:
-              name: mgwsecret
-              key: mgenv
-        - name: EDGEMICRO_KEY
-          valueFrom:
-            secretKeyRef:
-              name: mgwsecret
-              key: mgkey
-        - name: EDGEMICRO_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: mgwsecret
-              key: mgsecret
-        - name: EDGEMICRO_CONFIG
-          valueFrom:
-            secretKeyRef:
-              name: mgwsecret
-              key: mgconfig
-        - name: EDGEMICRO_MGMTURL
-          valueFrom:
-            secretKeyRef:
-              name: mgwsecret
-              key: mgmgmturl
-        - name: EDGEMICRO_ADMINEMAIL
-          valueFrom:
-            secretKeyRef:
-              name: mgwsecret
-              key: mgadminemail
-        - name: EDGEMICRO_ADMINPASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mgwsecret
-              key: mgadminpassword
-        - name: EDGEMICRO_CREATE_PRODUCT
-          value: "1"
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: SERVICE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.labels['app']
-        - name: INSTANCE_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.podIP
-        securityContext:
-          capabilities:
-            add:
-            - NET_ADMIN
-        imagePullPolicy: Always
-        resources: {}
       - name: edgemicro-init
         image: gcr.io/apigee-microgateway/edgemicro_proxy_init:latest
         args:
@@ -120,23 +53,10 @@ data:
             secretKeyRef:
               name: mgwsecret
               key: mgconfig
-        - name: EDGEMICRO_MGMTURL
-          valueFrom:
-            secretKeyRef:
-              name: mgwsecret
-              key: mgmgmturl
-        - name: EDGEMICRO_ADMINEMAIL
-          valueFrom:
-            secretKeyRef:
-              name: mgwsecret
-              key: mgadminemail
-        - name: EDGEMICRO_ADMINPASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mgwsecret
-              key: mgadminpassword
         - name: EDGEMICRO_CONFIG_DIR
           value: /opt/apigee/.edgemicro
+        - name: EDGEMICRO_LOCAL_PROXY
+          value: "1"
         - name: EDGEMICRO_DECORATOR
           value: "1"
         - name: POD_NAME
@@ -147,10 +67,10 @@ data:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        - name: SERVICE_NAME
+        - name: CONTAINER_PORT
           valueFrom:
             fieldRef:
-              fieldPath: metadata.labels['app']
+              fieldPath: metadata.labels['containerPort']
         - name: INSTANCE_IP
           valueFrom:
             fieldRef:

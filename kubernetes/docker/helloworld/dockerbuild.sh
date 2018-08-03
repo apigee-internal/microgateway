@@ -14,5 +14,7 @@ docker build -t helloworld:$version $DIR
 
 if [ $# -eq 2 ]; then
   docker tag helloworld:$version gcr.io/$project_id/helloworld:$version
+  docker tag helloworld:$version gcr.io/$project_id/helloworld:latest
   docker push gcr.io/$project_id/helloworld:$version
+  docker push gcr.io/$project_id/helloworld:latest
 fi

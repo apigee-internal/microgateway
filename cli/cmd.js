@@ -129,6 +129,10 @@ const setup = function setup() {
         .option('-r, --port <portNumber>', 'override port in the config.yaml file')
         .option('-c, --configDir <configDir>', 'Set the directory where configs are read from.')
         .option('-u, --configUrl <configUrl>', 'Provide the endpoint to download the edgemicro config file')
+        .option('-a, --apiProxyName <apiProxyName>', 'the api proxy name; must be used with env var EDGEMICRO_LOCAL')
+        .option('-v, --revision <revision>', 'api proxy revision; required if apiProxyName is set')
+        .option('-b, --basepath <basepath>', 'api proxy basePath; required if apiProxyName is set')
+        .option('-t, --target <target>', 'target endpoint for proxy; required if apiProxyName is set')
         .description('start the gateway based on configuration')
         .action((options) => {
             options.error = optionError;
@@ -139,6 +143,13 @@ const setup = function setup() {
             options.processes = options.processes || process.env.EDGEMICRO_PROCESSES;
             options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
             options.configUrl = options.configUrl || process.env.EDGEMICRO_CONFIG_URL;
+            options.apiProxyName = options.apiProxyName || process.env.EDGEMICRO_API_PROXYNAME;
+            options.revision = options.revision || process.env.EDGEMICRO_API_REVISION;
+            options.basepath = options.basepath || process.env.EDGEMICRO_API_BASEPATH;
+            options.target = options.target || process.env.EDGEMICRO_API_TARGET;
+
+            debug("EDGEMICRO_LOCAL: " + process.env.EDGEMICRO_LOCAL)
+            debug("EDGEMICRO_LOCAL_PROXY: " + process.env.EDGEMICRO_LOCAL_PROXY)
 
             if (options.port) {
                 portastic.test(options.port)
@@ -150,10 +161,10 @@ const setup = function setup() {
 
                     });
             }
-            if (!options.key) {
+            if (!options.key && !process.env.EDGEMICRO_LOCAL) {
                 return options.error('key is required');
             }
-            if (!options.secret) {
+            if (!options.secret && !process.env.EDGEMICRO_LOCAL) {
                 return options.error('secret is required');
             }
             if (!options.org) {
@@ -161,6 +172,34 @@ const setup = function setup() {
             }
             if (!options.env) {
                 return options.error('env is required');
+            }
+            if (options.apiProxyName || options.target || options.revision || options.basepath || process.env.EDGEMICRO_LOCAL || process.env.EDGEMICRO_LOCAL_PROXY) {
+                //if any of these are set, look for environment variable
+                if (!process.env.EDGEMICRO_LOCAL && !process.env.EDGEMICRO_LOCAL_PROXY) {
+                    return options.error('set the EDGEMICRO_LOCAL or EDGEMICRO_LOCAL_PROXY variable for apiProxyName parameter');
+                    process.exit(1);
+                } else if (process.env.EDGEMICRO_LOCAL && process.env.EDGEMICRO_LOCAL_PROXY) {
+                    return options.error('set the EDGEMICRO_LOCAL or EDGEMICRO_LOCAL_PROXY; not both');
+                    process.exit(1);
+                } else {
+                    if (options.apiProxyName && options.target && options.revision && options.basepath) {
+                        if (!validateUrl(options.target)) {
+                            return options.error('target endpoint not a valid url');
+                            process.exit(1);
+                        }
+                        if (process.env.EDGEMICRO_LOCAL) {
+                            //create fake credentials - not used anywhere
+                            options.key = 'dummy';
+                            options.secret = 'dummy';
+                        }
+                        //start gateway
+                        run.start(options);
+                        return;
+                    } else {
+                        return options.error('apiProxyName, target, revision and basepath are all mandatory parms when EDGEMICRO_LOCAL or EDGEMICRO_LOCAL_PROXY is set');
+                        process.exit(1);
+                    }
+                }
             }
             if (options.configUrl) {
                 options.configDir = options.configDir || os.homedir() + "/" + ".edgemicro";
@@ -192,7 +231,9 @@ const setup = function setup() {
                     console.error("url protocol not supported: " + parsedUrl.protocol);
                     process.exit(1);
                 }
-            } else run.start(options);
+            } else {
+                run.start(options);
+            }
         });
 
     commander
@@ -352,8 +393,8 @@ const setup = function setup() {
         .option('-e, --env <env>', 'the environment')
         .option('-u, --username <user>', 'username of the organization admin')
         .option('-p, --password <password>', 'password of the organization admin')
-                .option('-k, --key <key>', 'Microgateway Key to be revoked')
-                .option('-s, --secret <secret>', 'Microgateway secret to be revoked')
+        .option('-k, --key <key>', 'Microgateway Key to be revoked')
+        .option('-s, --secret <secret>', 'Microgateway secret to be revoked')
         .description('revoke authentication keys for runtime auth between Microgateway and Edge')
         .action((options) => {
             options.error = optionError;
@@ -471,6 +512,35 @@ const setup = function setup() {
             })
         });
 
+    commander
+        .command('clean')
+        .option('-o, --org <org>', 'the organization')
+        .option('-e, --env <env>', 'the environment')
+        .option('-u, --username <user>', 'username of the organization admin')
+        .option('-p, --password <password>', 'password of the organization admin')
+        .description('clean up microgateway artifacts from the org')
+        .action((options) => {
+            options.error = optionError;
+            if (!options.username) {
+                return options.error('username is required');
+            }
+            if (!options.org) {
+                return options.error('org is required');
+            }
+            if (!options.env) {
+                return options.error('env is required');
+            }
+            if (!options.kid) {
+                return options.error('kid is required');
+            }
+            promptForPassword(options, (options) => {
+                if (!options.password) {
+                    return options.error('password is required');
+                }
+                //TODO
+            })
+        });
+
     commander.parse(process.argv);
 
 
@@ -503,5 +573,15 @@ function promptForPassword(options, cb) {
     }
 }
 
+//check url format
+function validateUrl(target) {
+    try {
+        url.parse(target, true);
+        return true;
+    } catch (err) {
+        console.error("Malformed URL: " + err);
+        return false;
+    }
+}
 
 module.exports = setup;

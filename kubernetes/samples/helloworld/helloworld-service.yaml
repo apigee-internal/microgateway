@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: helloworld
-        image: gcr.io/apigee-microgateway/helloworld
+        image: gcr.io/apigee-microgateway/helloworld:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8081

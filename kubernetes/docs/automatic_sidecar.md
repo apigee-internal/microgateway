@@ -93,11 +93,12 @@ Usage: ./install/kubernetes/webhook-edgemicro-patch.sh [option...]
    -o, --apigee_org           * Apigee Organization.
    -e, --apigee_env           * Apigee Environment.
    -v, --virtual_host         * Virtual Hosts with comma seperated values.The values are like default,secure.
-   -t, --private              y,if you are configuring Private Cloud. Default is n.
+   -i, --private              y,if you are configuring Private Cloud. Default is n.
    -m, --mgmt_url             Management API URL needed if its Private Cloud
    -r, --api_base_path        API Base path needed if its Private Cloud
    -u, --user                 * Apigee Admin Email
    -p, --password             * Apigee Admin Password
+   -t, --token                * Apigee Oauth Token
    -n, --namespace            Namespace where your application is deployed. Default is default
    -k, --key                  * Edgemicro Key. If not specified it will generate.
    -s, --secret               * Edgemicro Secret. If not specified it will generate.
@@ -106,7 +107,7 @@ Usage: ./install/kubernetes/webhook-edgemicro-patch.sh [option...]
 ```
 For ex:
 ```
-./install/kubernetes/webhook-edgemicro-patch.sh -t n -o gaccelerate5 -e test -v default -u <apigee email> -p <apigee-password>  -k <edgemicro key> -s <edgemicro secret> -c "/Users/rajeshmi/.edgemicro/gaccelerate5-test-config.yaml" -n default
+./install/kubernetes/webhook-edgemicro-patch.sh -i n -o gaccelerate5 -e test -v default -u <apigee email> -p <apigee-password>  -k <edgemicro key> -s <edgemicro secret> -c "/Users/rajeshmi/.edgemicro/gaccelerate5-test-config.yaml" -n default
 
 ```
 Run command below to inject the edgemicro config profile in kubernetes.
@@ -143,7 +144,29 @@ kube-system        Active    1d
 
 ```
 
-#### Deploy helloworld app with Injection
+#### Deploy sample app with Injection
+
+- Container Port and Service Port
+
+In case the container port of your app is not the same as service port defined in your service spec, add a label **containerPort** in deployment spec. In helloworld samples, they are same.
+
+Please refer the httpbin samples:
+```
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: httpbin-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: httpbin-app
+        containerPort: "8082"
+
+```
+- Deploy app with kubectl.
 
 ```
 kubectl apply -f samples/helloworld/helloworld.yaml --namespace=default
@@ -182,7 +205,18 @@ echo $GATEWAY_IP
 echo "Call with no API Key:"
 curl $GATEWAY_IP:80;
 ```
-Go to Edge UI and you can see a API and API Product created. Create a app and associate with the product created. Get the api key of the app created.
+Edgemicro in sidecar starts as a Local Proxy so api proxy with edgemicro_ is not required. 
+
+Go to Edge UI and add a API Product.
+
+- Select Publish > API Products in the side navigation menu.
+- Click + API Product. The Product Page Appears.
+- Fill out the Product page with name, description, name.
+- In the Path section, click + Custom Resources and add the custom Resource Path. In this case add / and /** as Custom Path
+- In the API Proxies section, click  + API Proxy and add edgemicro-auth. 
+- Save the API Product
+- Create a Developer App for the API Product.
+- Get the consumer key of the app created.
 
 ```
 echo "Call with API Key:"

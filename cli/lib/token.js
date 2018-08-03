@@ -101,10 +101,10 @@ Token.prototype.getToken = function(options, cb) {
   }, function(err, res) {
     if (err) {
       cb && cb(err)
-      return printError(err)
+      return printError(err);
     }
-    console.log(res.body)
-    cb && cb(null, res.body)
+    console.log(JSON.stringify(res.body, null, 2));
+    cb && cb(null, res.body);
   });
 }
 

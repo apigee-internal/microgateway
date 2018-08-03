@@ -20,7 +20,7 @@ RUN npm i npm@latest -g
 # Initialize Microgateway
 RUN groupadd apigee
 RUN useradd apigee -g apigee -m -d /opt/apigee
-RUN npm install -g edgemicro
+RUN npm install -g edgemicro@beta
 RUN su - apigee -c "edgemicro init"
 
 # Create volumes for logs

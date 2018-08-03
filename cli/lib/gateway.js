@@ -49,9 +49,17 @@ Gateway.prototype.start = (options) => {
         pluginDir: options.pluginDir
     };
 
+    const localproxy = {
+        apiProxyName: options.apiProxyName,
+        revision: options.revision,
+        basePath: options.basepath,
+        targetEndpoint: options.target
+    };
+
     edgeconfig.get({
         source: source,
-        keys: keys
+        keys: keys,
+        localproxy: localproxy
     }, (err, config) => {
         if (err) {
             const exists = fs.existsSync(cache);

@@ -15,7 +15,4 @@ data:
   mgkey: ${EDGEMICRO_KEY}
   mgsecret: ${EDGEMICRO_SECRET}
   mgconfig: ${EDGEMICRO_CONFIG}
-  mgmgmturl: ${EDGEMICRO_MGMTURL}
-  mgadminemail: ${EDGEMICRO_ADMINEMAIL}
-  mgadminpassword: ${EDGEMICRO_ADMINPASSWORD}
 ---

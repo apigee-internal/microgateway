@@ -5,7 +5,7 @@ edgemicroctl is an open source project that generates configuration to deploy Ap
 This is an open-source project of the Apigee Corporation. It is not covered by Apigee support contracts. However, we will support you as best we can. For help, please open an issue in this GitHub project. You are also always welcome to submit a pull request.
 
 ## Download
-Download the binary from [here](https://github.com/srinandan/edgemicroctl/releases)
+Download the binary from [here](https://github.com/apiee-internal/microgateway/releases)
 
 ## Usage 1
 ```

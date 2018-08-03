@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /****************************************************************************
  The MIT License (MIT)
  Copyright (c) 2015 Apigee Corporation
@@ -22,11 +23,28 @@
 'use strict';
 var edgemicroVersion = require('../package.json').version;
 const version = process.version;
-const lts_version = "v4.8.4";
-console.log('current nodejs version is %s',version)
-console.log('current edgemicro version is %s',edgemicroVersion);
-if(version < lts_version){
-  console.error('You are using an older version of NodeJS version %s, please update nodejs to %s+',version,lts_version)
-}else{
-  require('./cmd')()
+const ltsVersion = 6;
+const experimental = ["v7", "v9"];
+const latest = 10;
+
+//don't print versions when obtaining a token. 
+if (!process.argv.includes("token") && !process.argv.includes("get")) {
+    console.log('current nodejs version is %s', version);
+    console.log('current edgemicro version is %s', edgemicroVersion);    
+}
+
+for (var ver in experimental) {
+    if (version.includes(experimental[ver])) {
+        console.log("You are using a version of NodeJS that is not supported");
+        return;
+    }
+}
+
+var majorVersion = parseInt(version.split(".")[0].replace("v", ""));
+
+if (majorVersion < ltsVersion || majorVersion > latest) {
+    console.log("You are using a version of NodeJS that is not supported");
+    return;
+} else {
+    require('./cmd')()
 }

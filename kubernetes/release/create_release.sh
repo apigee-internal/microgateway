@@ -6,9 +6,15 @@ blue=`tput setaf 4`
 reset=`tput sgr0`
 
 edgemicroctlDist='https://raw.githubusercontent.com/srinandan/edgemicroctl/master/dist'
-ORG=apigee-internal
-REPO=microgateway
-PROJECT_ID=apigee-microgateway
+#ORG=apigee-internal
+#REPO=microgateway
+#PROJECT_ID=apigee-microgateway
+
+###Test purpose only
+ORG=edgemicro-kubernetes
+REPO=edgemicro-k8
+PROJECT_ID=edge-apigee
+
 REQUEST_FILE="$(mktemp /tmp/github.request.XXXX)"
 RESPONSE_FILE="$(mktemp /tmp/github.response.XXXX)"
 
@@ -98,6 +104,7 @@ if [[ "$BUILD_DOCKER" == "y" ]]; then
 	../docker/edgemicro_apigee_setup/dockerbuild.sh $VERSION $PROJECT_ID
 	../docker/edgemicro_proxy_init/dockerbuild.sh $VERSION $PROJECT_ID
 	../docker/helloworld/dockerbuild.sh $VERSION $PROJECT_ID
+  ../docker/httpbin/dockerbuild.sh $VERSION $PROJECT_ID
 fi
 
 curl -s -S -o $RESPONSE_FILE https://api.github.com/repos/$ORG/$REPO/releases -H "Accept: application/vnd.github.manifold-preview+json"
@@ -128,10 +135,25 @@ for os in "${release_os[@]}";
 	# Replace version information
 	sed -i.bak s/latest/$VERSION/g tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/install/kubernetes/edgemicro-sidecar-injector-configmap-release.yaml
 	sed -i.bak s/latest/$VERSION/g tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/install/kubernetes/edgemicro-sidecar-injector.yaml
+  sed -i.bak s/latest/$VERSION/g tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/samples/helloworld/helloworld.yaml
+  sed -i.bak s/latest/$VERSION/g tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/samples/helloworld/helloworld-service.yaml
+  sed -i.bak s/latest/$VERSION/g tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/samples/httpbin/httpbin.yaml
+
+
+  sed -i.bak s/apigee-microgateway/$PROJECT_ID/g tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/install/kubernetes/edgemicro-sidecar-injector-configmap-release.yaml
+  sed -i.bak s/apigee-microgateway/$PROJECT_ID/g tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/install/kubernetes/edgemicro-sidecar-injector.yaml
+  sed -i.bak s/apigee-microgateway/$PROJECT_ID/g tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/samples/helloworld/helloworld.yaml
+  sed -i.bak s/apigee-microgateway/$PROJECT_ID/g tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/samples/helloworld/helloworld-service.yaml
+  sed -i.bak s/apigee-microgateway/$PROJECT_ID/g tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/samples/httpbin/httpbin.yaml
+
 
 	rm -fr tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/install/kubernetes/edgemicro-sidecar-injector-configmap-release.yaml.bak
 	rm -fr tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/install/kubernetes/edgemicro-sidecar-injector.yaml.bak
- 
+  rm -fr tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/samples/helloworld/helloworld.yaml.bak
+  rm -fr tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/samples/helloworld/helloworld-service.yaml.bak
+  rm -fr tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/samples/httpbin/httpbin.yaml.bak
+
+
   curl $edgemicroctlDist/${os}/edgemicroctl -o   tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/bin/edgemicroctl
 	chmod +x tmp/edgemicro-k8s-${RELEASE_VERSION}-${os}/bin/edgemicroctl
 

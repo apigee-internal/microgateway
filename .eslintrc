@@ -1,0 +1,16 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 6
+  },
+  "env": {
+    "node": 1
+  },
+  "globals": {
+    "exampleGlobalVariable": true
+  },
+  "rules": {
+    "eqeqeq": 1
+  },
+  "plugins": [
+  ]
+}

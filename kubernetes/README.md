@@ -35,7 +35,7 @@ Edge Microgateway can be deployed as a service or as a sidecar gateway in front 
 
 1. If you are using a MacOS or Linux system, you can also run the following command to download and extract the latest release automatically:
       ```
-        curl -L https://git.io/getLatestEdgemicroK8 | sh - 
+        curl -L https://raw.githubusercontent.com/apigee-internal/microgateway/master/kubernetes/release/downloadEdgeMicrok8s.sh | sh - 
       ```
 2. It extracts the package in the current location with a folder named edgemicro-k8-<os>-<arch>
     * Installation .yaml files for Kubernetes in install/
@@ -211,20 +211,111 @@ If you do not have the edgemicro-sidecar-injector installed, you must use edgemi
 
 
 ```
-kubectl apply -f <(edgemicroctl -org=<org> -env=<env> -key=<edgemicro-key> -sec=<edgemicro-secret> -user=<apigee-user> -pass=<apigee-password> -conf=<file path of org-env-config.yaml> -svc=<your-app-spec>.yaml)
+kubectl apply -f <(edgemicroctl -org=<org> -env=<env> -key=<edgemicro-key> -sec=<edgemicro-secret>  -conf=<file path of org-env-config.yaml> -svc=<your-app-spec>.yaml)
 ```
 
 Use the svc parameter to pass your service file. See the helloworld sample below for demonstration.
 
 
 ### Helloworld sample
-[here](/docs/helloworld.md)
+[here](./docs/helloworld.md)
 
 ### Automatic Sidecar Injection
-[here](/docs/automatic_sidecar.md)
+[here](./docs/automatic_sidecar.md)
 
 ### Running Bookinfo sample
-[here](/docs/bookinfo.md)
+[here](./docs/bookinfo.md)
+
+### Container Ports and Service Ports for Sidecars
+
+Edgemicro and Service runs on same pod as separate containers. Edgemicro creates a local proxy to your service and thus it requires to know the container port on which it can create a local proxy. The edgemicro container is aware of service port but not the container port. if your container port is same as service port, it picks up the port and create a local proxy on that port.
+
+In case, you run your container on a seperate port than your service port, edgemicro needs to be aware of the containerport. In such case, edgemicro looks for “containerPort” label in your deployment template metadata and creates local connection on that port.
+
+For ex :
+```
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: httpbin-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: httpbin-app
+        containerPort: "8082"
+    spec:
+      containers:
+      - name: httpbin
+        image: gcr.io/apigee-microgateway/httpbin:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8082
+---
+```
+
+### Custom Plugins
+
+To enable custom plugins to Microgateway, perform the following steps
+
+- Create a Dockerfile and add your plugin:
+
+```
+FROM gcr.io/apigee-microgateway/edgemicro:latest
+RUN apt-get install unzip
+COPY plugins.zip /opt/apigee/
+RUN chown apigee:apigee /opt/apigee/plugins.zip
+RUN su - apigee -c "unzip /opt/apigee/plugins.zip -d /opt/apigee"
+EXPOSE 8000
+EXPOSE 8443
+ENTRYPOINT ["/tmp/entrypoint.sh"]
+```
+
+NOTE: Use npm install to add any additional dependencies required by the custom plugins
+
+- Create a new Microgateway image (with the plugins) and push to repository
+```
+docker build -t edgemicroplugins .
+docker push   gcr.io/your-project/edgemicroplugins
+```
+- Set the plugin directory in the org-env configuration file
+```
+edgemicro:
+  ...
+  plugins:
+    dir: /opt/apigee/plugins
+    sequence:
+      - oauth
+```
+- Service Deployment 
+Update edgemicro deployment with new image:
+
+for ex:
+```
+kubectl apply -f <(edgemicroctl -org=myorg -env=test-key=0e3ecea28a64099410594406b30e54439af5265f88fb51ac6ed002f570b602f0 -sec=e3919250bee37c69cb2e5b41170b488e1c1dbc628d94a3911283fe6771209319 -conf=/Users/jdoe/.edgemicro/apigeesearch-test-config.yaml -img=gcr.io/your-ptoject/edgemicroplugin:latest)
+```
+
+
+- Manual Sidecar Configuration
+For manual sidecar, add img parameter to your deployment. 
+For ex:
+```
+kubectl apply -f <(edgemicroctl -org=myorg -env=test-key=0e3ecea28a64099410594406b30e54439af5265f88fb51ac6ed002f570b602f0 -sec=e3919250bee37c69cb2e5b41170b488e1c1dbc628d94a3911283fe6771209319 -conf=/Users/jdoe/.edgemicro/apigeesearch-test-config.yaml -img=gcr.io/your-ptoject/edgemicroplugin:latest -svc=samples/helloworld/helloworld.yaml)
+```
+
+- Automatic Sidecar Configuration
+Edit the installation install/kubernetes/edgemicro-sidecar-injector-configmap-release.yaml
+Change the containers image to new image.
+```
+containers:
+      - name: edge-microgateway
+        image: gcr.io/your-project/edgemicroplugin:latest
+```
+- Apply changes in cluster
+```
+kubectl apply -f  install/kubernetes/edgemicro-sidecar-injector-configmap-release.yaml
+```
 
 ### Understanding edgemicroctl
 
@@ -239,25 +330,19 @@ sec  = Apigee Edge Microgateway Secret (mandatory)
 conf = Apigee Edge Microgateway configuration file (mandatory)
 
 For Sidecar deployment
-user = Apigee Edge Username (mandatory)
-pass = Apigee Edge Password (mandatory)
 svc  = Kubernetes Service configuration file (mandatory)
 
 For Pod deployment
 img  = Apigee Edge Microgateway docker image (mandatory)
 
 Other options:
-murl   = Apigee Edge Management API Endpoint; Default is api.enterprise.apigee.com
 debug  = Enable debug mode (default: false)
 
 
-Example for Sidecar: edgemicroctl -org=trial -env=test -user=trial@apigee.com -pass=Secret123 -conf=trial-test-config.yaml -svc=myservice.yaml -key=xxxx -sec=xxxx
+Example for Sidecar: edgemicroctl -org=trial -env=test -conf=trial-test-config.yaml -svc=myservice.yaml -key=xxxx -sec=xxxx -svc=samples/helloworld/helloworld.yaml
+
 Example for Pod: edgemicroctl -org=trial -env=test -conf=trial-test-config.yaml -svc=myservice.yaml -key=xxxx -sec=xxxx
 ```
-
-### Assumptions
-- It uses app labels in services to identify the deployment. Please ensure you define your services with label app. Refer to examples in helloworld and bookinfo example.
-- At this point, it also expects service port and container port to be same. Refer examples for more details.
 
 
 ## Uninstall Edgemicro

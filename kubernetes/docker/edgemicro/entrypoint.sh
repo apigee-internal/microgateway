@@ -7,21 +7,26 @@ exec 2>&1
 
 echo "Log Location should be: [ $LOG_LOCATION ]"
 
-SERVICE_NAME=`echo "${SERVICE_NAME}" | tr '[a-z]' '[A-Z]'`
-SERVICE_PORT_NAME=${SERVICE_NAME}_SERVICE_PORT
-SERVICE_PORT=${!SERVICE_PORT_NAME}
-proxy_name=edgemicro_$POD_NAME
-product_name=$proxy_name-product
 
+if [[ ${CONTAINER_PORT} != "" ]]; then
+    SERVICE_PORT=${CONTAINER_PORT}
+#elif [[ ${SERVICE_NAME} != "" ]]; then
+#  SERVICE_NAME_UPPERCASE=`echo "${SERVICE_NAME}" | tr '[a-z]' '[A-Z]'`
+#  SERVICE_PORT_NAME=${SERVICE_NAME_UPPERCASE}_SERVICE_PORT
+#  SERVICE_PORT=${!SERVICE_PORT_NAME}
+else
+  SERVICE_PORT=$(env | grep SERVICE_PORT_HTTP=| cut -d '=' -f 2)
+fi
+
+#product_name=$proxy_name-product
+proxy_name=edgemicro_${SERVICE_NAME}_service
+target_port=$SERVICE_PORT
+base_path=/$SERVICE_NAME
 
 if [[ ${EDGEMICRO_CONFIG} != "" ]]; then
-	echo ${EDGEMICRO_CONFIG} >> /tmp/test.txt
+	#echo ${EDGEMICRO_CONFIG} >> /tmp/test.txt
 	echo ${EDGEMICRO_CONFIG} | base64 --decode > /opt/apigee/.edgemicro/$EDGEMICRO_ORG-$EDGEMICRO_ENV-config.yaml
-	# Decorate Proxy with the proxy name
-  sed -i.bak s/proxy_name/${proxy_name}/g /tmp/proxies.yaml
-  if [[ ${EDGEMICRO_DECORATOR} != "" ]]; then
-         sed -i.bak '/edgemicro:/r /tmp/proxies.yaml' /opt/apigee/.edgemicro/$EDGEMICRO_ORG-$EDGEMICRO_ENV-config.yaml
-  fi
+
   chown apigee:apigee /opt/apigee/.edgemicro/*
 fi
 
@@ -32,7 +37,12 @@ if [[ -n "$EDGEMICRO_OVERRIDE_edgemicro_config_change_poll_interval" ]]; then
   sed -i.back "s/config_change_poll_interval.*/config_change_poll_interval: $EDGEMICRO_OVERRIDE_edgemicro_config_change_poll_interval/g" /opt/apigee/.edgemicro/$EDGEMICRO_ORG-$EDGEMICRO_ENV-config.yaml
 fi
 
-commandString="cd /opt/apigee && export EDGEMICRO_DECORATOR=$EDGEMICRO_DECORATOR && edgemicro start -o $EDGEMICRO_ORG -e $EDGEMICRO_ENV -k $EDGEMICRO_KEY -s $EDGEMICRO_SECRET &"
+if [[ ${EDGEMICRO_LOCAL_PROXY} != "1" ]]; then
+  commandString="cd /opt/apigee && edgemicro start -o $EDGEMICRO_ORG -e $EDGEMICRO_ENV -k $EDGEMICRO_KEY -s $EDGEMICRO_SECRET  &"
+else
+  commandString="cd /opt/apigee && export EDGEMICRO_DECORATOR=$EDGEMICRO_DECORATOR &&  export EDGEMICRO_LOCAL_PROXY=$EDGEMICRO_LOCAL_PROXY && edgemicro start -o $EDGEMICRO_ORG -e $EDGEMICRO_ENV -k $EDGEMICRO_KEY -s $EDGEMICRO_SECRET -a $proxy_name -v 1 -b / -t http://localhost:$target_port &"
+fi
+
 #echo $commandString
 if [[ ${EDGEMICRO_DOCKER} != "" ]]; then
 	su - apigee -c "$commandString"
@@ -45,25 +55,12 @@ fi
 my_handler() {
   echo "my_handler" >> /tmp/entrypoint.log
   su - apigee -m -c "cd /opt/apigee && edgemicro stop"
-  if [[ ${EDGEMICRO_DECORATOR} != "" ]]; then
-      #Attempt deleting the proxy here
-      curl -v -X DELETE -u $EDGEMICRO_ADMINEMAIL:$EDGEMICRO_ADMINPASSWORD -H "Content-Type:application/x-www-form-urlencoded" ${EDGEMICRO_MGMTURL}/v1/organizations/${EDGEMICRO_ORG}/apiproducts/${product_name}
-      curl -v -X DELETE -u $EDGEMICRO_ADMINEMAIL:$EDGEMICRO_ADMINPASSWORD -H "Content-Type:application/x-www-form-urlencoded" ${EDGEMICRO_MGMTURL}/v1/organizations/${EDGEMICRO_ORG}/environments/${EDGEMICRO_ENV}/apis/${proxy_name}/revisions/1/deployments
-      curl -v -X DELETE -u $EDGEMICRO_ADMINEMAIL:$EDGEMICRO_ADMINPASSWORD -H "Content-Type:application/x-www-form-urlencoded" ${EDGEMICRO_MGMTURL}/v1/organizations/${EDGEMICRO_ORG}/apis/${proxy_name}
-  fi
-  #edgemicro stop
 }
 
 # SIGTERM-handler
 term_handler() {
   echo "term_handler" >> /tmp/entrypoint.log
   su - apigee -m -c "cd /opt/apigee && edgemicro stop"
-  if [[ ${EDGEMICRO_DECORATOR} != "" ]]; then
-      curl -v -X DELETE -u $EDGEMICRO_ADMINEMAIL:$EDGEMICRO_ADMINPASSWORD -H "Content-Type:application/x-www-form-urlencoded" ${EDGEMICRO_MGMTURL}/v1/organizations/${EDGEMICRO_ORG}/apiproducts/${product_name}
-      curl -v -X DELETE -u $EDGEMICRO_ADMINEMAIL:$EDGEMICRO_ADMINPASSWORD -H "Content-Type:application/x-www-form-urlencoded" ${EDGEMICRO_MGMTURL}/v1/organizations/${EDGEMICRO_ORG}/environments/${EDGEMICRO_ENV}/apis/${proxy_name}/revisions/1/deployments
-      curl -v -X DELETE -u $EDGEMICRO_ADMINEMAIL:$EDGEMICRO_ADMINPASSWORD -H "Content-Type:application/x-www-form-urlencoded" ${EDGEMICRO_MGMTURL}/v1/organizations/${EDGEMICRO_ORG}/apis/${proxy_name}
-  fi
-  #edgemicro stop
   exit 143; # 128 + 15 -- SIGTERM
 }
 
