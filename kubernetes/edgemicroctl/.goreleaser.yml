@@ -24,6 +24,7 @@ archive:
     - NOTICE
     - samples/helloworld/*.yaml
     - samples/httpbin/*.yaml
+    - samples/plugin/plugins/response-uppercase/*.*
     - install/kubernetes/*.*
     - install/kubernetes/config/*.yaml
 git:
