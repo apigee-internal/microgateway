@@ -107,12 +107,15 @@ do
     if [ "$adminEmail" != "" ] && [ "$adminPasswd" != "" ]; then
       isTokenAuth="n"
     else
-      read  -p "${blue}Authenticate with OAuth Token (\"n\",\"Y\") [N/y]:${reset}" isTokenAuth
+      read  -p "${blue}Authenticate with OAuth Token [N/y]:${reset}" isTokenAuth
       if [[ "$isTokenAuth" = "" ]]; then
         isTokenAuth="n"
       fi
     fi
 done
+
+isTokenAuth=$(echo "$isTokenAuth" | tr '[:upper:]' '[:lower:]')
+
 
 if [[ "$isTokenAuth" = "y" ]]; then
   while [ "$oauthToken" = "" ]
@@ -156,11 +159,14 @@ done
 
 while [ "$isPrivate" = "" ]
 do
-  read -p "${blue}Is this Private Cloud (\"n\",\"y\") [N/y]:${reset}" isPrivate
+  read -p "${blue}Is this Private Cloud [N/y]:${reset}" isPrivate
   if [[ "$isPrivate" = "" ]]; then
      isPrivate="n"
   fi
 done
+
+
+isPrivate=$(echo "$isPrivate"  | tr '[:upper:]' '[:lower:]')
 
 if [ "${isPrivate}" == "y" ]; then
   while [[ "$mgmt_url" = "" ]]
@@ -170,7 +176,7 @@ if [ "${isPrivate}" == "y" ]; then
 
   while [[ "$api_base_path" = "" ]]
   do
-      read -p "${blue}Apigee API Endpoint Url:${reset}"  api_base_path
+      read -p "${blue}Runtime URL for your private cloud instance.:${reset}"  api_base_path
   done
 else
     mgmt_url="https://api.enterprise.apigee.com"
@@ -237,6 +243,7 @@ if [ "${generate_key}" == "y" ]; then
   while [ "${agree_to_decorate}" != "y" ]
   do
       read  -p "Do you agree to proceed(\"n\",\"y\") [N/y]:" agree_to_decorate
+      agree_to_decorate=$(echo "$agree_to_decorate"  | tr '[:upper:]' '[:lower:]')
       if [[ "${agree_to_decorate}" = "n" ]]; then
           exit 0;
       fi

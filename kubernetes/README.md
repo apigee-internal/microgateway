@@ -123,7 +123,7 @@ system:
 
 - Use edgemicroctl to deploy edgemicro in a kubernetes cluster. It uses the key and secret generated  above .
 ```
-kubectl apply -f <(edgemicroctl -org=<org> -env=<env> -key=<edgemicro-key> -sec=<edgemicro-secret> -conf=<file path of org-env-config.yaml> -img=gcr.io/apigee-microgateway/edgemicro:2.5.16)
+kubectl apply -f <(edgemicroctl -org=<org> -env=<env> -key=<edgemicro-key> -sec=<edgemicro-secret> -conf=<file path of org-env-config.yaml>)
 ```
 
 - Setup nginx ingress controller for edgemicro
@@ -150,7 +150,7 @@ EOF
 
 - Deploy your service without any ingress controller.
 ```
-kubectl apply -f samples/helloworld/hellworld-service.yaml
+kubectl apply -f samples/helloworld/helloworld-service.yaml
 ```
 
 #### Verification Steps 
@@ -173,6 +173,7 @@ kubectl get ing -o wide
 NAME                HOSTS     ADDRESS         PORTS     AGE
 edge-microgateway   *         35.225.100.55   80        5h
 ```
+
 - Get Ingress IP
 
 ```
@@ -180,8 +181,6 @@ export GATEWAY_IP=$(kubectl describe ing edge-microgateway --namespace default |
 
 echo $GATEWAY_IP
 
-echo "Call with no API Key:"
-curl $GATEWAY_IP:80/hello;
 ```
 
 - Get ClusterIP for helloworld service
@@ -196,14 +195,27 @@ NAME         TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
 helloworld   NodePort   10.55.254.255   <none>        8081:30329/TCP   3m
 ```
 
-- Record the clusterIP to generate the edgemicro api proxy in Edge. For ex - target IP in this case would be http://10.55.254.255:8081. Follow instructions [here](https://docs.apigee.com/api-platform/microgateway/2.5.x/setting-and-configuring-edge-microgateway#part2createentitiesonapigeeedge) to finish apigee setup.
+- Record the clusterIP to generate the edgemicro api proxy in Edge. For ex - target IP in this case would be http://10.55.254.255:8081 (Cluster IP of helloworld service as above). 
+Follow instructions [here](https://docs.apigee.com/api-platform/microgateway/2.5.x/setting-and-configuring-edge-microgateway#part2createentitiesonapigeeedge) to finish apigee setup.
+
 
 - Call API 
+You may have to wait for upto 10 mins(default refresh time) to get changes synched from edge.
+
 ```
 echo "Call with API Key:"
-curl - 'x-api-key:your-edge-api-key' $GATEWAY_IP:80/hello/echo;echo
+curl  'x-api-key:your-edge-api-key' $GATEWAY_IP:80/hello;echo
 ```
 
+### Cleanup Service Deployment
+
+```
+kubectl delete ing edge-microgateway
+kubectl delete -f samples/helloworld/helloworld-service.yaml
+kubectl delete -f <(edgemicroctl -org=<org> -env=<env> -key=<edgemicro-key> -sec=<edgemicro-secret> -conf=<file path of org-env-config.yaml>)
+
+
+```
 
 ## Edgemicro as Sidecar
 
