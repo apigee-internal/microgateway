@@ -29,6 +29,10 @@ Edge Microgateway can be deployed as a service or as a sidecar gateway in front 
      ```
      kubectl create clusterrolebinding cluster-admin-binding --clusterrole=cluster-admin --user=$(gcloud config get-value core/account)
      ```
+ **OR** for any Kubernetes cluster context:
+     ```
+     kubectl create clusterrolebinding cluster-admin-binding --clusterrole=cluster-admin --user=$(kubectl config view -o jsonpath='{.users[*].name}')
+     ```
 * Openshift - Coming soon ...
 
 ### Installation Steps
@@ -150,7 +154,7 @@ EOF
 
 - Deploy your service without any ingress controller.
 ```
-kubectl apply -f samples/helloworld/hellworld-service.yaml
+kubectl apply -f samples/helloworld/helloworld-service.yaml
 ```
 
 #### Verification Steps 
