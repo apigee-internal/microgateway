@@ -219,7 +219,7 @@ Verify.prototype.verify = function verify(options) {
 
   const cachePath = configLocations.getCachePath(options.org, options.env);
 
-  edgeconfig.get({ source: sourcePath, keys: keys }, function (err, config) {
+  edgeconfig.get({ source: sourcePath, keys: keys, env: options.env }, function (err, config) {
     edgeconfig.save(config, cachePath);
     agentLib({ keys: keys, target: cachePath }, (err, agent, config) => {
       if (err) {
