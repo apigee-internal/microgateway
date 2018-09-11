@@ -26,7 +26,6 @@ UpgradeAuth.prototype.upgradeauth = function upgradeauth(options, cb) {
         debug: false,
         verbose: true,
         proxyName: 'edgemicro-auth',
-        directory: path.join(__dirname, '../..', 'node_modules', 'microgateway-edgeauth'),
         'import-only': false,
         'resolve-modules': false,
         virtualHosts: options.virtualhost || 'secure'
@@ -40,7 +39,9 @@ UpgradeAuth.prototype.upgradeauth = function upgradeauth(options, cb) {
 
     deployAuth = deployAuthLib(edge_config, null);
 
-    deployAuth.deployProxyWithPassword(options.mgmtUrl, 'na', opts, opts.directory, function(err, result) {
+    let directory = deployAuth.findEdgeAuth();
+
+    deployAuth.deployProxyWithPassword(options.mgmtUrl, 'na', opts, directory, function(err, result) {
         if (err) {
             console.log(err);
         }

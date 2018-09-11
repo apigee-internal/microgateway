@@ -59,6 +59,15 @@ Deployment.prototype.deployEdgeMicroInternalProxy = function deployEdgeMicroInte
   });
 }
 
+Deployment.prototype.findEdgeAuth = function(){
+  let build_edgeauth_path = dir => path.resolve(__dirname, ...dir, '..', '..', 'node_modules', 'microgateway-edgeauth');
+  let edgeauth_dir = [build_edgeauth_path(['.']), build_edgeauth_path(['..', '..'])].find(fs.existsSync);
+  if (!edgeauth_dir){
+    throw new Error("Couldn't find microgateway-edgeauth inside edgemicro's node_modules");
+  }
+  return edgeauth_dir;
+}
+
 Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( options, callback) {
   const authUri = this.authUri;
   const managementUri = this.managementUri;
@@ -70,13 +79,8 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload( opt
 
   // copy bin folder into tmp
   tasks.push(function(cb) {
-    //console.log('copy auth app into tmp dir');
-    let build_edgeauth_path = dir => path.resolve(__dirname, ...dir, '..', '..', 'node_modules', 'microgateway-edgeauth');
-    let edgeauth_dir = [build_edgeauth_path(['.']), build_edgeauth_path(['..', '..'])].find(fs.existsSync);
-    if (!edgeauth_dir){
-      throw new Error("Couldn't find microgateway-edgeauth inside edgemicro's node_modules");
-    }
-    cpr(edgeauth_dir, tmpDir.name, cb);
+    // copy auth app into tmp dir
+    cpr(self.findEdgeAuth(), tmpDir.name, cb);
   });
 
 
