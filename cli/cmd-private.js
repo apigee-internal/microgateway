@@ -2,6 +2,7 @@
 
 var app = require('commander');
 var privateOperations = require('./lib/private')();
+const debug = require('debug')('configure');
 const upgradekvm = require('./lib/upgrade-kvm')();
 const upgradeauth = require('./lib/upgrade-edgeauth')();
 const rotatekey = require('./lib/rotate-key')();
@@ -20,6 +21,7 @@ module.exports = function() {
     .option('-p, --password <password>', 'password of the organization admin')
     .option('-v, --virtual-hosts <virtualHosts>', 'comma separated virtual hosts to deploy with')
     .option('-c, --configDir <configDir>', 'Set the directory where configs are read from.')
+    .option('-d, --debug', 'execute with debug output')
     .action((options) => {
       options.error = optionError;
       if (!options.username) { return options.error('username is required'); }
@@ -28,15 +30,15 @@ module.exports = function() {
       if (!options.runtimeUrl) { return options.error('runtimeUrl is required'); }
       if (!options.mgmtUrl) { return options.error('mgmtUrl is required'); }
       if (!options.runtimeUrl.includes('http')) {
-        return options.error('runtimeUrl requires a prototcol http or https')
+        return options.error('runtimeUrl requires a prototcol http or https');
       }
       if (!options.mgmtUrl.includes('http')) {
-        return options.error('runtimeUrl requires a prototcol http or https')
+        return options.error('mgmtUrl requires a prototcol http or https');
       }
 
       promptForPassword(options, (options) => {
         if (!options.password) { return options.error('password is required'); }
-        privateOperations.configureEdgemicro(options)
+        privateOperations.configureEdgemicro(options);
       });
     });
 
@@ -57,14 +59,14 @@ module.exports = function() {
         if (!options.runtimeUrl) { return options.error('runtimeUrl is required'); }
         if (!options.mgmtUrl) { return options.error('mgmtUrl is required'); }
         if (!options.mgmtUrl.includes('http')) {
-          return options.error('runtimeUrl requires a prototcol http or https')
+          return options.error('runtimeUrl requires a prototcol http or https');
         }
 
         promptForPassword(options,(options)=>{
           if (!options.password) { return options.error('password is required'); }
           upgradekvm.upgradekvm(options, () => {
           });      
-        })
+        });
       });
 
       app
