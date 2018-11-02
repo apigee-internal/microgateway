@@ -2,6 +2,7 @@
 
 var app = require('commander');
 var privateOperations = require('./lib/private')();
+const debug = require('debug')('configure');
 const upgradekvm = require('./lib/upgrade-kvm')();
 const upgradeauth = require('./lib/upgrade-edgeauth')();
 const rotatekey = require('./lib/rotate-key')();
@@ -23,6 +24,7 @@ module.exports = function() {
         .option('-t, --token <token>', 'OAuth token to use with management API')
         .option('-k  --key <key>', 'Path to private key to be used by Apigee Edge')
         .option('-s  --cert <cert>', 'Path to certificate to be used by Apigee Edge')
+        .option('-d, --debug', 'execute with debug output')
 
         .action((options) => {
             options.error = optionError;
