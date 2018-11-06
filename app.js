@@ -7,6 +7,14 @@ var run = require('./cli/lib/gateway')();
 var portastic = require('portastic');
 const os = require('os');
 
+const stale = require('stale-dnscache');
+
+stale.duckPunchDNS({
+  onPopulatorFailure: function onDNSFailure(err) {
+    console.log('Error in DNS resolution: ', err);
+  }
+});
+
 const options = {};
 
 options.env = process.env.EDGEMICRO_ENV;
