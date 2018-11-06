@@ -33,6 +33,7 @@
     "portastic": "^1.0.1",
     "request": "^2.87.0",
     "rimraf": "^2.4.3",
+    "stale-dnscache": "^1.3.2",
     "tmp": "0.0.28",
     "uuid": "^3.2.1",
     "volos-cache-memory": "^0.10.1",
