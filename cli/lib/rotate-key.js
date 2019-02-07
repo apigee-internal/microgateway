@@ -97,18 +97,18 @@ function updateNonCPSKVM(options, serviceKey, newCertificate, newPublicKey, oldP
     });	
 }
 
-function checkKVMEntry(options, key) {
-	var entryuri = util.format("%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/%s",
-	options.baseuri, options.org, options.env, options.kvm, key);
+function checkKVMEntry(options, key, cb) {
+    var entryuri = util.format("%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/%s",
+    options.baseuri, options.org, options.env, options.kvm, key);
 
     request({
         uri: entryuri,
         auth: generateCredentialsObject(options),
         method: "GET",
     }, function(err, res, body) {
-        if (err || res.statusCode > 299) return false;
-		else return true;
-    });						
+        if (err || res.statusCode > 299) return cb(err || Error(`${res.statusCode}:${res.statusMessage}`), false);
+        else return cb(null, true);
+    });                     
 }
 
 function insertKVMEntry(options, key, value, cb) {
@@ -125,7 +125,7 @@ function insertKVMEntry(options, key, value, cb) {
         method: "POST",
 		json: entry
     }, function(err, res, body) {
-        if (err || res.statusCode > 299) cb(err);
+        if (err || res.statusCode > 299) cb(err || Error(`${res.statusCode}:${res.statusMessage}`));
 		else cb(null, true);
     });		
 	
@@ -145,26 +145,31 @@ function updateKVMEntry(options, key, value, cb) {
         method: "POST",
 		json: entry
     }, function(err, res, body) {
-        if (err || res.statusCode > 299) cb(err);
+        if (err || res.statusCode > 299) cb(err || Error(`${res.statusCode}:${res.statusMessage}`));
 		else cb(null, true);
     });	
 	
 }
 
 function updateOrInsertEntry (options, key, value, cb) {
-	if (checkKVMEntry(options, key)) {
-		debug("entry exists, updating..");
-		updateKVMEntry(options, key, value, function(err, result){
-			if (err) cb(err);
-			else cb(null, true);
-		});
-	} else {
-		debug("entry does not exist. inserting entry...")
-		insertKVMEntry(options, key, value, function(err, result){
-			if (err) cb(err);
-			else cb(null, true);
-		});
-	}
+    checkKVMEntry(options, key, function (err, result) {
+        if(err) {
+            console.error(err);
+            cb(err);
+        } else if(result === true) {
+            debug("entry exists, updating..");
+            updateKVMEntry(options, key, value, function (err, result) {
+                if(err) cb(err);
+                else cb(null, true);
+            });
+        } else {
+            debug("entry does not exist. inserting entry...")
+            insertKVMEntry(options, key, value, function (err, result) {
+                if(err) cb(err);
+                else cb(null, true);
+            })
+        }
+    });
 }
 
 function updateCPSKVM(options, serviceKey, newCertificate, newPublicKey, oldPublicKey) {
