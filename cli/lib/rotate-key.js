@@ -106,7 +106,8 @@ function checkKVMEntry(options, key, cb) {
         auth: generateCredentialsObject(options),
         method: "GET",
     }, function(err, res, body) {
-        if (err || res.statusCode > 299) return cb(err || Error(`${res.statusCode}:${res.statusMessage}`), false);
+        if (err) return cb(err);
+        else if(res.statusCode > 299) return cb(null, false);
         else return cb(null, true);
     });                     
 }
@@ -172,7 +173,7 @@ function updateOrInsertEntry (options, key, value, cb) {
     });
 }
 
-function updateCPSKVM(options, serviceKey, newCertificate, newPublicKey, oldPublicKey) {
+function updateCPSKVM(options, serviceKey, newCertificate, newPublicKey, oldPublicKey, callback) {
 	var updatecpskvmuri = util.format("%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/",
                     options.baseuri, options.org, options.env,options.kvm);	
 	
@@ -265,9 +266,11 @@ function updateCPSKVM(options, serviceKey, newCertificate, newPublicKey, oldPubl
 	], function (err, results) {
 		if (err) {
 			console.error(err);
+            if(callback) callback(err);
 			process.exit(1);
 		} else {
 			console.log("Key Rotation successfully completed!");
+            if(callback) callback(null, results);
 		}
     });
 }
@@ -280,7 +283,7 @@ module.exports = function () {
   return new RotateKey();
 }
 
-RotateKey.prototype.rotatekey = function rotatekey(options, cb) {
+RotateKey.prototype.rotatekey = function rotatekey(options, callback) {
 
     options.baseuri = options.mgmtUrl || "https://api.enterprise.apigee.com";
     options.kvm = "microgateway";
@@ -338,7 +341,7 @@ RotateKey.prototype.rotatekey = function rotatekey(options, cb) {
 					});								
 				}
 			], function(e, res){
-				if (err) {
+				if (e) {
 					console.error(e);
 					process.exit(1);
 				} else {
@@ -360,10 +363,10 @@ RotateKey.prototype.rotatekey = function rotatekey(options, cb) {
 								var property = payload.properties.property;
 								if (isCPS(property)) {
 									debug("CPS is enabled");
-									updateCPSKVM(options, res[1].serviceKey, newCertificate, newkey.publicKey, res[0].publicKey);
+									updateCPSKVM(options, res[1].serviceKey, newCertificate, newkey.publicKey, res[0].publicKey,callback);
 								} else {
 									debug("CPS is not enabled");
-									updateNonCPSKVM(options, res[1].serviceKey, newCertificate, newkey.publicKey, res[0].publicKey);
+									updateNonCPSKVM(options, res[1].serviceKey, newCertificate, newkey.publicKey, res[0].publicKey,callback);
 								}
 							});							
 						}
