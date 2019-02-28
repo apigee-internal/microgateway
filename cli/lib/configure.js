@@ -68,7 +68,7 @@ Configure.prototype.configure = function configure(options, cb) {
   targetFile = configLocations.getSourceFile(options.org, options.env);
   const cache = configLocations.getCachePath(options.org, options.env);
   if (fs.existsSync(cache)) {
-    fs.unlinkSync(cache);
+    //sfs.unlinkSync(cache);
     //console.log('deleted ' + cache);
   }
 
