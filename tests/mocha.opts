@@ -1,1 +1,1 @@
---recursive --growl --timeout 5000
+--recursive --growl --timeout 50000
