@@ -2,6 +2,8 @@
 logs
 *.log
 npm-debug.log*
+tests/env.js
+tests/envVars.js
 
 # Runtime data
 pids
