@@ -23,7 +23,7 @@ module.exports = function() {
     return new Gateway();
 };
 
-Gateway.prototype.start = (options) => {
+Gateway.prototype.start = (options,cb) => {
     const self = this;
     try {
         fs.accessSync(ipcPath, fs.F_OK);
@@ -41,7 +41,8 @@ Gateway.prototype.start = (options) => {
 
     const source = configLocations.getSourcePath(options.org, options.env, options.configDir);
     const cache = configLocations.getCachePath(options.org, options.env, options.configDir);
-    const configurl = options.configUrl;
+    const configurl = options.configUrl;   
+    
     const keys = {
         key: options.key,
         secret: options.secret
@@ -214,6 +215,12 @@ Gateway.prototype.start = (options) => {
                 });
             }, pollInterval * 1000);
         }
+        
+        if ( cb && (typeof cb == "function") ) {
+            console.log("Calling cb")
+            cb();
+        }
+        
     });
 };
 

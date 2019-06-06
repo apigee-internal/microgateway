@@ -44,3 +44,5 @@ default.yaml.bak
 test-token.txt
 env.sh
 foo
+.env
+.vscode

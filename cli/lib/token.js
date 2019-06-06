@@ -42,7 +42,7 @@ Token.prototype.verifyToken = function(options, cb) {
   const secret = options.secret;
   const keys = { key: key, secret: secret };
 
-  const token = fs.readFileSync(path.resolve(options.file), 'utf8').trim();
+  const token = fs.readFileSync(path.resolve(options.file), 'utf8').trim();   
 
   const config = edgeconfig.load({ source: targetPath, keys: keys });
 
