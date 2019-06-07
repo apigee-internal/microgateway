@@ -51,11 +51,12 @@ Token.prototype.verifyToken = function(options, cb) {
     config.edge_config['managementUri'] === 'https://api.e2e.apigee.net';
 
   getPublicKey(options.org, options.env, authUri, this.isPublicCloud, function(err, certificate) {
+    //
     if (err) {
       cb(err);
       return printError(err);
     }
-
+    //
     const opts = {
       algorithms: ['RS256'],
       ignoreExpiration: false
@@ -111,14 +112,16 @@ Token.prototype.getToken = function(options, cb) {
 }
 
 function getPublicKey(organization, environment, authUri, isPublicCloud, cb) {
-
+  //
   const uri = isPublicCloud ? util.format(authUri + '/publicKey', organization, environment) : authUri + '/publicKey';
+  //
   request({
     uri: uri
   }, function(err, res) {
     if (err) { return cb(err); }
     cb(null, res.body);
   });
+  //
 }
 
 function printError(err) {

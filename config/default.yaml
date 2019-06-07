@@ -32,3 +32,4 @@ headers:
 oauth:
   allowNoAuthorization: false
   allowInvalidAuthorization: false
+  gracePeriod: 10
