@@ -99,63 +99,89 @@ describe('test-cli', function() {
         setTimeout(() => { done() },1000)
     })
 
-    it('gets public key first',function(done) {
-        //
-        this.timeout(5000);
-        //
-        function getPublicKey(organization, environment, authUri, isPublicCloud, cb) {
-            //
-            const uri = isPublicCloud ? util.format(authUri + '/publicKey', organization, environment) : authUri + '/publicKey';
-            //
-            request({
-              uri: uri
-            }, function(err, res) {
-              if (err) { return cb(err); }
-              cb(null, res.body);
-            });
-            //
-        }
 
-        const authUri = config.edge_config['authUri'];
-
-        getPublicKey(org,env,authUri,true,(err,data) => {
-            console.log(data);
-            //
-            token.getToken({
-                org: org,
-                env: env,
-                id: tokenId,
-                secret: tokenSecret
-            }, (err, t) => {
-                err && done(err);
-                assert(t && t.token, "token came back empty " + JSON.stringify(t))
-                //
-                console.log('token: ' +  t.token);
-                //
-                //
-                const opts = {
-                    algorithms: ['RS256'],
-                    ignoreExpiration: false
-                  };
-
-                var token = t.token;
-                  
-                jwt.verify(token, data, opts, function(err, result) {
-                    //
-                    if (err) {
-                        assert(false);
-                        done(err)
-                        return printError(err);
-                    }
-                    //
-                    assert(true);
+    it('test check cert', function(done) {
+        this.timeout(5000)
+        const options = { org: org, env: env, username: user, password: password };
+        cert.deleteCert(options, (err) => {
+            assert(!err, err);
+            cert.installCert(options, (err, res) => {
+                assert(!err, err);
+                assert(res, "res was empty")
+                assert(res.startsWith("-----BEGIN CERTIFICATE-----"))
+                assert(res.endsWith("-----END CERTIFICATE-----"))
+                cert.checkCert(options, (err, res) => {
+                    assert(!err, err);
+                    assert(res, "res was empty");
+                    //TODO
+                    //  improve this logic.  needs to account for cps/non cps orgs and the
+                    //  correspding cert apis response formats
                     done();
-                    //
-                });
-              
+                })
             })
         })
-          
-    })
+    });
+
+    //
+
+    it('test cert', function(done) {
+        cert.retrievePublicKey({ org: org, env: env, username: user, password: password }, (err, certificate) => {
+            assert(!err, err);
+            assert(certificate, "no certificate");
+
+            done();
+        })
+    });
+
+    it('test cert install error', function(done) {
+        try {
+            cert.installCert({ org: org, env: env, username: user, password: 'badPassword' }, (err, res) => {
+                assert(err, "Did not error out with callback");
+                done();
+            });
+        } catch (e) {
+            done(e);
+        }
+    });
+
+    it('test cert check error', function(done) {
+        try {
+            cert.checkCert({ org: org, env: env, username: user, password: 'badPassword' }, (err, res) => {
+                assert(err, "Did not error out with callback");
+                done();
+            })
+        } catch (e) {
+            done(e);
+        }
+    });
+
+    //
+
+    it('test cert delete error', function(done) {
+        try {
+            cert.deleteCert({ org: org, env: env, username: user, password: 'badPassword' }, (err) => {
+                assert(err, "Did not error out with callback");
+                done();
+            })
+        } catch (e) {
+            done(e);
+        }
+    });
+
+    it('key gen', function(done) {
+        keyGen.generate({ org: org, env: env, username: user, password: password }, (err, result) => {
+            assert(!err, err);
+            assert(result, "no result");
+            assert(result.key);
+            assert(result.secret);
+            assert(result.bootstrap)
+            done();
+        })
+    });
+
+    //
 
 });
+
+
+

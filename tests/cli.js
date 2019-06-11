@@ -174,88 +174,6 @@ describe('test-cli', function() {
 
     });
 
-
-    it('test check cert', function(done) {
-        this.timeout(5000)
-        const options = { org: org, env: env, username: user, password: password };
-        cert.deleteCert(options, (err) => {
-            assert(!err, err);
-            cert.installCert(options, (err, res) => {
-                assert(!err, err);
-                assert(res, "res was empty")
-                assert(res.startsWith("-----BEGIN CERTIFICATE-----"))
-                assert(res.endsWith("-----END CERTIFICATE-----"))
-                cert.checkCert(options, (err, res) => {
-                    assert(!err, err);
-                    assert(res, "res was empty");
-                    //TODO
-                    //  improve this logic.  needs to account for cps/non cps orgs and the
-                    //  correspding cert apis response formats
-                    done();
-                })
-            })
-        })
-    });
-
-    ///*
-
-    it('test cert', function(done) {
-        cert.retrievePublicKey({ org: org, env: env, username: user, password: password }, (err, certificate) => {
-            assert(!err, err);
-            assert(certificate, "no certificate");
-
-            done();
-        })
-    });
-
-    it('test cert install error', function(done) {
-        try {
-            cert.installCert({ org: org, env: env, username: user, password: 'badPassword' }, (err, res) => {
-                assert(err, "Did not error out with callback");
-                done();
-            });
-        } catch (e) {
-            done(e);
-        }
-    });
-
-    it('test cert check error', function(done) {
-        try {
-            cert.checkCert({ org: org, env: env, username: user, password: 'badPassword' }, (err, res) => {
-                assert(err, "Did not error out with callback");
-                done();
-            })
-        } catch (e) {
-            done(e);
-        }
-    });
-
-    //*/
-
-    it('test cert delete error', function(done) {
-        try {
-            cert.deleteCert({ org: org, env: env, username: user, password: 'badPassword' }, (err) => {
-                assert(err, "Did not error out with callback");
-                done();
-            })
-        } catch (e) {
-            done(e);
-        }
-    });
-
-    it('key gen', function(done) {
-        keyGen.generate({ org: org, env: env, username: user, password: password }, (err, result) => {
-            assert(!err, err);
-            assert(result, "no result");
-            assert(result.key);
-            assert(result.secret);
-            assert(result.bootstrap)
-            done();
-        })
-    });
-
-    //
-
     it('token verify token', function(done) {
         this.timeout(5000);
         token.getToken({
@@ -291,3 +209,6 @@ describe('test-cli', function() {
     });
 
 });
+
+
+

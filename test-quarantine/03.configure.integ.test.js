@@ -5,6 +5,8 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const jsyaml = require('js-yaml');
+const denv = require('dotenv');
+denv.config();
 const envVars = require('./env.js');
 const { user: username, password, env, org, tokenId, tokenSecret } = envVars;
 const loc = require('../config/locations.js')
@@ -16,6 +18,7 @@ const mgwHome = path.join(loc.defaultDir, '..');
 const init = require('../cli/lib/init.js');
 const configure = require('../cli/lib/configure.js')();
 const uuid = require('uuid');
+
 let configDir;
 let configLocation;
 let customOrgEnvFilepath;
@@ -61,6 +64,7 @@ describe('configure module', () => {
 		);
 	});
 
+	/*
 	it('configures customDir and saves default config file to customDir location',  (done) => {
 		configDir = uuid.v1();
 
@@ -86,12 +90,15 @@ describe('configure module', () => {
 	});
 
 	it('saves env/org config file to customDir location', (done) =>{
+		configDir = uuid.v1();
 		customOrgEnvFilepath = path.join(mgwHome, configDir, defaultOrgEnvFilename);
 		let customSourceConfigJSON = jsyaml.safeLoad(fs.readFileSync(customOrgEnvFilepath));
 		assert(customSourceConfigJSON.edge_config);
 		done();
 	});
+	*/
 
+	/*
 	it('configures mgw for org and env without error', done => {
 		configure.configure(
 			{
@@ -113,6 +120,7 @@ describe('configure module', () => {
 		assert(defaultSourceConfigJSON.edge_config);
 		done();
 	});
+	*/
 
 
 });

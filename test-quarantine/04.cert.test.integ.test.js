@@ -2,6 +2,8 @@
 
 const assert = require('assert');
 const cert = require('../cli/lib/cert')();
+const denv = require('dotenv');
+denv.config();
 const envVars = require('./env.js');
 const { user: username, password, env, org, tokenId, tokenSecret } = envVars;
 const configure = require('../cli/lib/configure.js')();
@@ -25,6 +27,7 @@ describe('cert module', () => {
 	});
 
 	it('checks public cert', done => {
+		this.timeout(10000)
 		cert.checkCert(
 			{
 				username,

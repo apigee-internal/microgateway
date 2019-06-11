@@ -8,6 +8,9 @@ const configDir = path.join(__dirname, "../config");
 const defaultFilename = "default.yaml";
 const defaultDirName = '.edgemicro';
 const configPath = path.join(__dirname, "../config", defaultFilename);
+const denv = require('dotenv');
+denv.config();
+const envVars = require('./env')
 
 
 describe("locations module", () => {

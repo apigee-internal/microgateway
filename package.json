@@ -62,8 +62,7 @@
     "start": "node app.js",
     "stop": "node stop.js",
     "package": "node cli/package.js",
-    "test": "nyc mocha --timeout 17000 tests/*.unit.test.js",
-    "test:integration": "nyc mocha tests/*.*.integ.test.js --timeout 90000"
+    "test": "nyc mocha --timeout 17000 tests/*.unit.test.js && nyc mocha tests/*.*.integ.test.js --timeout 90000"
   },
   "directories": {
     "doc": "docs",

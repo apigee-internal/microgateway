@@ -6,6 +6,10 @@ const os = require('os');
 const path = require('path');
 const assert = require('assert');
 const fs = require('fs');
+const denv = require('dotenv');
+denv.config();
+const envVars = require('./env')
+
 const edgemicroCustomDir = 'edgemicroCustomDir';
 const edgemicroCustomFilepath = path.join(edgemicroCustomDir, loc.defaultFile);
 

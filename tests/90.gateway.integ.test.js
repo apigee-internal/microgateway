@@ -5,6 +5,8 @@
 const gateway = require('../cli/lib/gateway.js')();
 const assert = require('assert');
 const path = require('path');
+const denv = require('dotenv');
+denv.config();
 const envVars = require('./env.js');
 const {user:username, password, env, org, tokenId:id, tokenSecret, key, secret } = envVars;
 const { spawn, spawnSync, execSync } = require("child_process");
@@ -35,14 +37,14 @@ describe('gateway module', () => {
 		assert.equal(outString.includes('edgemicro is running with'), true) 
 		done();
 	});
-
+/*
 	it('reloads mgw when running',  (done) => {
 		let gatewayReload = spawnSync('node', ['tests/childProcs/gatewayReload.test.js']);
 		let outString = Buffer.from(gatewayReload.stdout).toString();
 		assert.equal(outString.includes('Reload Completed Successfully'), true);
 		done();
 	});
-
+*/
 	it('stop mgw when running', done=> {
 		let gatewayStop = spawnSync('node', ['tests/childProcs/gatewayStop.test.js']);
 		let outString = Buffer.from(gatewayStop.stdout).toString();
