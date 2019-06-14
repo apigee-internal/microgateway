@@ -46,3 +46,7 @@ env.sh
 foo
 #.env
 .vscode
+tools
+logging-report.txt
+logstuf.txt
+quick.sh
