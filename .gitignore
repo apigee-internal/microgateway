@@ -45,8 +45,10 @@ test-token.txt
 env.sh
 foo
 #.env
+evars.sh
 .vscode
 tools
 logging-report.txt
 logstuf.txt
 quick.sh
+.nyc_output
