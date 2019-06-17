@@ -32,7 +32,6 @@
     "portastic": "^1.0.1",
     "request": "^2.87.0",
     "rimraf": "^2.4.3",
-    "test-until": "^1.1.1",
     "tmp": "0.0.28",
     "uuid": "^3.2.1",
     "volos-cache-memory": "^0.10.1",
@@ -49,6 +48,7 @@
     "nyc": "^13.3.0",
     "request-promise": "^4.2.4",
     "restify": "^4.0.4",
+    "test-until": "^1.1.1",
     "run-sequence": "^1.1.0"
   },
   "eslintConfig": {
