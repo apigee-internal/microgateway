@@ -1,7 +1,7 @@
 var cluster = require('cluster');
 var EventEmitter = require('events').EventEmitter;
 var cpuCount = require('os').cpus().length;
-const cache = require('memored');
+const cache = require('microgateway-plugins').memored;
 
 const PURGE_INTERVAL = 60000;
 
@@ -28,9 +28,8 @@ var ReloadCluster = (file, opt) => {
   opt.workerReadyWhen = opt.workerReadyWhen || 'listening';
   opt.args = opt.args || [];
   opt.log = opt.log || {respawns: true};
+  opt.respawnIntervalManager = RespawnIntervalManager({minRespawnInterval: opt.minRespawnInterval});
 
-  var logger = opt.logger || console;
-  var respawnIntervalManager = RespawnIntervalManager({minRespawnInterval: opt.minRespawnInterval});
   var respawnerTimers = RespawnTimerList();
   var readyEvent = opt.workerReadyWhen == 'started' ? 'online' : opt.workerReadyWhen == 'listening' ? 'listening' : 'message';
   var readyCommand = 'ready';
@@ -95,16 +94,11 @@ var ReloadCluster = (file, opt) => {
 
     removeWorkerFromActiveWorkers(worker);
 
-    var now = Date.now();
-
-    //test if the worker was able to load
+    // respawn worker
     try {
-      //test if the worker was able to load
-      if (typeof respawnIntervalManager.getIntervalForNextSpawn == 'function') {
-        var interval = respawnIntervalManager.getIntervalForNextSpawn(now);
-  
+        var interval = opt.respawnIntervalManager.getIntervalForNextSpawn(Date.now());
         if (opt.log.respawns) {
-          logger.log('[' + worker.process.pid + '] worker (' + worker._rc_wid
+          opt.logger.info('[' + worker.process.pid + '] worker (' + worker._rc_wid
             + ':' + worker.id + ') must be replaced, respawning in', interval);
         }
     
@@ -114,11 +108,9 @@ var ReloadCluster = (file, opt) => {
         }, interval);
     
         respawnerTimers.add(respawnerTimer);
-      }
-    } catch (e) {//ignore error
+    } catch (e) {
       console.warn(e);
     }
-
   }
 
   /**
@@ -351,7 +343,7 @@ function RespawnIntervalManager(opt) {
   var respawnInterval = opt.minRespawnInterval || 1;  // default to 1 sec
   var lastSpawn = Date.now();
 
-  function getIntervalForNextSpawn(now) {
+  this.getIntervalForNextSpawn = function (now) {
     var nextSpawn = Math.max(now, lastSpawn + respawnInterval * 1000),
       intervalForNextSpawn = nextSpawn - now;
     lastSpawn = nextSpawn;

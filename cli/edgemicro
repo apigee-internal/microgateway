@@ -23,9 +23,9 @@
 'use strict';
 var edgemicroVersion = require('../package.json').version;
 const version = process.version;
-const ltsVersion = 6;
-const experimental = ["v7", "v9"];
-const latest = 10;
+const ltsVersion = 8;
+const experimental = ["v7", "v9","v11"];
+const latest = 12;
 
 //don't print versions when obtaining a token. 
 if (!process.argv.includes("token") && !process.argv.includes("get")) {

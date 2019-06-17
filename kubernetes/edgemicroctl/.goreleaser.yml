@@ -29,7 +29,7 @@ archive:
     - install/kubernetes/*.*
     - install/kubernetes/config/*.yaml
 git:
- short_hash: true
+  short_hash: true
 release:
   draft: true
   prerelease: true
