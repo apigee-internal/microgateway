@@ -1,0 +1,814 @@
+{
+  name: 'cmd.js',
+  reqs: [
+    { name: '../config/locations.js', reqs: [] },
+    { name: '../forever.json', reqs: [] },
+    {
+      name: 'lib/configure.js',
+      reqs: [
+        { name: '../config/locations.js', reqs: [] },
+        {
+          name: '../node_modules/microgateway-config/index.js',
+          reqs: [
+            '../node_modules/microgateway-config/lib/io.js',
+            '../node_modules/microgateway-config/lib/network.js'
+          ]
+        },
+        {
+          name: 'lib/cert-lib.js',
+          reqs: [
+            '../node_modules/async/lib/async.js',
+            '../node_modules/async/lib/async.js',
+            '../node_modules/async/lib/async.js',
+            '../node_modules/cli-prompt/index.js',
+            '../node_modules/debug/src/index.js',
+            '../node_modules/js-yaml/index.js',
+            '../node_modules/pem/lib/pem.js',
+            '../node_modules/request/index.js'
+          ]
+        },
+        {
+          name: 'lib/deploy-auth.js',
+          reqs: [
+            '../node_modules/apigeetool/lib/main.js',
+            '../node_modules/async/lib/async.js',
+            '../node_modules/cpr/lib/index.js',
+            '../node_modules/debug/src/index.js',
+            '../node_modules/lodash/lodash.js',
+            '../node_modules/request/index.js',
+            '../node_modules/rimraf/rimraf.js',
+            '../node_modules/tmp/lib/tmp.js'
+          ]
+        }
+      ]
+    },
+    {
+      name: 'lib/gateway.js',
+      reqs: [
+        { name: '../config/locations.js', reqs: [] },
+        {
+          name: '../node_modules/microgateway-config/index.js',
+          reqs: [
+            '../node_modules/microgateway-config/lib/io.js',
+            '../node_modules/microgateway-config/lib/network.js'
+          ]
+        },
+        {
+          name: '../node_modules/microgateway-core/index.js',
+          reqs: [
+            {
+              name: '../node_modules/microgateway-core/lib/config.js',
+              reqs: []
+            },
+            {
+              name: '../node_modules/microgateway-core/lib/gateway.js',
+              reqs: [
+                {
+                  name: '../node_modules/microgateway-core/lib/config-proxy-middleware.js',
+                  reqs: [
+                    {
+                      name: '../node_modules/microgateway-core/lib/build-tunnel-agent.js',
+                      reqs: [
+                        '../node_modules/microgateway-core/node_modules/tunnel-agent/index.js'
+                      ]
+                    },
+                    {
+                      name: '../node_modules/microgateway-core/lib/config.js',
+                      reqs: []
+                    },
+                    {
+                      name: '../node_modules/microgateway-core/lib/no-proxy-parser.js',
+                      reqs: []
+                    },
+                    {
+                      name: '../node_modules/microgateway-core/lib/proxy-path-matcher.js',
+                      reqs: [
+                        '../node_modules/microgateway-core/node_modules/minimatch/minimatch.js'
+                      ]
+                    }
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-core/lib/config.js',
+                  reqs: []
+                },
+                {
+                  name: '../node_modules/microgateway-core/lib/errors-middleware.js',
+                  reqs: [
+                    {
+                      name: '../node_modules/microgateway-core/lib/logging.js',
+                      reqs: [
+                        {
+                          name: '../node_modules/microgateway-core/lib/config.js',
+                          reqs: []
+                        },
+                        {
+                          name: '../node_modules/microgateway-core/lib/stats.js',
+                          reqs: []
+                        }
+                      ]
+                    },
+                    {
+                      name: '../node_modules/microgateway-core/lib/stats.js',
+                      reqs: []
+                    }
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-core/lib/logging.js',
+                  reqs: [
+                    {
+                      name: '../node_modules/microgateway-core/lib/config.js',
+                      reqs: []
+                    },
+                    {
+                      name: '../node_modules/microgateway-core/lib/stats.js',
+                      reqs: []
+                    }
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-core/lib/plugins-middleware.js',
+                  reqs: [
+                    {
+                      name: '../node_modules/microgateway-core/lib/build-non-tunnel-options.js',
+                      reqs: []
+                    },
+                    {
+                      name: '../node_modules/microgateway-core/lib/config.js',
+                      reqs: []
+                    },
+                    {
+                      name: '../node_modules/microgateway-core/lib/logging.js',
+                      reqs: [
+                        {
+                          name: '../node_modules/microgateway-core/lib/config.js',
+                          reqs: []
+                        },
+                        {
+                          name: '../node_modules/microgateway-core/lib/stats.js',
+                          reqs: []
+                        }
+                      ]
+                    },
+                    {
+                      name: '../node_modules/microgateway-core/lib/no-proxy-parser.js',
+                      reqs: []
+                    },
+                    {
+                      name: '../node_modules/microgateway-core/lib/ondata-transform.js',
+                      reqs: [
+                        '../node_modules/microgateway-core/node_modules/async/lib/async.js',
+                        '../node_modules/microgateway-core/node_modules/debug/src/index.js'
+                      ]
+                    },
+                    {
+                      name: '../node_modules/microgateway-core/lib/stats.js',
+                      reqs: []
+                    },
+                    {
+                      name: '../node_modules/microgateway-core/lib/trace-helper.js',
+                      reqs: [
+                        '../node_modules/microgateway-core/node_modules/debug/src/index.js',
+                        '../node_modules/microgateway-core/node_modules/opentracing/lib/index.js'
+                      ]
+                    }
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-core/lib/trace-helper.js',
+                  reqs: [
+                    '../node_modules/microgateway-core/node_modules/debug/src/index.js',
+                    '../node_modules/microgateway-core/node_modules/opentracing/lib/index.js'
+                  ]
+                }
+              ]
+            },
+            {
+              name: '../node_modules/microgateway-core/lib/logging.js',
+              reqs: [
+                {
+                  name: '../node_modules/microgateway-core/lib/config.js',
+                  reqs: []
+                },
+                {
+                  name: '../node_modules/microgateway-core/lib/stats.js',
+                  reqs: []
+                }
+              ]
+            },
+            {
+              name: '../node_modules/microgateway-core/lib/plugins.js',
+              reqs: [
+                {
+                  name: '../node_modules/microgateway-core/lib/config.js',
+                  reqs: []
+                },
+                {
+                  name: '../node_modules/microgateway-core/lib/logging.js',
+                  reqs: [
+                    {
+                      name: '../node_modules/microgateway-core/lib/config.js',
+                      reqs: []
+                    },
+                    {
+                      name: '../node_modules/microgateway-core/lib/stats.js',
+                      reqs: []
+                    }
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-core/lib/stats.js',
+                  reqs: []
+                }
+              ]
+            },
+            {
+              name: '../node_modules/microgateway-core/lib/stats.js',
+              reqs: []
+            }
+          ]
+        },
+        { name: '../third_party/json-socket/json-socket.js', reqs: [] },
+        {
+          name: 'lib/reload-cluster.js',
+          reqs: [
+            {
+              name: '../node_modules/microgateway-plugins/index.js',
+              reqs: [
+                {
+                  name: '../node_modules/microgateway-plugins/accesscontrol/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/accumulate-request/index.js',
+                  reqs: []
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/accumulate-response/index.js',
+                  reqs: []
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/analytics/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                    '../node_modules/microgateway-plugins/node_modules/volos-analytics-apigee/lib/apigeeanalytics.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/apikeys/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                    '../node_modules/microgateway-plugins/node_modules/jsrsasign/lib/jsrsasign.js',
+                    '../node_modules/microgateway-plugins/node_modules/lodash/lodash.js',
+                    '../node_modules/microgateway-plugins/node_modules/request/index.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/bauth/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/cloud-foundry-route-service/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/cors/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/eurekaclient/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                    '../node_modules/microgateway-plugins/node_modules/eureka-js-client/lib/index.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/extauth/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                    '../node_modules/microgateway-plugins/node_modules/jsrsasign/lib/jsrsasign.js',
+                    '../node_modules/microgateway-plugins/node_modules/request/index.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/header-uppercase/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/healthcheck/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                    '../node_modules/microgateway-plugins/node_modules/portastic/index.js',
+                    '../node_modules/microgateway-plugins/node_modules/toobusy-js/index.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/invalidHeader/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/json2xml/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                    '../node_modules/microgateway-plugins/node_modules/js2xmlparser/lib/main.js',
+                    '../node_modules/microgateway-plugins/node_modules/xml2js/lib/xml2js.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/monitor/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                    '../node_modules/microgateway-plugins/node_modules/lynx/lib/lynx.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/oauth/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                    '../node_modules/microgateway-plugins/node_modules/jsrsasign/lib/jsrsasign.js',
+                    '../node_modules/microgateway-plugins/node_modules/lodash/lodash.js',
+                    '../node_modules/microgateway-plugins/node_modules/request/index.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/oauthv2/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                    '../node_modules/microgateway-plugins/node_modules/jsrsasign/lib/jsrsasign.js',
+                    '../node_modules/microgateway-plugins/node_modules/lodash/lodash.js',
+                    '../node_modules/microgateway-plugins/node_modules/request/index.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/quota-memory/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/async/lib/async.js',
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                    '../node_modules/microgateway-plugins/node_modules/volos-quota-memory/lib/memoryquota.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/quota/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/async/lib/async.js',
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                    '../node_modules/microgateway-plugins/node_modules/volos-quota-apigee/lib/apigeequota.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/spikearrest/index.js',
+                  reqs: [
+                    '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                    '../node_modules/microgateway-plugins/node_modules/volos-spikearrest-memory/lib/memory_spikearrest.js'
+                  ]
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/third_party/memored/index.js',
+                  reqs: []
+                },
+                {
+                  name: '../node_modules/microgateway-plugins/transform-uppercase/index.js',
+                  reqs: []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      name: 'lib/init.js',
+      reqs: [ { name: '../config/locations.js', reqs: [] } ]
+    },
+    {
+      name: 'lib/key-gen.js',
+      reqs: [
+        { name: '../config/locations.js', reqs: [] },
+        {
+          name: '../node_modules/microgateway-config/index.js',
+          reqs: [
+            '../node_modules/microgateway-config/lib/io.js',
+            '../node_modules/microgateway-config/lib/network.js'
+          ]
+        }
+      ]
+    },
+    {
+      name: 'lib/rotate-key.js',
+      reqs: [
+        '../node_modules/async/lib/async.js',
+        '../node_modules/commander/index.js',
+        '../node_modules/debug/src/index.js',
+        '../node_modules/pem/lib/pem.js',
+        '../node_modules/request/index.js'
+      ]
+    },
+    {
+      name: 'lib/upgrade-edgeauth.js',
+      reqs: [
+        {
+          name: 'lib/deploy-auth.js',
+          reqs: [
+            '../node_modules/apigeetool/lib/main.js',
+            '../node_modules/async/lib/async.js',
+            '../node_modules/cpr/lib/index.js',
+            '../node_modules/debug/src/index.js',
+            '../node_modules/lodash/lodash.js',
+            '../node_modules/request/index.js',
+            '../node_modules/rimraf/rimraf.js',
+            '../node_modules/tmp/lib/tmp.js'
+          ]
+        }
+      ]
+    },
+    {
+      name: 'lib/upgrade-kvm.js',
+      reqs: [
+        '../node_modules/debug/src/index.js',
+        '../node_modules/pem/lib/pem.js',
+        '../node_modules/request/index.js'
+      ]
+    },
+    {
+      name: 'lib/verify.js',
+      reqs: [
+        { name: '../config/locations.js', reqs: [] },
+        {
+          name: '../lib/agent-config.js',
+          reqs: [
+            {
+              name: '../node_modules/microgateway-config/index.js',
+              reqs: [
+                '../node_modules/microgateway-config/lib/io.js',
+                '../node_modules/microgateway-config/lib/network.js'
+              ]
+            },
+            {
+              name: '../lib/server.js',
+              reqs: [
+                {
+                  name: '../lib/gateway.js',
+                  reqs: [
+                    {
+                      name: '../node_modules/microgateway-core/index.js',
+                      reqs: [
+                        {
+                          name: '../node_modules/microgateway-core/lib/config.js',
+                          reqs: []
+                        },
+                        {
+                          name: '../node_modules/microgateway-core/lib/gateway.js',
+                          reqs: [
+                            {
+                              name: '../node_modules/microgateway-core/lib/config-proxy-middleware.js',
+                              reqs: [
+                                {
+                                  name: '../node_modules/microgateway-core/lib/build-tunnel-agent.js',
+                                  reqs: [
+                                    '../node_modules/microgateway-core/node_modules/tunnel-agent/index.js'
+                                  ]
+                                },
+                                {
+                                  name: '../node_modules/microgateway-core/lib/config.js',
+                                  reqs: []
+                                },
+                                {
+                                  name: '../node_modules/microgateway-core/lib/no-proxy-parser.js',
+                                  reqs: []
+                                },
+                                {
+                                  name: '../node_modules/microgateway-core/lib/proxy-path-matcher.js',
+                                  reqs: [
+                                    '../node_modules/microgateway-core/node_modules/minimatch/minimatch.js'
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-core/lib/config.js',
+                              reqs: []
+                            },
+                            {
+                              name: '../node_modules/microgateway-core/lib/errors-middleware.js',
+                              reqs: [
+                                {
+                                  name: '../node_modules/microgateway-core/lib/logging.js',
+                                  reqs: [
+                                    {
+                                      name: '../node_modules/microgateway-core/lib/config.js',
+                                      reqs: []
+                                    },
+                                    {
+                                      name: '../node_modules/microgateway-core/lib/stats.js',
+                                      reqs: []
+                                    }
+                                  ]
+                                },
+                                {
+                                  name: '../node_modules/microgateway-core/lib/stats.js',
+                                  reqs: []
+                                }
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-core/lib/logging.js',
+                              reqs: [
+                                {
+                                  name: '../node_modules/microgateway-core/lib/config.js',
+                                  reqs: []
+                                },
+                                {
+                                  name: '../node_modules/microgateway-core/lib/stats.js',
+                                  reqs: []
+                                }
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-core/lib/plugins-middleware.js',
+                              reqs: [
+                                {
+                                  name: '../node_modules/microgateway-core/lib/build-non-tunnel-options.js',
+                                  reqs: []
+                                },
+                                {
+                                  name: '../node_modules/microgateway-core/lib/config.js',
+                                  reqs: []
+                                },
+                                {
+                                  name: '../node_modules/microgateway-core/lib/logging.js',
+                                  reqs: [
+                                    {
+                                      name: '../node_modules/microgateway-core/lib/config.js',
+                                      reqs: []
+                                    },
+                                    {
+                                      name: '../node_modules/microgateway-core/lib/stats.js',
+                                      reqs: []
+                                    }
+                                  ]
+                                },
+                                {
+                                  name: '../node_modules/microgateway-core/lib/no-proxy-parser.js',
+                                  reqs: []
+                                },
+                                {
+                                  name: '../node_modules/microgateway-core/lib/ondata-transform.js',
+                                  reqs: [
+                                    '../node_modules/microgateway-core/node_modules/async/lib/async.js',
+                                    '../node_modules/microgateway-core/node_modules/debug/src/index.js'
+                                  ]
+                                },
+                                {
+                                  name: '../node_modules/microgateway-core/lib/stats.js',
+                                  reqs: []
+                                },
+                                {
+                                  name: '../node_modules/microgateway-core/lib/trace-helper.js',
+                                  reqs: [
+                                    '../node_modules/microgateway-core/node_modules/debug/src/index.js',
+                                    '../node_modules/microgateway-core/node_modules/opentracing/lib/index.js'
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-core/lib/trace-helper.js',
+                              reqs: [
+                                '../node_modules/microgateway-core/node_modules/debug/src/index.js',
+                                '../node_modules/microgateway-core/node_modules/opentracing/lib/index.js'
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          name: '../node_modules/microgateway-core/lib/logging.js',
+                          reqs: [
+                            {
+                              name: '../node_modules/microgateway-core/lib/config.js',
+                              reqs: []
+                            },
+                            {
+                              name: '../node_modules/microgateway-core/lib/stats.js',
+                              reqs: []
+                            }
+                          ]
+                        },
+                        {
+                          name: '../node_modules/microgateway-core/lib/plugins.js',
+                          reqs: [
+                            {
+                              name: '../node_modules/microgateway-core/lib/config.js',
+                              reqs: []
+                            },
+                            {
+                              name: '../node_modules/microgateway-core/lib/logging.js',
+                              reqs: [
+                                {
+                                  name: '../node_modules/microgateway-core/lib/config.js',
+                                  reqs: []
+                                },
+                                {
+                                  name: '../node_modules/microgateway-core/lib/stats.js',
+                                  reqs: []
+                                }
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-core/lib/stats.js',
+                              reqs: []
+                            }
+                          ]
+                        },
+                        {
+                          name: '../node_modules/microgateway-core/lib/stats.js',
+                          reqs: []
+                        }
+                      ]
+                    },
+                    {
+                      name: '../lib/plugins.js',
+                      reqs: [
+                        {
+                          name: '../node_modules/microgateway-plugins/index.js',
+                          reqs: [
+                            {
+                              name: '../node_modules/microgateway-plugins/accesscontrol/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/accumulate-request/index.js',
+                              reqs: []
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/accumulate-response/index.js',
+                              reqs: []
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/analytics/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                                '../node_modules/microgateway-plugins/node_modules/volos-analytics-apigee/lib/apigeeanalytics.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/apikeys/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                                '../node_modules/microgateway-plugins/node_modules/jsrsasign/lib/jsrsasign.js',
+                                '../node_modules/microgateway-plugins/node_modules/lodash/lodash.js',
+                                '../node_modules/microgateway-plugins/node_modules/request/index.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/bauth/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/cloud-foundry-route-service/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/cors/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/eurekaclient/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                                '../node_modules/microgateway-plugins/node_modules/eureka-js-client/lib/index.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/extauth/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                                '../node_modules/microgateway-plugins/node_modules/jsrsasign/lib/jsrsasign.js',
+                                '../node_modules/microgateway-plugins/node_modules/request/index.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/header-uppercase/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/healthcheck/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                                '../node_modules/microgateway-plugins/node_modules/portastic/index.js',
+                                '../node_modules/microgateway-plugins/node_modules/toobusy-js/index.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/invalidHeader/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/json2xml/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                                '../node_modules/microgateway-plugins/node_modules/js2xmlparser/lib/main.js',
+                                '../node_modules/microgateway-plugins/node_modules/xml2js/lib/xml2js.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/monitor/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                                '../node_modules/microgateway-plugins/node_modules/lynx/lib/lynx.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/oauth/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                                '../node_modules/microgateway-plugins/node_modules/jsrsasign/lib/jsrsasign.js',
+                                '../node_modules/microgateway-plugins/node_modules/lodash/lodash.js',
+                                '../node_modules/microgateway-plugins/node_modules/request/index.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/oauthv2/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                                '../node_modules/microgateway-plugins/node_modules/jsrsasign/lib/jsrsasign.js',
+                                '../node_modules/microgateway-plugins/node_modules/lodash/lodash.js',
+                                '../node_modules/microgateway-plugins/node_modules/request/index.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/quota-memory/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/async/lib/async.js',
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                                '../node_modules/microgateway-plugins/node_modules/volos-quota-memory/lib/memoryquota.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/quota/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/async/lib/async.js',
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                                '../node_modules/microgateway-plugins/node_modules/volos-quota-apigee/lib/apigeequota.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/spikearrest/index.js',
+                              reqs: [
+                                '../node_modules/microgateway-plugins/node_modules/debug/src/index.js',
+                                '../node_modules/microgateway-plugins/node_modules/volos-spikearrest-memory/lib/memory_spikearrest.js'
+                              ]
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/third_party/memored/index.js',
+                              reqs: []
+                            },
+                            {
+                              name: '../node_modules/microgateway-plugins/transform-uppercase/index.js',
+                              reqs: []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: '../node_modules/microgateway-config/index.js',
+          reqs: [
+            '../node_modules/microgateway-config/lib/io.js',
+            '../node_modules/microgateway-config/lib/network.js'
+          ]
+        }
+      ]
+    }
+  ]
+}
