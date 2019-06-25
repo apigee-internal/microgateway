@@ -97,22 +97,22 @@ Private.prototype.configureEdgemicro = function(options, cb) {
         that.deployment.checkDeployedProxies(options, (err, options) => {
             if (err) {
                 console.error(err);
-                cb ? cb(err) : process.exit(1);
+                if ( cb ) { cb(err) } else process.exit(1);
                 return;
             } else {
                 that.deployment.checkDeployedInternalProxies(options, (err, options) => {
                     if (err) {
                         console.error(err);
-                        cb ? cb(err) : process.exit(1);
+                        if ( cb ) { cb(err) } else process.exit(1);
                         return;
                     } else {
                         that.configureEdgemicroWithCreds(options, (err) => {
                             if (err) {
                                 console.error(err);
-                                cb ? cb(err) : process.exit(1);
+                                if ( cb ) { cb(err) } else process.exit(1);
                                 return;
                             }
-                            cb ? cb(err) : process.exit(0);
+                            if ( cb ) { cb(err) } else process.exit(0);
                         });
                     }
                 });
@@ -451,10 +451,12 @@ function translateError(err, res) {
     return err;
 }
 
+/*
 function optionError(message) {
     console.error(message);
     this.help();
 }
+*/
 
 function generateCredentialsObject(options) {
     if (options.token) {

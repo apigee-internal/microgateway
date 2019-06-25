@@ -91,15 +91,15 @@ Configure.prototype.configure = function configure(options, cb) {
     deployAuth.checkDeployedProxies(options, (err, options) => {
       if (err) {
         console.error(err);
-        cb ? cb(err) : process.exit(1);
+        if ( cb ) { cb(err) } else process.exit(1);
         return;
       }
       configureEdgemicroWithCreds(options, (err) => {
         if (err) {
           console.error(err);
-          cb ? cb(err) : process.exit(1);
+          if ( cb ) { cb(err) } else process.exit(1);
         }
-        cb ? cb(err) : process.exit(0);
+        if ( cb ) { cb(err) } else process.exit(0);
       });
     })
   });

@@ -75,7 +75,7 @@ UpgradeKVM.prototype.upgradekvm = function upgradekvm(options, cb) {
                     json: payload
                 }, function(err, res, body) {
                     if (err) {
-                        cb ? cb(err) : process.exit(1);
+                        if ( cb ) { cb(err) } else process.exit(1);
                         return;
                     } if (res.statusCode != 200) {
                         console.log("error upgrading KVM: "+ res.statusCode);

@@ -10,6 +10,8 @@ const async = require('async');
 const util = require('util');
 const configLocations = require('../../config/locations');
 const assert = require('assert')
+
+
 const Cert = function() {
 };
 
@@ -18,7 +20,7 @@ module.exports = function() {
 };
 
 Cert.prototype.installCert = function(options, cb) {
-  if ( !options.username && !options.token){
+  if ( !options.username && !options.token ) {
     return  options.error('username is required');
   }
   if ( !options.org ) {
@@ -33,12 +35,12 @@ Cert.prototype.installCert = function(options, cb) {
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
   cert(config).installCertWithPassword(options, (err, res) => {
     if (err) {
-      cb && cb(err)
-      return console.error(err, 'failed to update cert')
+      if ( cb ) cb(err);
+      return console.error(err, 'failed to update cert');
     }
     console.log('installed cert');
-    cb && cb(null,res)
-    !cb && process.exit(0);
+    if ( cb ) cb(null,res);
+    if ( !cb ) process.exit(0);
   });
 };
 
@@ -62,15 +64,15 @@ Cert.prototype.checkCert = function(options, cb) {
   }
 
   cert(config).checkCertWithPassword(options, (err, res) => {
-    if (err) {
-      if(cb){
+    if ( err ) {
+      if ( cb ) {
         return cb(err);
       }
       return console.error(err, 'failed to update cert')
     }
     console.log('checked cert successfully');
-    cb && cb(null,res);
-    !cb && process.exit(0);
+    if ( cb ) cb(null,res);
+    if ( !cb ) process.exit(0);
   });
 
 }
@@ -88,10 +90,10 @@ Cert.prototype.deleteCert = function(options,cb) {
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
 
   cert(config).deleteCertWithPassword(options, function(err, msg) {
-    err && console.error(err);
-    msg && console.log(msg);
-    cb && cb(err,msg);
-    !cb && process.exit(0);
+    if ( err ) console.error(err);
+    if ( msg ) console.log(msg);
+    if ( cb ) cb(err,msg);
+    if ( !cb ) process.exit(0);
   })
 
 };
@@ -113,13 +115,13 @@ Cert.prototype.retrievePublicKey = function(options,cb) {
   }
   cert(config).retrievePublicKey(options, (err, certificate) => {
     if (err) {
-      cb && cb(err);
+      if ( cb ) cb(err);
       return console.error(err, 'failed to retrieve public key')
     }
     console.log('succeeded');
     console.log(certificate);
-    cb && cb(null,certificate);
-    !cb && process.exit(0);
+    if ( cb ) cb(null,certificate);
+    if ( !cb ) process.exit(0);
   })
 };
 
@@ -139,6 +141,7 @@ Cert.prototype.retrievePublicKeyPrivate = function(options) {
   })
 }
 
+/*
 function optionError(message) {
   console.error(message);
   this.help();
@@ -151,3 +154,4 @@ function printError(err) {
     console.log(err);
   }
 }
+*/

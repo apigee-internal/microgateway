@@ -47,7 +47,7 @@ const setup = function setup() {
         .option('-k  --key <key>', 'Path to private key to be used by Apigee Edge')
         .option('-s  --cert <cert>', 'Path to certificate to be used by Apigee Edge')
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             options.token = options.token || process.env.EDGEMICRO_SAML_TOKEN;
 
             if (options.token) {
@@ -108,7 +108,7 @@ const setup = function setup() {
         .option('-k, --key <key>', 'key for authenticating with Edge')
         .option('-s, --secret <secret>', 'secret for authenticating with Edge')
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             if (!options.org) {
                 return options.error('org is required');
             }
@@ -142,7 +142,7 @@ const setup = function setup() {
         .option('-t, --target <target>', 'target endpoint for proxy; required if apiProxyName is set')
         .description('start the gateway based on configuration')
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             options.secret = options.secret || process.env.EDGEMICRO_SECRET;
             options.key = options.key || process.env.EDGEMICRO_KEY;
             options.org = options.org || process.env.EDGEMICRO_ORG;
@@ -185,15 +185,15 @@ const setup = function setup() {
                 //if any of these are set, look for environment variable
                 if (!process.env.EDGEMICRO_LOCAL && !process.env.EDGEMICRO_LOCAL_PROXY) {
                     return options.error('set the EDGEMICRO_LOCAL or EDGEMICRO_LOCAL_PROXY variable for apiProxyName parameter');
-                    process.exit(1);
+                    //process.exit(1);
                 } else if (process.env.EDGEMICRO_LOCAL && process.env.EDGEMICRO_LOCAL_PROXY) {
                     return options.error('set the EDGEMICRO_LOCAL or EDGEMICRO_LOCAL_PROXY; not both');
-                    process.exit(1);
+                    //process.exit(1);
                 } else {
                     if (options.apiProxyName && options.target && options.revision && options.basepath) {
                         if (!validateUrl(options.target)) {
                             return options.error('target endpoint not a valid url');
-                            process.exit(1);
+                            //process.exit(1);
                         }
                         if (process.env.EDGEMICRO_LOCAL) {
                             //create fake credentials - not used anywhere
@@ -205,7 +205,7 @@ const setup = function setup() {
                         return;
                     } else {
                         return options.error('apiProxyName, target, revision and basepath are all mandatory parms when EDGEMICRO_LOCAL or EDGEMICRO_LOCAL_PROXY is set');
-                        process.exit(1);
+                        //process.exit(1);
                     }
                 }
             }
@@ -254,7 +254,7 @@ const setup = function setup() {
         .option('-u, --configUrl <configUrl>', 'Provide the endpoint to download the edgemicro config file')
         .description('reload the edgemicro cluster by pulling new configuration')
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             options.secret = options.secret || process.env.EDGEMICRO_SECRET;
             options.key = options.key || process.env.EDGEMICRO_KEY;
             options.org = options.org || process.env.EDGEMICRO_ORG;
@@ -324,7 +324,7 @@ const setup = function setup() {
         .description('Start microgateway using forever-monitor')
         .action((options) => {
             options.action = options.action || "start";
-            options.error = optionError;
+            options.error = optionError(options);
             if (options.file) {
                 foreverOptions = JSON.parse(fs.readFileSync(options.file, {
                     encoding: 'utf8'
@@ -333,12 +333,16 @@ const setup = function setup() {
             if (options.action !== "start" && options.action !== "stop") {
                 return options.error('action must be start or stop');
             }
+
+            /*  FOUND THIS WITHOUT ASSIGNMENT ?? What should it be doing?
             foreverOptions ? foreverOptions : {
                 max: 3,
                 silent: false,
                 killTree: true,
                 minUptime: 2000
             };
+            */
+
             var child = new(forever.Monitor)(path.join(__dirname, '..', 'app.js'), foreverOptions);
             if (options.action == "start") {
                 try {
@@ -374,7 +378,7 @@ const setup = function setup() {
         .option('-p, --password <password>', 'password of the organization admin')
         .description('generate authentication keys for runtime auth between Microgateway and Edge')
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             if (!options.username) {
                 return options.error('username is required');
             }
@@ -389,7 +393,11 @@ const setup = function setup() {
                     return options.error('password is required');
                 }
                 keyGenerator.generate(options, (err) => {
-                    err ? process.exit(1) : process.exit(0);
+                    if ( err ) {
+                        process.exit(1)
+                    } else {
+                        process.exit(0)
+                    }
                 });
             })
 
@@ -405,7 +413,7 @@ const setup = function setup() {
         .option('-s, --secret <secret>', 'Microgateway secret to be revoked')
         .description('revoke authentication keys for runtime auth between Microgateway and Edge')
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             if (!options.username) {
                 return options.error('username is required');
             }
@@ -426,7 +434,11 @@ const setup = function setup() {
                     return options.error('password is required');
                 }
                 keyGenerator.revoke(options, (err) => {
-                    err ? process.exit(1) : process.exit(0);
+                    if ( err ) {
+                        process.exit(1)
+                    } else {
+                        process.exit(0)
+                    }
                 });
             });
 
@@ -443,7 +455,7 @@ const setup = function setup() {
         .option('-b, --baseuri <baseuri>', 'baseuri for management apis')
         .description('upgrade kvm to support JWT Key rotation')
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             if (!options.org) {
                 return options.error('org is required');
             }
@@ -476,7 +488,7 @@ const setup = function setup() {
         .option('-b, --baseuri <baseuri>', 'baseuri for management apis')
         .description('upgrade edgemicro-auth proxy')
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             options.token = options.token || process.env.EDGEMICRO_SAML_TOKEN;
 
             if (!options.org) {
@@ -511,7 +523,7 @@ const setup = function setup() {
         .option('-b, --baseuri <baseuri>', 'baseuri for management apis')
         .description('Rotate JWT Keys')
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             if (!options.username) {
                 return options.error('username is required');
             }
@@ -540,7 +552,7 @@ const setup = function setup() {
         .option('-p, --password <password>', 'password of the organization admin')
         .description('clean up microgateway artifacts from the org')
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             if (!options.username) {
                 return options.error('username is required');
             }
@@ -575,11 +587,15 @@ const setup = function setup() {
     }
 };
 
-function optionError(message) {
-    console.error(message);
-    this.help();
+function optionError(caller) {
+    return(((obj) => { 
+      return((message) => {
+        console.error(message);
+        obj.help();  
+      });
+     })(caller))
 }
-
+  
 // prompt for a password if it is not specified
 function promptForPassword(options, cb) {
 

@@ -10,7 +10,7 @@ const setup = function setup() {
     .option('-f, --file <file>', 'file containing jwt')
     .description('decode a token without verifying it')
     .action((options)=>{
-      options.error = optionError;
+      options.error = optionError(options);
       if (!options.file) {return  options.error( 'file is required' );}
       token.decodeToken(options)
     });
@@ -22,7 +22,7 @@ const setup = function setup() {
     .option('-e, --env <env>', 'the environment')
     .description('verify a jwt token against the public key')
     .action((options)=> {
-      options.error = optionError;
+      options.error = optionError(options);
       if (!options.file) { return  options.error('file is required'); }
       if (!options.org) { return  options.error('org is required'); }
       if (!options.env) { return  options.error('env is required'); }
@@ -37,7 +37,7 @@ const setup = function setup() {
     .option('-s, --secret <secret>', 'the client secret')
     .description('create a client_credentials oauth token')
     .action((options)=>{
-      options.error = optionError;
+      options.error = optionError(options);
       if (!options.org) { return  options.error('id is required'); }
       if (!options.secret) { return  options.error('client secret is required'); }
       if (!options.org) { return  options.error('org is required'); }
@@ -59,9 +59,14 @@ const setup = function setup() {
   }
 };
 
-function optionError(message) {
-  console.error(message);
-  this.help();
+function optionError(caller) {
+  return(((obj) => { 
+    return((message) => {
+      console.error(message);
+      obj.help();  
+    });
+   })(caller))
 }
+
 
 module.exports = setup;

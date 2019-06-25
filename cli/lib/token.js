@@ -103,11 +103,11 @@ Token.prototype.getToken = function(options, cb) {
     json: body
   }, function(err, res) {
     if (err) {
-      cb && cb(err)
+      if ( cb ) cb(err)
       return printError(err);
     }
     console.log(JSON.stringify(res.body, null, 2));
-    cb && cb(null, res.body);
+    if ( cb ) cb(null, res.body);
   });
 }
 
@@ -132,8 +132,9 @@ function printError(err) {
   }
 }
 
+/*
 function optionError(message) {
   console.error(message);
   this.help();
 }
-
+*/

@@ -27,7 +27,7 @@ module.exports = function() {
         .option('-d, --debug', 'execute with debug output')
 
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             options.token = options.token || process.env.EDGEMICRO_SAML_TOKEN;
             options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
 
@@ -85,7 +85,7 @@ module.exports = function() {
         .option('-t, --token <token>', 'OAuth token to use with management API')
         .description('upgrade kvm to support JWT Key rotation')
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             options.token = options.token || process.env.EDGEMICRO_SAML_TOKEN;
 
             if (!options.token) {
@@ -131,7 +131,7 @@ module.exports = function() {
         .option('-t, --token <token>', 'OAuth token to use with management API')
         .description('upgrade edgemicro-auth proxy')
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             options.token = options.token || process.env.EDGEMICRO_SAML_TOKEN;
             
             if (!options.token) {
@@ -173,7 +173,7 @@ module.exports = function() {
         .option('-t, --token <token>', 'OAuth token to use with management API')
         .description('Rotate JWT Keys')
         .action((options) => {
-            options.error = optionError;
+            options.error = optionError(options);
             options.token = options.token || process.env.EDGEMICRO_SAML_TOKEN;
 
             if (!options.token) {
@@ -229,7 +229,12 @@ function promptForPassword(options, cb) {
     }
 }
 
-function optionError(message) {
-    console.error(message);
-    this.help();
+function optionError(caller) {
+    return(((obj) => { 
+      return((message) => {
+        console.error(message);
+        obj.help();  
+      });
+     })(caller))
 }
+  

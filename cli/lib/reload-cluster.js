@@ -98,8 +98,7 @@ var ReloadCluster = (file, opt) => {
     try {
         var interval = opt.respawnIntervalManager.getIntervalForNextSpawn(Date.now());
         if (opt.log.respawns) {
-          opt.logger.info('[' + worker.process.pid + '] worker (' + worker._rc_wid
-            + ':' + worker.id + ') must be replaced, respawning in', interval);
+          opt.logger.info('[' + worker.process.pid + '] worker (' + worker._rc_wid  + ':' + worker.id + ') must be replaced, respawning in', interval);
         }
     
         var respawnerTimer = setTimeout(() => {
@@ -197,12 +196,14 @@ var ReloadCluster = (file, opt) => {
 
     const argv = cluster.settings ? cluster.settings.execArgv || [] : [];
     var j = 0;
-    argv && argv.forEach((arg) => {
-      if (arg.includes('--debug-brk=')) {
-        argv[j] = arg.replace('--debug-brk', '--debug')
-      }
-      j++;
-    });
+    if ( argv ) {
+      argv.forEach((arg) => {
+        if (arg.includes('--debug-brk=')) {
+          argv[j] = arg.replace('--debug-brk', '--debug')
+        }
+        j++;
+      });
+    }
 
     // fork workers
     for (var i = 0; i < opt.workers; i++) {
@@ -221,8 +222,7 @@ var ReloadCluster = (file, opt) => {
     // Event handlers on the channel
     channel.on(readyEvent, (w, arg) => {
       // ignore unrelated messages when readyEvent = message
-      if (readyEvent === 'message'
-        && (!arg || arg.cmd != readyCommand)) return;
+      if ( (readyEvent === 'message') && ( !arg || arg.cmd != readyCommand ) ) return;
       emit('ready', w, arg);
     });
     // When a worker exits, try to replace it
@@ -231,8 +231,9 @@ var ReloadCluster = (file, opt) => {
     // do any processing, replace it and then set up a termination timeout
     channel.on('disconnect', replaceAndTerminateWorker);
     channel.on('message', (w, arg) => {
-      if (arg && arg.cmd === 'disconnect')
+      if ( arg && arg.cmd === 'disconnect' ) {
         replaceAndTerminateWorker(w);
+      }
     });
     // When a worker becomes ready, add it to the active list
     channel.on('ready', (w) => {
@@ -300,7 +301,7 @@ var ReloadCluster = (file, opt) => {
       var active = Object.keys(cluster.workers).length;
       if (active === 0) {
         cluster.removeListener('exit', allDone);
-        cb && cb();
+        if ( cb ) cb();
       }
     }
   };

@@ -16,7 +16,7 @@ module.exports =  function init(opts, cb) {
 
     fs.mkdir(destFileDir, () => {
       copyFile(srcFile, destFile, (err) => {
-        err && console.log("failed to init configpath file %s", err);
+        if ( err )  console.log("failed to init configpath file %s", err);
         cb(err, destFile);
       }); 
     });
