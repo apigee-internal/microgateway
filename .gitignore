@@ -52,3 +52,4 @@ logging-report.txt
 logstuf.txt
 quick.sh
 .nyc_output
+test-e2e-local
