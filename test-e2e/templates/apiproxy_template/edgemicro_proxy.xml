@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<APIProxy revision="2" name="edgemicro_proxy">
+    <Basepaths>/v1/hellojson</Basepaths>
+    <ConfigurationVersion majorVersion="4" minorVersion="0"/>
+    <CreatedAt>1558418711038</CreatedAt>
+    <CreatedBy>dkoroth@google.com</CreatedBy>
+    <Description></Description>
+    <DisplayName>edgemicro_proxy</DisplayName>
+    <LastModifiedAt>1558418711038</LastModifiedAt>
+    <LastModifiedBy>dkoroth@google.com</LastModifiedBy>
+    <ManifestVersion>SHA-512:f39d8f6c47b8aebe0beed5d6fc9e034f1c780057d4081e1dbc72c795e060f38aa15566e157aa8310c458667b6b9671d0c0513f3fd0e62d777dae392552d1b626</ManifestVersion>
+    <Policies/>
+    <ProxyEndpoints>
+        <ProxyEndpoint>default</ProxyEndpoint>
+    </ProxyEndpoints>
+    <Resources/>
+    <Spec></Spec>
+    <TargetServers/>
+    <TargetEndpoints>
+        <TargetEndpoint>default</TargetEndpoint>
+    </TargetEndpoints>
+</APIProxy>

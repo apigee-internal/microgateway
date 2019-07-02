@@ -1,0 +1,223 @@
+# Install jq to edit EMG json files
+npm install -g jq
+
+# Install yq to edit EMG yaml files
+npm install -g yq
+
+1. To run the test against released version of Edge Micro Gateway
+
+   # Run PreSubmit Test
+   MOCHA_USER=<username> MOCHA_PASSWORD=<password> MOCHA_ORG=<orgName> MOCHA_ENV=<env> sh PullRequestTests.sh
+
+   # Run Nightly Test
+   MOCHA_USER=<username> MOCHA_PASSWORD=<password> MOCHA_ORG=<orgName> MOCHA_ENV=<env> sh NightlyTests.sh
+
+   Scripts will install edge microgateway using the command 'npm install -g edgemicro@latest' and run the test.
+
+2. To run the test against the master or any child branches
+
+   git clone https://github.com/apigee-internal/microgateway.git
+
+   cd microgateway
+
+   npm install
+
+   PATH=<base-path>/microgateway/cli:$PATH
+
+   # which edgemicro
+   <base-path>/microgateway/cli/edgemicro
+
+   # Run PreSubmit Test
+   MOCHA_USER=<username> MOCHA_PASSWORD=<password> MOCHA_ORG=<orgName> MOCHA_ENV=<env> sh PullRequestTests.sh
+
+   # Run Nightly Test
+   MOCHA_USER=<username> MOCHA_PASSWORD=<password> MOCHA_ORG=<orgName> MOCHA_ENV=<env> sh NightlyTests.sh
+
+Sample test runs - PullRequestTests.sh
+--------------------------------------
+
+sh PullRequestTests.sh
+
+1) installEMG
+Status: PASS
+
+2) checkEMGVersion
+Status: PASS
+
+3) initEMG
+Status: PASS
+
+4) configureEMG
+Status: PASS
+
+5) verifyEMG
+Status: PASS
+
+6) startEMG
+Status: PASS
+
+7) configAndReloadEMG
+Status: PASS
+
+8) setProductNameFilter
+Status: PASS
+
+9) testAPIProxy
+Status: PASS
+
+10) testQuota
+Status: PASS
+
+11) testInvalidAPIKey
+Status: PASS
+
+12) testRevokedAPIKey
+Status: PASS
+
+13) testInvalidJWT
+Status: PASS
+
+14) testExpiredJWT
+Status: PASS
+
+15) setInvalidProductNameFilter
+Status: PASS
+
+16) testInvalidProductNameFilter
+Status: PASS
+
+17) resetInvalidProductNameFilter
+Status: PASS
+
+18) stopEMG
+Status: PASS
+
+19) uninstallEMG
+Status: PASS
+
+19 tests, 19 passed, 0 failed, 0 skipped
+
+Sample test runs - NightlyTests.sh
+----------------------------------
+
+sh NightlyTests.sh 
+
+1) listAPIProxies
+Status: PASS
+
+2) createAPIProxy
+Status: PASS
+
+3) createAPIProxyBundle
+Status: PASS
+
+4) updateAPIProxy
+Status: PASS
+
+5) deployAPIProxy
+Status: PASS
+
+6) listAPIProxy
+Status: PASS
+
+7) createAPIProduct
+Status: PASS
+
+8) listAPIProduct
+Status: PASS
+
+9) listDevelopers
+Status: PASS
+
+10) createDeveloper
+Status: PASS
+
+11) listDeveloper
+Status: PASS
+
+12) listDeveloperApps
+Status: PASS
+
+13) createDeveloperApp
+Status: PASS
+
+14) listDeveloperApps
+Status: PASS
+
+15) listDeveloperApp
+Status: PASS
+
+16) installEMG
+Status: PASS
+
+17) checkEMGVersion
+Status: PASS
+
+18) initEMG
+Status: PASS
+
+19) configureEMG
+Status: PASS
+
+20) verifyEMG
+Status: PASS
+
+21) startEMG
+Status: PASS
+
+22) configAndReloadEMG
+Status: PASS
+
+23) setProductNameFilter
+Status: PASS
+
+24) testAPIProxy
+Status: PASS
+
+25) testQuota
+Status: PASS
+
+26) testInvalidAPIKey
+Status: PASS
+
+27) testRevokedAPIKey
+Status: PASS
+
+28) testInvalidJWT
+Status: PASS
+
+29) testExpiredJWT
+Status: PASS
+
+30) setInvalidProductNameFilter
+Status: PASS
+
+31) testInvalidProductNameFilter
+Status: PASS
+
+32) resetInvalidProductNameFilter
+Status: PASS
+
+33) stopEMG
+Status: PASS
+
+34) uninstallEMG
+Status: PASS
+
+35) deleteDeveloperApp
+Status: PASS
+
+36) deleteAPIProduct
+Status: PASS
+
+37) undeployAPIProxy
+Status: PASS
+
+38) deleteAPIProxy
+Status: PASS
+
+39) deleteDeveloper
+Status: PASS
+
+39 tests, 39 passed, 0 failed, 0 skipped
+
