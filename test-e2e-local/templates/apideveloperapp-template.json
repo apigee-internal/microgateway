@@ -1,10 +1,28 @@
 {
+<<<<<<< HEAD
+<<<<<<< HEAD
  "name" : "$devAppName",
  "apiProducts": [ "$productName" ],
  "attributes" : [ 
   {
    "name" : "DisplayName",
    "value" : "$devAppName"
+=======
+ "name" : "app_name",
+ "apiProducts": [ "app" ],
+ "attributes" : [ 
+  {
+   "name" : "DisplayName",
+   "value" : "app_name"
+>>>>>>> fa99ed68... Some tools back on track
+=======
+ "name" : "$devAppName",
+ "apiProducts": [ "$productName" ],
+ "attributes" : [ 
+  {
+   "name" : "DisplayName",
+   "value" : "$devAppName"
+>>>>>>> 90a40659... restore test states
   }
  ]
 }

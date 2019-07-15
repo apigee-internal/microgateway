@@ -1,6 +1,19 @@
 {
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 90a40659... restore test states
  "email" : "$devguy@google.com",
  "firstName" : "$devguy",
  "lastName" : "dev",
  "userName" : "$devguy"
+<<<<<<< HEAD
+=======
+ "email" : "developer_email",
+ "firstName" : "first_name",
+ "lastName" : "last_name",
+ "userName" : "user_name"
+>>>>>>> fa99ed68... Some tools back on track
+=======
+>>>>>>> 90a40659... restore test states
 }

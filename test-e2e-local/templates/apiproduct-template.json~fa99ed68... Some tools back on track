@@ -1,0 +1,15 @@
+{
+  "apiResources": [ ],
+  "approvalType": "auto",
+  "attributes":
+    [ {"name": "access", "value": "public"} ],
+  "description": "API Product ",
+  "displayName": "product",
+  "name": "product",
+  "scopes": [],
+  "proxies": [ "edgemicro_hello" ],
+  "environments": [ "test" ],
+  "quota": "100000000",
+  "quotaInterval": "1",
+  "quotaTimeUnit": "minute"
+}
