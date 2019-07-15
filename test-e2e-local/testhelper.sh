@@ -161,11 +161,7 @@ function createDeveloperApp() {
     apiDeveloperApp="$2"
     apiProductName="$3"
 
-<<<<<<< HEAD
     node substVars "templates/apideveloperapp-template.json" "productName" "${apiProductName}" "devAppName" "${apiDeveloperApp}" > "${apiDeveloperApp}".json
-=======
-    node substVars "templates/apideveloperapp-template.json" "productName" "${apiProductName}" "devAppName" "${developerName}" > "${apiDeveloperApp}".json
->>>>>>> 90a40659... restore test states
 
     apiProxyURL="${API_PROXY_URL}/${MOCHA_ORG}/developers/${apiDeveloper}@google.com/apps" 
 
@@ -324,11 +320,7 @@ function createAPIProxy() {
     apiProxyName="$1"
     apiProxyURL="${API_PROXY_URL}/${MOCHA_ORG}/apis"
 
-<<<<<<< HEAD
     node substVars "templates/apiproxy-template.json" "proxyName" "$apiProxyName" > "${apiProxyName}".json
-=======
-    node substVars "templates/apiproxy-template.json" "proxyName" "$apiProxyName" "${apiProxyName}".json
->>>>>>> 90a40659... restore test states
 
     ${CURL} -H "Content-Type:application/json" -u "$MOCHA_USER":"$MOCHA_PASSWORD" ${apiProxyURL} -X POST -d @"${apiProxyName}".json -D headers.txt -o createAPIProxy.txt > /dev/null 2>&1 ; ret=$?
     result=$(grep HTTP headers.txt | cut -d ' ' -f2)

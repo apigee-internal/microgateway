@@ -8,11 +8,6 @@ jobs:
       language: node_js
       node_js:
         - '8'
-<<<<<<< HEAD
-=======
-        - '10'
-#- '12'
->>>>>>> e328f7e7... travis test
     - # stage name not required, will continue to use `test`
       language: node_js
       node_js:

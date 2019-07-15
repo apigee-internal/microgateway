@@ -1,11 +1,3 @@
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
   "name": "$proxyName" 
-=======
-  "name": "newproxy" 
->>>>>>> fa99ed68... Some tools back on track
-=======
-  "name": "$proxyName" 
->>>>>>> 90a40659... restore test states
 }

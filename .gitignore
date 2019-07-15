@@ -51,7 +51,6 @@ tools
 logging-report.txt
 logstuf.txt
 quick.sh
-<<<<<<< HEAD
 .nyc_output
 test-e2e/e2evars.sh
 test-e2e-local/test.yaml
@@ -59,6 +58,3 @@ test-e2e-local/test2.yaml
 test-e2e-local/test3.yaml
 test-e2e-local/leddyr-eval-test-config-BK.yaml
 test-e2e-local/tmp_emg_file.yaml
-=======
-.nyc_output
->>>>>>> fa99ed68... Some tools back on track

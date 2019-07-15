@@ -19,7 +19,6 @@ function subst(tmplt,tvar,value) {
 
 
 
-<<<<<<< HEAD
 if ( nargs > 2 && ( (nargs % 2) === 0 ) ) {
     //
     var fileName = process.argv[fpos]
@@ -31,19 +30,6 @@ if ( nargs > 2 && ( (nargs % 2) === 0 ) ) {
     if ( substpairs.length ) {
 
         var templtStr = fs.readFileSync(fileName,'ascii').toString()
-=======
-if ( nargs > 2 && ( (nargs - 1) % 2 === 0 ) ) {
-    //
-    var fileName = process.argv[fpos]
-    var substpairs = []
-    for ( var i = fpos + 1; i < nargs; i++ ) {
-        substpairs.push(process.argv[i])
-    }
-//
-    if ( substpairs.length ) {
-
-        var templtStr = fs.read(fileName,'ascii').toString()
->>>>>>> fa99ed68... Some tools back on track
 
         var substMap = {}
 
