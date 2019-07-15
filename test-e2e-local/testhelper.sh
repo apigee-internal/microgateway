@@ -54,8 +54,10 @@ function createDeveloper() {
 
     apiProxyURL="${API_PROXY_URL}/${MOCHA_ORG}/developers" 
 
-    cat templates/apideveloper-template.json | jq --arg developer ${apiDeveloper} '(.email) = $developer + "@google.com" | (.firstName, .userName) = $developer | (.lastName) = "dev"' > "${apiDeveloper}".json
+    node substVars "templates/apideveloper-template.json" "devguy" "${apiDeveloper}" > "${apiDeveloper}".json
+
     ${CURL} -H "Content-Type:application/json" -u "$MOCHA_USER":"$MOCHA_PASSWORD" ${apiProxyURL} -X POST -d @"${apiDeveloper}".json -D headers.txt -o createDeveloper.txt > /dev/null 2>&1 ; ret=$?
+
     result=$(grep HTTP headers.txt | cut -d ' ' -f2)
     if [ ${ret} -eq 0 -a ${result} -eq 201 ]; then
          logInfo "Successfully created developer with code $result"
@@ -157,11 +159,11 @@ function createDeveloperApp() {
 
     apiDeveloper="$1"
     apiDeveloperApp="$2"
+    apiProductName="$3"
+
+    node substVars "templates/apideveloperapp-template.json" "productName" "${apiProductName}" "devAppName" "${apiDeveloperApp}" > "${apiDeveloperApp}".json
 
     apiProxyURL="${API_PROXY_URL}/${MOCHA_ORG}/developers/${apiDeveloper}@google.com/apps" 
-
-    cat ${apiDeveloperApp}.json | jq --arg developerName ${apiDeveloperApp} '(.name,.attributes[0].value) = $developerName' > "${apiDeveloperApp}".json.tmp
-    mv "${apiDeveloperApp}".json.tmp "${apiDeveloperApp}".json
 
     ${CURL} -H "Content-Type:application/json" -u "$MOCHA_USER":"$MOCHA_PASSWORD" ${apiProxyURL} -X POST -d @${apiDeveloperApp}.json -D headers.txt -o createDeveloperApp.txt > /dev/null 2>&1 ; ret=$?
     result=$(grep HTTP headers.txt | cut -d ' ' -f2)
@@ -218,7 +220,8 @@ function getDeveloperApiKey() {
     result=$(grep HTTP headers.txt | cut -d ' ' -f2)
     if [ ${ret} -eq 0 -a ${result} -eq 200 ]; then
          logInfo "Successfully retrieved developer api key with code $result"
-         apiKey=$(cat getDeveloperApiKey.txt | jq -r .credentials[0].consumerKey)
+#apiKey=$(cat getDeveloperApiKey.txt | jq -r .credentials[0].consumerKey)
+         apiKey=$(node extractConsumerKey getDeveloperApiKey.txt)
     else
          logError "Failed to retrieve developer api key with code $result"
          ret=1
@@ -315,9 +318,9 @@ function createAPIProxy() {
     local ret=0
 
     apiProxyName="$1"
-    apiProxyURL="${API_PROXY_URL}/${MOCHA_ORG}/apis" 
+    apiProxyURL="${API_PROXY_URL}/${MOCHA_ORG}/apis"
 
-    cat templates/apiproxy-template.json | jq --arg apiProxyName ${apiProxyName} '(.name) = $apiProxyName' > "${apiProxyName}".json
+    node substVars "templates/apiproxy-template.json" "proxyName" "$apiProxyName" > "${apiProxyName}".json
 
     ${CURL} -H "Content-Type:application/json" -u "$MOCHA_USER":"$MOCHA_PASSWORD" ${apiProxyURL} -X POST -d @"${apiProxyName}".json -D headers.txt -o createAPIProxy.txt > /dev/null 2>&1 ; ret=$?
     result=$(grep HTTP headers.txt | cut -d ' ' -f2)
@@ -327,7 +330,7 @@ function createAPIProxy() {
          logError "Failed to create API Proxy with code $result"
          ret=1
     fi
-    rm -f "${apiProxyName}".json 
+    rm -f "${apiProxyName}".json
     rm -f createAPIProxy.txt
     rm -f headers.txt
 
@@ -533,11 +536,11 @@ function createAPIProduct() {
     local ret=0
 
     apiProductName="$1"
+    apiProxyName="$2"
+
+    node substVars "templates/apiproduct-template.json" "proxyName" "${apiProxyName}" "productName" "${apiProductName}" >  "${apiProductName}".json
 
     productURL="${API_PRODUCT_URL}/${MOCHA_ORG}/apiproducts"
-
-    cat ${apiProductName}.json | jq --arg productName ${apiProductName} '(.name, .displayName) = $productName| (.description) += $productName' > "${apiProductName}".json.tmp
-    mv "${apiProductName}".json.tmp "${apiProductName}".json
 
     ${CURL} -q -s -H "Content-Type:application/json" -X POST -d @"${apiProductName}".json -u "$MOCHA_USER":"$MOCHA_PASSWORD" ${productURL} -D headers.txt -o createAPIProduct.txt > /dev/null 2>&1 ; ret=$?
     result=$(grep HTTP headers.txt | cut -d ' ' -f2)

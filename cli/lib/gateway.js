@@ -61,11 +61,15 @@ Gateway.prototype.start = (options,cb) => {
         targetEndpoint: options.target
     };
 
-    edgeconfig.get({
+    var configOptions = {
         source: source,
         keys: keys,
-        localproxy: localproxy
-    }, (err, config) => {
+        localproxy: localproxy,
+        org: options.org,
+        env: options.env
+    }
+
+    edgeconfig.get(configOptions, (err, config) => {
         if (err) {
             const exists = fs.existsSync(cache);
             console.error("failed to retieve config from gateway. continuing, will try cached copy..");
@@ -209,10 +213,7 @@ Gateway.prototype.start = (options,cb) => {
 
         if (!shouldNotPoll) {
             setTimeout(() => {
-                reloadOnConfigChange(config, cache, {
-                    source: source,
-                    keys: keys
-                });
+                reloadOnConfigChange(config, cache, configOptions);
             }, pollInterval * 1000);
         }
         

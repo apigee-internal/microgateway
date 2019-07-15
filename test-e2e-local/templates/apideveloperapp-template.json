@@ -1,0 +1,10 @@
+{
+ "name" : "$devAppName",
+ "apiProducts": [ "$productName" ],
+ "attributes" : [ 
+  {
+   "name" : "DisplayName",
+   "value" : "$devAppName"
+  }
+ ]
+}

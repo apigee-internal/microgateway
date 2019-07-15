@@ -3,13 +3,13 @@
   "approvalType": "auto",
   "attributes":
     [ {"name": "access", "value": "public"} ],
-  "description": "API Product ",
-  "displayName": "product",
-  "name": "product",
+  "description": "API Product $productName",
+  "displayName": "$productName",
+  "name": "$productName",
   "scopes": [],
-  "proxies": [ "edgemicro_hello" ],
+  "proxies": [ "$proxyName", "edgemicro-auth"],
   "environments": [ "test" ],
-  "quota": "100000000",
+  "quota": "3",
   "quotaInterval": "1",
   "quotaTimeUnit": "minute"
 }

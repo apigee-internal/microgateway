@@ -9,6 +9,7 @@ function cleanUp() {
   rm -f edgemicro.logs
   rm -f edgemicro.configure.txt
   rm -f verifyEMG.txt
+  rm -f tmp_emg_file.yaml
   rm -rf $EMG_CONFIG_DIR
   return 0
 
@@ -107,7 +108,6 @@ configureEMG() {
   sleep 5
 
   return $result
-
 }
 
 verifyEMG() {
@@ -196,9 +196,9 @@ configAndReloadEMG() {
      return $result
   fi
 
-  yq w -i ${EMG_CONFIG_FILE} edgemicro.config_change_poll_interval 10
-  yq w -i ${EMG_CONFIG_FILE} oauth.allowNoAuthorization false
-  yq w -i ${EMG_CONFIG_FILE} edgemicro.plugins.sequence[1] quota
+  #
+  node setYamlVars ${EMG_CONFIG_FILE} 'edgemicro.config_change_poll_interval' 10 'oauth.allowNoAuthorization' false 'edgemicro.plugins.sequence[1]' 'quota' > tmp_emg_file.yaml
+  cp tmp_emg_file.yaml ${EMG_CONFIG_FILE}
 
   EMG_KEY=$(cat edgemicro.configure.txt | grep "key:" | cut -d ' ' -f4)
   EMG_SECRET=$(cat edgemicro.configure.txt | grep "secret:" | cut -d ' ' -f4)
@@ -228,7 +228,9 @@ setProductNameFilter() {
 
   logInfo "SetProductName Filter"
 
-  yq w -i ${EMG_CONFIG_FILE} edge_config.products "https://${MOCHA_ORG}-${MOCHA_ENV}.apigee.net/edgemicro-auth/products?productnamefilter=.*$PRODUCT_NAME.*"
+  node setYamlVars ${EMG_CONFIG_FILE} 'edge_config.products' "https://${MOCHA_ORG}-${MOCHA_ENV}.apigee.net/edgemicro-auth/products?productnamefilter=.*$PRODUCT_NAME.*" > tmp_emg_file.yaml
+  cp tmp_emg_file.yaml ${EMG_CONFIG_FILE}
+
   EMG_KEY=$(cat edgemicro.configure.txt | grep "key:" | cut -d ' ' -f4)
   EMG_SECRET=$(cat edgemicro.configure.txt | grep "secret:" | cut -d ' ' -f4)
   if [ -z $EMG_KEY -o -z $EMG_SECRET ]; then
@@ -277,13 +279,20 @@ testQuota() {
   local result=0
   local ret=0
 
+#set -x
+
   logInfo "Test Quota"
 
   apiKey=$(getDeveloperApiKey ${DEVELOPER_NAME} ${DEVELOPER_APP_NAME})
-  curl -q -s http://localhost:8000/v1/${PROXY_NAME} -H "x-api-key: $apiKey" -D headers.txt > /dev/null 2>&1 ; ret=$?
-  curl -q -s http://localhost:8000/v1/${PROXY_NAME} -H "x-api-key: $apiKey" -D headers.txt > /dev/null 2>&1 ; ret=$?
-  curl -q -s http://localhost:8000/v1/${PROXY_NAME} -H "x-api-key: $apiKey" -D headers.txt > /dev/null 2>&1 ; ret=$?
-  curl -q -s http://localhost:8000/v1/${PROXY_NAME} -H "x-api-key: $apiKey" -D headers.txt > /dev/null 2>&1 ; ret=$?
+
+  counter=1
+  while [ $counter -le 10 ]
+  do
+    curl -q -s http://localhost:8000/v1/${PROXY_NAME} -H "x-api-key: $apiKey" -D headers.txt > /dev/null 2>&1 ; ret=$?
+    #echo $counter
+    echo '+'
+    ((counter++))
+  done
   result=$(grep HTTP headers.txt | cut -d ' ' -f2)
   if [ ${ret} -eq 0 -a ${result} -eq 403 ]; then
        logInfo "Successfully tested quota with code $result"
@@ -291,6 +300,8 @@ testQuota() {
        logError "Failed to test quota with code $result"
        ret=1
   fi
+
+#set +x
 
   return $ret
 
@@ -398,7 +409,8 @@ setInvalidProductNameFilter() {
      return $result
   fi
 
-  yq w -i ${EMG_CONFIG_FILE} edge_config.products "https://${MOCHA_ORG}-${MOCHA_ENV}.apigee.net/edgemicro-auth/products?productnamefilter=*$PRODUCT_NAME*"
+  node setYamlVars ${EMG_CONFIG_FILE} 'edge_config.products' "https://${MOCHA_ORG}-${MOCHA_ENV}.apigee.net/edgemicro-auth/products?productnamefilter=*$PRODUCT_NAME*" > tmp_emg_file.yaml
+  cp tmp_emg_file.yaml ${EMG_CONFIG_FILE}
 
   $EDGEMICRO reload -o $MOCHA_ORG -e $MOCHA_ENV -k $EMG_KEY -s $EMG_SECRET > /dev/null 2>&1
   result=$?
@@ -442,7 +454,9 @@ resetInvalidProductNameFilter() {
 
   logInfo "Reset Invalid Product Name Filter"
 
-  yq w -i ${EMG_CONFIG_FILE} edge_config.products "https://${MOCHA_ORG}-${MOCHA_ENV}.apigee.net/edgemicro-auth/products"
+  node setYamlVars ${EMG_CONFIG_FILE} 'edge_config.products' "https://${MOCHA_ORG}-${MOCHA_ENV}.apigee.net/edgemicro-auth/products" > tmp_emg_file.yaml
+  cp tmp_emg_file.yaml ${EMG_CONFIG_FILE}
+
   EMG_KEY=$(cat edgemicro.configure.txt | grep "key:" | cut -d ' ' -f4)
   EMG_SECRET=$(cat edgemicro.configure.txt | grep "secret:" | cut -d ' ' -f4)
   if [ -z $EMG_KEY -o -z $EMG_SECRET ]; then
