@@ -1,6 +1,6 @@
 if [ -z "$MOCHA_PASSWORD_CFG" ]
-    echo "expecting MOCHA_PASSWORD to be set in environment variables"
 then
+    echo "expecting MOCHA_PASSWORD to be set in environment variables"
 else
     echo "MOCHA_PASSWORD being set to test environment CFG"
     export MOCHA_PASSWORD=$MOCHA_PASSWORD_CFG
