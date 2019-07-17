@@ -2,7 +2,7 @@
 
 var app = require('commander');
 var privateOperations = require('./lib/private')();
-const debug = require('debug')('configure');
+//const debug = require('debug')('configure');
 const upgradekvm = require('./lib/upgrade-kvm')();
 const upgradeauth = require('./lib/upgrade-edgeauth')();
 const rotatekey = require('./lib/rotate-key')();
@@ -208,7 +208,7 @@ module.exports = function() {
 
     var running = false;
     app.commands.forEach(function(command) {
-        if (command._name == app.rawArgs[2]) {
+        if (command._name === app.rawArgs[2]) {
             running = true;
         }
     });

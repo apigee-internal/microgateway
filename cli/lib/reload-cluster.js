@@ -1,3 +1,5 @@
+'use strict'
+
 var cluster = require('cluster');
 var EventEmitter = require('events').EventEmitter;
 var cpuCount = require('os').cpus().length;
@@ -31,7 +33,7 @@ var ReloadCluster = (file, opt) => {
   opt.respawnIntervalManager = RespawnIntervalManager({minRespawnInterval: opt.minRespawnInterval});
 
   var respawnerTimers = RespawnTimerList();
-  var readyEvent = opt.workerReadyWhen == 'started' ? 'online' : opt.workerReadyWhen == 'listening' ? 'listening' : 'message';
+  var readyEvent = opt.workerReadyWhen === 'started' ? 'online' : opt.workerReadyWhen === 'listening' ? 'listening' : 'message';
   var readyCommand = 'ready';
   var self = new EventEmitter();
   var channel = new EventEmitter();
@@ -43,7 +45,7 @@ var ReloadCluster = (file, opt) => {
    * @param w - worker
    */
   function removeWorkerFromActiveWorkers(w) {
-    if (activeWorkers[w._rc_wid] == w) {
+    if (activeWorkers[w._rc_wid] === w) {
       activeWorkers[w._rc_wid] = null;
     }
   }
@@ -222,7 +224,7 @@ var ReloadCluster = (file, opt) => {
     // Event handlers on the channel
     channel.on(readyEvent, (w, arg) => {
       // ignore unrelated messages when readyEvent = message
-      if ( (readyEvent === 'message') && ( !arg || arg.cmd != readyCommand ) ) return;
+      if ( (readyEvent === 'message') && ( !arg || arg.cmd !== readyCommand ) ) return;
       emit('ready', w, arg);
     });
     // When a worker exits, try to replace it
@@ -254,13 +256,13 @@ var ReloadCluster = (file, opt) => {
     function allReady(cb) {
       var listenCount = opt.workers;
       var self = this;
-      return (w, arg) => {
+      return ( /*w, arg */ ) => {
         if (!--listenCount) cb.apply(self, arguments);
       };
     }
 
     workers.forEach((worker) => {
-      var id = worker.id;
+      //var id = worker.id;
 
       var stopOld = allReady(() => {
         // dont respawn this worker. It has already been replaced.

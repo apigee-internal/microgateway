@@ -101,7 +101,7 @@ const setup = function setup() {
 
   var running = false;
   commander.commands.forEach(function(command) {
-    if (command._name == commander.rawArgs[2]) {
+    if (command._name === commander.rawArgs[2]) {
       running = true;
     }
   });

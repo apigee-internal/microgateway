@@ -3,7 +3,7 @@
 const pem = require("pem");
 const util = require("util");
 const debug = require("debug")("jwkrotatekey");
-const commander = require('commander');
+//const commander = require('commander');
 const request = require("request");
 const async = require('async');
 
@@ -36,7 +36,7 @@ function isCPS(property) {
 	debug(property);
     for (var p in property) {
         if (property.hasOwnProperty(p)) {
-            if (property[p].name == "features.isCpsEnabled" && property[p].value == "true") {
+            if (property[p].name ===  "features.isCpsEnabled" && property[p].value ===  "true") {
                 cpsenabled = true;
             }
         }
@@ -88,7 +88,7 @@ function updateNonCPSKVM(options, serviceKey, newCertificate, newPublicKey, oldP
        auth: generateCredentialsObject(options),
        method: "POST",
        json: payload
-    }, function(err, res, body) {
+    }, function(err, res /*, body */) {
        if (err || res.statusCode > 299) {
            console.error(err);
        } else {
@@ -105,7 +105,7 @@ function checkKVMEntry(options, key) {
         uri: entryuri,
         auth: generateCredentialsObject(options),
         method: "GET",
-    }, function(err, res, body) {
+    }, function(err, res /*, body */) {
         if (err || res.statusCode > 299) return false;
 		else return true;
     });						
@@ -124,7 +124,7 @@ function insertKVMEntry(options, key, value, cb) {
         auth: generateCredentialsObject(options),
         method: "POST",
 		json: entry
-    }, function(err, res, body) {
+    }, function(err, res /*, body */) {
         if (err || res.statusCode > 299) cb(err);
 		else cb(null, true);
     });		
@@ -144,7 +144,7 @@ function updateKVMEntry(options, key, value, cb) {
         auth: generateCredentialsObject(options),
         method: "POST",
 		json: entry
-    }, function(err, res, body) {
+    }, function(err, res /*, body */) {
         if (err || res.statusCode > 299) cb(err);
 		else cb(null, true);
     });	
@@ -154,13 +154,13 @@ function updateKVMEntry(options, key, value, cb) {
 function updateOrInsertEntry (options, key, value, cb) {
 	if (checkKVMEntry(options, key)) {
 		debug("entry exists, updating..");
-		updateKVMEntry(options, key, value, function(err, result){
+		updateKVMEntry(options, key, value, function(err /*, result */){
 			if (err) cb(err);
 			else cb(null, true);
 		});
 	} else {
 		debug("entry does not exist. inserting entry...")
-		insertKVMEntry(options, key, value, function(err, result){
+		insertKVMEntry(options, key, value, function(err /*, result */){
 			if (err) cb(err);
 			else cb(null, true);
 		});
@@ -257,7 +257,7 @@ function updateCPSKVM(options, serviceKey, newCertificate, newPublicKey, oldPubl
 				cb(err, result); 
 			});				
 		}												
-	], function (err, results) {
+	], function (err /*, results */) {
 		if (err) {
 			console.error(err);
 			process.exit(1);
@@ -275,7 +275,7 @@ module.exports = function () {
   return new RotateKey();
 }
 
-RotateKey.prototype.rotatekey = function rotatekey(options, cb) {
+RotateKey.prototype.rotatekey = function rotatekey(options /*, cb */) {
 
     options.baseuri = options.mgmtUrl || "https://api.enterprise.apigee.com";
     options.kvm = "microgateway";

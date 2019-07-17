@@ -344,7 +344,7 @@ const setup = function setup() {
             */
 
             var child = new(forever.Monitor)(path.join(__dirname, '..', 'app.js'), foreverOptions);
-            if (options.action == "start") {
+            if (options.action === "start") {
                 try {
                     fs.appendFileSync(pidpath, process.pid + '|');
                     child.start();
@@ -578,7 +578,7 @@ const setup = function setup() {
 
     var running = false;
     commander.commands.forEach(function(command) {
-        if (command._name == commander.rawArgs[2]) {
+        if (command._name === commander.rawArgs[2]) {
             running = true;
         }
     });

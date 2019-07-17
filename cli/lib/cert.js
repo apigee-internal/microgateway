@@ -2,14 +2,15 @@
 
 const cert = require('./cert-lib')
 const edgeconfig = require('microgateway-config');
-const prompt = require('cli-prompt');
-const path = require('path');
-const apigeetool = require('apigeetool');
-const _ = require('lodash');
-const async = require('async');
 const util = require('util');
 const configLocations = require('../../config/locations');
 const assert = require('assert')
+//const prompt = require('cli-prompt');
+//const path = require('path');
+//const apigeetool = require('apigeetool');
+//const _ = require('lodash');
+//const async = require('async');
+
 
 
 const Cert = function() {

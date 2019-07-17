@@ -1,8 +1,8 @@
 "use strict";
 
-const util = require("util");
-const debug = require("debug")("jwkrotatekey");
-const request = require("request");
+//const util = require("util");
+//const debug = require("debug")("jwkrotatekey");
+//const request = require("request");
 var deployAuthLib = require('./deploy-auth');
 var deployAuth;
 
@@ -16,7 +16,7 @@ module.exports = function() {
     return new UpgradeAuth();
 }
 
-UpgradeAuth.prototype.upgradeauth = function upgradeauth(options, cb) {
+UpgradeAuth.prototype.upgradeauth = function upgradeauth(options /*, cb */) {
     const opts = {
         org: options.org,
         env: options.env,
@@ -47,7 +47,7 @@ UpgradeAuth.prototype.upgradeauth = function upgradeauth(options, cb) {
 
     deployAuth = deployAuthLib(edge_config, null);
 
-    deployAuth.deployProxyWithPassword(options.mgmtUrl, 'na', opts, opts.directory, function(err, result) {
+    deployAuth.deployProxyWithPassword(options.mgmtUrl, 'na', opts, opts.directory, function(err /*, result */ ) {
         if (err) {
             console.log(err);
         }

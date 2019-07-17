@@ -6,7 +6,7 @@ const assert = require('assert');
 
 var args;
 
-process.argv.forEach((val, index, array) => {
+process.argv.forEach((val /*, index, array */) => {
   args = val;
 });
 

@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const apigeetool = require('apigeetool');
+//const apigeetool = require('apigeetool');
 const util = require('util');
 const url = require('url');
 const request = require('request');
@@ -90,7 +90,7 @@ Private.prototype.configureEdgemicro = function(options, cb) {
         targetDir: configFileDirectory,
         targetFile: configLocations.getSourceFile(options.org, options.env),
         overwrite: true
-    }, function(err, configPath) {
+    }, function( /*err, configPath  */ ) {
         edgeconfig.save(that.config, that.sourcePath);
         options.deployed = false;
         options.internaldeployed = false;
@@ -176,7 +176,7 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
 
     const tasks = [
         function(parallelCb) {
-            async.waterfall(calloutFlow, function(err, result) {
+            async.waterfall(calloutFlow, function(err /*, result */) {
                 if (err) {
                     console.log('error - editing apiproxy Callout.xml');
                     return parallelCb(err);
@@ -217,7 +217,7 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
         ];
 
         tasks.push(function(parallelCb) {
-            async.waterfall(defaultFlow, function(err, result) {
+            async.waterfall(defaultFlow, function(err /*, result */) {
                 if (err) {
                     console.log('error - editing apiproxy default.xml');
                     return parallelCb(err);
@@ -229,7 +229,7 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
     }
 
     // run configuration editing in parallel
-    async.parallel(tasks, function(err, results) {
+    async.parallel(tasks, function(err /*, results */) {
         if (err) {
             return callback(err);
         }
@@ -245,7 +245,7 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
 
     const tasks = [];
 
-    if (options.internaldeployed == false) {
+    if (options.internaldeployed === false) {
         tasks.push(function(callback) {
             console.log('configuring edgemicro internal proxy');
             that.configureEdgeMicroInternalProxy(options, callback);
@@ -259,7 +259,7 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
         console.log('Proxy edgemicro-internal is already deployed');
     }
 
-    if (options.deployed == false) {
+    if (options.deployed === false) {
         tasks.push(function(callback) {
             console.log('deploying ', that.name, ' app');
             that.deployment.deployWithLeanPayload(options, callback);
@@ -270,7 +270,7 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
 
     tasks.push(function(callback) {
         console.log('checking org for existing KVM');
-        that.cert.checkPrivateCert(options, function(err, certs) {
+        that.cert.checkPrivateCert(options, function(err /*, certs */ ) {
             if (err) {
                 console.log('error checking for cert. Installing new cert.');
                 that.cert.installCertWithPassword(options, callback);
@@ -296,10 +296,10 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
                 source: agentConfigPath
             });
 
-            if (options.internaldeployed == false && options.deployed == false) {
+            if (options.internaldeployed === false && options.deployed === false) {
                 agentConfig['edge_config']['jwt_public_key'] = results[2]; // get deploy results
                 agentConfig['edge_config'].bootstrap = results[4]; // get genkeys results
-            } else if (options.internaldeployed == true && options.internaldeployed == false) {
+            } else if (options.internaldeployed === true && options.internaldeployed === false) {
                 agentConfig['edge_config']['jwt_public_key'] = results[0];
                 agentConfig['edge_config'].bootstrap = results[2];
             } else {
@@ -311,7 +311,7 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
             if (publicKeyUri) {
                 agentConfig['edge_config']['products'] = publicKeyUri.replace('publicKey', 'products');
 
-                if (!agentConfig.hasOwnProperty('oauth') || agentConfig['oauth'] == null) {
+                if (!agentConfig.hasOwnProperty('oauth') || agentConfig['oauth'] === null) {
                     agentConfig['oauth'] = {};
                 }
                 agentConfig['oauth']['verify_api_key_url'] = publicKeyUri.replace('publicKey', 'verifyApiKey');
@@ -319,7 +319,7 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
 
             var bootstrapUri = agentConfig['edge_config']['bootstrap'];
             if (bootstrapUri) {
-                if (!agentConfig.hasOwnProperty('analytics') || agentConfig['analytics'] == null) {
+                if (!agentConfig.hasOwnProperty('analytics') || agentConfig['analytics'] === null) {
                     agentConfig['analytics'] = {};
                 }
 
@@ -334,9 +334,9 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
             edgeconfig.save(agentConfig, agentConfigPath);
             console.log();
 
-            if (options.internaldeployed == false && options.deployed == false) {
+            if (options.internaldeployed === false && options.deployed === false) {
                 console.log('vault info:\n', results[3]);
-            } else if (options.internaldeployed == true && options.internaldeployed == false) {
+            } else if (options.internaldeployed === true && options.internaldeployed === false) {
                 console.log('vault info:\n', results[1]);
             }
 

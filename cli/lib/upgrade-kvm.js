@@ -2,7 +2,7 @@
 
 const pem = require("pem");
 const util = require("util");
-const debug = require("debug")("jwkrotatekey");
+//const debug = require("debug")("jwkrotatekey");
 const request = require("request");
 
 
@@ -73,11 +73,11 @@ UpgradeKVM.prototype.upgradekvm = function upgradekvm(options, cb) {
                     auth: generateCredentialsObject(options),
                     method: "PUT",
                     json: payload
-                }, function(err, res, body) {
+                }, function(err, res /*, body */) {
                     if (err) {
                         if ( cb ) { cb(err) } else process.exit(1);
                         return;
-                    } if (res.statusCode != 200) {
+                    } if (res.statusCode !== 200) {
                         console.log("error upgrading KVM: "+ res.statusCode);
                     } else {
                         console.log("KVM update complete");
@@ -90,3 +90,4 @@ UpgradeKVM.prototype.upgradekvm = function upgradekvm(options, cb) {
     );
 
 }
+
