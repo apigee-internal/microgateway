@@ -1,9 +1,9 @@
 'use strict';
 const edgeconfig = require('microgateway-config');
-const path = require('path');
+//const path = require('path');
 const request = require('request');
 const async = require('async');
-const assert = require('assert');
+//const assert = require('assert');
 
 const configLocations = require('../../config/locations');
 
@@ -71,7 +71,7 @@ Verify.prototype.verify = function verify(options) {
           pass: secret
         }
       },
-        function (err, res, body) {
+        function (err, res/*, body */) {
           if (err) {
             console.log('verifying bootstrap url availability:FAIL');
             return cb(err);
@@ -95,7 +95,7 @@ Verify.prototype.verify = function verify(options) {
         method: 'GET',
         uri: options['jwt_path']
       },
-        function (err, res, body) {
+        function (err, res/* , body */) {
           if (err) {
             console.log('verifying jwt_public_key availability: FAIL');
             return cb(err);
@@ -112,7 +112,7 @@ Verify.prototype.verify = function verify(options) {
     },
     function (cb) {
       // verify products endpoint availability
-      const productsUrl = (authUri.indexOf("%s") == -1) ? authUri + '/products' : util.format(authUri + '/products', options.org, options.env);
+      const productsUrl = (authUri.indexOf("%s") === -1) ? authUri + '/products' : util.format(authUri + '/products', options.org, options.env);
       //const productsUrl = util.format(authUri + '/products', options.org, options.env);
       request({
         method: 'GET',
@@ -122,7 +122,7 @@ Verify.prototype.verify = function verify(options) {
         },        
         uri: productsUrl
       },
-        function (err, res, body) {
+        function (err, res/* , body */) {
           if (err) {
             console.log('verifying products availability: FAIL');
             return cb(err);
@@ -150,7 +150,7 @@ Verify.prototype.verify = function verify(options) {
             pass: secret
           }
         },
-          function (err, res, body) {
+          function (err, res/* , body */) {
             if (err) { return eachCb(err); }
 
             if (res.statusCode === 401) {
@@ -200,7 +200,7 @@ Verify.prototype.verify = function verify(options) {
           pass: secret
         }
       },
-        function (err, res, body) {
+        function (err, res/* , body */) {
           if (err) {
             console.log('verifying analytics with payload: FAIL');
             return cb(err);
@@ -230,7 +230,7 @@ Verify.prototype.verify = function verify(options) {
         return printError(err);
       }
       downloadedConfig = config;
-      async.series(tasks, function (asyncErr, res) {
+      async.series(tasks, function ( /*asyncErr, res */ ) {
         console.log('verification complete');
         agent.close(process.exit); // close and stop agent
       });

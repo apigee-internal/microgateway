@@ -3,23 +3,24 @@ const tmp = require('tmp');
 const cpr = require('cpr');
 const rimraf = require('rimraf');
 const apigeetool = require('apigeetool');
-const request = require('request');
+//const request = require('request');
 const assert = require('assert');
 const path = require('path');
 const async = require('async')
 const util = require('util')
 const fs = require('fs')
 const DEFAULT_HOSTS = 'default,secure';
-const url = require('url');
+//const url = require('url');
 const debug = require('debug')('edgemicro-auth')
-const _ = require('lodash')
+//const _ = require('lodash')
 var exec = require('child_process').exec;
 
 var run = function(cmd, cb) {
     //console.log('run %s',cmd)
-    var child = exec(cmd, {
+    // var child = 
+    exec(cmd, {
         maxBuffer: 1024 * 500
-    }, function(error, stdout, stderr) {
+    }, function(error /*, stdout, stderr */) {
         cb(error)
     });
 };
@@ -69,7 +70,7 @@ Deployment.prototype.deployEdgeMicroInternalProxy = function deployEdgeMicroInte
 Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload(options, callback) {
     const authUri = this.authUri;
     const managementUri = this.managementUri;
-    const homeDir = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+    const homeDir = process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
     var tmpDir = tmp.dirSync({
         keep: true,
         dir: path.resolve(homeDir, '.edgemicro')
@@ -114,7 +115,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload(opti
         rimraf(tmpDir.name, cb);
     })
 
-    async.series(tasks, function(err, results) {
+    async.series(tasks, function(err /*, results */) {
         if (err) {
             return callback(err);
         }
@@ -140,8 +141,8 @@ Deployment.prototype.checkDeployedInternalProxies = function checkDeployedIntern
         opts.username = options.username;
         opts.password = options.password;
     }
-    const that = this;
-    apigeetool.listDeployments(opts, function(err, proxies) {
+   // const that = this;
+    apigeetool.listDeployments(opts, function(err /*, proxies */) {
         if (err) {
             if (err.message.includes("404")) {
                 return cb(null, options);
@@ -172,8 +173,8 @@ Deployment.prototype.checkDeployedProxies = function checkDeployedProxies(option
         opts.username = options.username;
         opts.password = options.password;
     }
-    const that = this;
-    apigeetool.listDeployments(opts, function(err, proxies) {
+    //const that = this;
+    apigeetool.listDeployments(opts, function(err /*, proxies */) {
         if (err) {
             if (err.message.includes("404")) {
                 return cb(null, options);
@@ -198,7 +199,7 @@ function setEdgeMicroInternalEndpoint(file, runtimeUrl) {
 }
 
 function editVirtualHosts(file, virtualhosts) {
-    if (virtualhosts == DEFAULT_HOSTS) return;
+    if (virtualhosts === DEFAULT_HOSTS) return;
     var beginVH = "<VirtualHost>";
     var endVH = "</VirtualHost>";
     var defaultVH = "<VirtualHost>default</VirtualHost>";
@@ -207,10 +208,10 @@ function editVirtualHosts(file, virtualhosts) {
     var virtualhost = virtualhosts.split(",");
     var newcontent;
 
-    if (virtualhost.length == 1 && !virtualhost.includes('default') && !virtualhost.includes('secure')) {
+    if (virtualhost.length === 1 && !virtualhost.includes('default') && !virtualhost.includes('secure')) {
         content = content.replace(defaultVH, beginVH + virtualhost[0] + endVH);
         newcontent = content.replace(secureVH, '');
-    } else if (virtualhost.length == 1) {
+    } else if (virtualhost.length === 1) {
         if (!virtualhost.includes('default')) {
             //remove default
             content = content.replace(defaultVH, '');
@@ -291,7 +292,7 @@ Deployment.prototype.deployProxyWithPassword = function deployProxyWithPassword(
     });
 }
 
-
+/*
 function installJavaCallout(managementUri, opts, cb) {
 
     var jarName = 'micro-gateway-products-javacallout-1.0.0.jar';
@@ -355,6 +356,7 @@ function installJavaCallout(managementUri, opts, cb) {
     fileStream.pipe(httpReq);
 }
 
+
 function translateError(err, res) {
     if (!err && res.statusCode >= 400) {
 
@@ -365,3 +367,4 @@ function translateError(err, res) {
     }
     return err;
 }
+*/
