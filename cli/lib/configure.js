@@ -9,6 +9,8 @@ const async = require('async')
 const util = require('util')
 const fs = require('fs')
 const assert = require('assert');
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
+edgeconfig.setConsoleLogger(writeConsoleLog);
 const configLocations = require('../../config/locations');
 const BUFFERSIZE    = 10000;
 const BATCHSIZE     = 500;
@@ -31,7 +33,7 @@ module.exports = function () {
 
 Configure.prototype.configure = function configure(options, cb) {    
   if (!fs.existsSync(configLocations.getDefaultPath(options.configDir))) {
-    console.error("Missing %s, Please run 'edgemicro init'",configLocations.getDefaultPath())
+    writeConsoleLog('error',"Missing %s, Please run 'edgemicro init'",configLocations.getDefaultPath())
     return cb("Please call edgemicro init first")
   }
     
@@ -70,17 +72,17 @@ Configure.prototype.configure = function configure(options, cb) {
   const cache = configLocations.getCachePath(options.org, options.env);
   if (fs.existsSync(cache)) {
     fs.unlinkSync(cache);
-    //console.log('deleted ' + cache);
+    //writeConsoleLog('log', 'deleted ' + cache);
   }
 
   const targetPath = configLocations.getSourcePath(options.org, options.env);
   if (fs.existsSync(targetPath)) {
     fs.unlinkSync(targetPath);
-    //console.log('deleted ' + targetPath);
+    //writeConsoleLog('log', 'deleted ' + targetPath);
   }
 
   var configFileDirectory = options.configDir || configLocations.homeDir;
-  //console.log('init config');
+  //writeConsoleLog('log', 'init config');
   edgeconfig.init({
     source: configLocations.getDefaultPath(options.configDir),
     targetDir: configFileDirectory,
@@ -90,13 +92,13 @@ Configure.prototype.configure = function configure(options, cb) {
     options.deployed = false;
     deployAuth.checkDeployedProxies(options, (err, options) => {
       if (err) {
-        console.error(err);
+        writeConsoleLog('error', err);
         if ( cb ) { cb(err) } else process.exit(1);
         return;
       }
       configureEdgemicroWithCreds(options, (err) => {
         if (err) {
-          console.error(err);
+          writeConsoleLog('error', err);
           if ( cb ) { cb(err) } else process.exit(1);
         }
         if ( cb ) { cb(err) } else process.exit(0);
@@ -120,13 +122,13 @@ function configureEdgemicroWithCreds(options, cb) {
   tasks.push(
     function (callback) {
       setTimeout(() => {
-        console.log('checking org for existing KVM');
+        writeConsoleLog('log', 'checking org for existing KVM');
         cert.checkCertWithPassword(options, function (err, certs) {
           if (err) {
-            console.log('error checking for cert. Installing new cert.');
+            writeConsoleLog('log', 'error checking for cert. Installing new cert.');
             cert.installCertWithPassword(options, callback);
           } else {
-            console.log('KVM already exists in your org');
+            writeConsoleLog('log', 'KVM already exists in your org');
             cert.retrievePublicKey(options, callback);
           }
         });
@@ -146,7 +148,7 @@ function configureEdgemicroWithCreds(options, cb) {
     }
     assert(targetFile, 'must have an assigned target file')
 
-    // console.log('updating agent configuration');
+    // writeConsoleLog('log', 'updating agent configuration');
 
     if (err) {
       return cb(err)
@@ -186,30 +188,30 @@ function configureEdgemicroWithCreds(options, cb) {
       agentConfig['analytics']['flushInterval'] = FLUSHINTERVAL;
     }
 
-    console.log();
-    console.log('saving configuration information to:', agentConfigPath);
+    writeConsoleLog('log');
+    writeConsoleLog('log', 'saving configuration information to:', agentConfigPath);
     edgeconfig.save(agentConfig, agentConfigPath); // if it didn't throw, save succeeded
-    console.log();
+    writeConsoleLog('log');
 
     if (options.deployed == true) {  
-      console.log('vault info:\n', results[0]);
+      writeConsoleLog('log', 'vault info:\n', results[0]);
     } else {
-      console.log('vault info:\n', results[1]);
+      writeConsoleLog('log', 'vault info:\n', results[1]);
     }
-    console.log();
+    writeConsoleLog('log');
 
-    console.log(keySecretMessage);
+    writeConsoleLog('log',keySecretMessage);
     const key = results[2] ? results[2].key : results[1].key;
     const secret = results[2] ? results[2].secret : results[1].secret;
     assert(key, 'must have a key');
     assert(secret, 'must have a secret');
-    console.log('  key:', key);
-    console.log('  secret:', secret);
-    console.log();
+    writeConsoleLog('log', '  key:', key);
+    writeConsoleLog('log', '  secret:', secret);
+    writeConsoleLog('log');
     process.env.EDGEMICRO_KEY = key;
     process.env.EDGEMICRO_SECRET = secret;
 
-    console.log('edgemicro configuration complete!');
+    writeConsoleLog('log', 'edgemicro configuration complete!');
     setTimeout(cb, 50)
   });
 }
@@ -222,8 +224,8 @@ function addEnvVars(config) {
 
 function printError(err) {
   if (err.response) {
-    console.log(err.response.error);
+    writeConsoleLog('log',err.response.error);
   } else {
-    console.log(err);
+    writeConsoleLog('log',err);
   }
 }

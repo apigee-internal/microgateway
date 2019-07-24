@@ -9,8 +9,9 @@ const _ = require('lodash');
 const async = require('async');
 const util = require('util');
 const configLocations = require('../../config/locations');
-const assert = require('assert')
-
+const assert = require('assert');
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
+edgeconfig.setConsoleLogger(writeConsoleLog);
 
 const Cert = function() {
 };
@@ -36,9 +37,9 @@ Cert.prototype.installCert = function(options, cb) {
   cert(config).installCertWithPassword(options, (err, res) => {
     if (err) {
       if ( cb ) cb(err);
-      return console.error(err, 'failed to update cert');
+      return writeConsoleLog('error',  err, 'failed to update cert');
     }
-    console.log('installed cert');
+    writeConsoleLog('log','installed cert');
     if ( cb ) cb(null,res);
     if ( !cb ) process.exit(0);
   });
@@ -68,9 +69,9 @@ Cert.prototype.checkCert = function(options, cb) {
       if ( cb ) {
         return cb(err);
       }
-      return console.error(err, 'failed to update cert')
+      return writeConsoleLog('error',  err, 'failed to update cert')
     }
-    console.log('checked cert successfully');
+    writeConsoleLog('log','checked cert successfully');
     if ( cb ) cb(null,res);
     if ( !cb ) process.exit(0);
   });
@@ -90,8 +91,8 @@ Cert.prototype.deleteCert = function(options,cb) {
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
 
   cert(config).deleteCertWithPassword(options, function(err, msg) {
-    if ( err ) console.error(err);
-    if ( msg ) console.log(msg);
+    if ( err ) writeConsoleLog('error',  err);
+    if ( msg ) writeConsoleLog('log',msg);
     if ( cb ) cb(err,msg);
     if ( !cb ) process.exit(0);
   })
@@ -116,10 +117,10 @@ Cert.prototype.retrievePublicKey = function(options,cb) {
   cert(config).retrievePublicKey(options, (err, certificate) => {
     if (err) {
       if ( cb ) cb(err);
-      return console.error(err, 'failed to retrieve public key')
+      return writeConsoleLog('error',  err, 'failed to retrieve public key')
     }
-    console.log('succeeded');
-    console.log(certificate);
+    writeConsoleLog('log', 'succeeded');
+    writeConsoleLog('log', certificate);
     if ( cb ) cb(null,certificate);
     if ( !cb ) process.exit(0);
   })
@@ -134,24 +135,24 @@ Cert.prototype.retrievePublicKeyPrivate = function(options) {
   const config = edgeconfig.load({ source: configLocations.getSourcePath(options.org, options.env) });
   cert(config).retrievePublicKeyPrivate((err, certificate) => {
     if (err) {
-      return console.error(err, 'failed to retrieve public key')
+      return writeConsoleLog('error',  err, 'failed to retrieve public key')
     }
-    console.log('succeeded');
-    console.log(certificate);
+    writeConsoleLog('log','succeeded');
+    writeConsoleLog('log', certificate);
   })
 }
 
 /*
 function optionError(message) {
-  console.error(message);
+  writeConsoleLog('error',message);
   this.help();
 }
 
 function printError(err) {
   if (err.response) {
-    console.log(err.response.error);
+    writeConsoleLog('log',err.response.error);
   } else {
-    console.log(err);
+    writeConsoleLog('log',err);
   }
 }
 */

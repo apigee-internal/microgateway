@@ -10,6 +10,8 @@ const jwt = require('jsonwebtoken');
 const assert = require('assert')
 
 const configLocations = require('../../config/locations');
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
+edgeconfig.setConsoleLogger(writeConsoleLog);
 
 const Token = function() {
 };
@@ -23,10 +25,10 @@ Token.prototype.decodeToken = function( options ) {
   const token = fs.readFileSync(path.resolve(options.file), 'utf8').trim();
   try{ 
     const decodedJWT = jwt.decode(token, {complete:true}); 
-    console.log(decodedJWT);
+    writeConsoleLog('log',decodedJWT);
     return decodedJWT;
   }catch(err) {
-    console.error(err);
+    writeConsoleLog('error',err);
   }
 }
 
@@ -67,7 +69,7 @@ Token.prototype.verifyToken = function(options, cb) {
         cb(err)
         return printError(err);
       }
-      console.log(result);
+      writeConsoleLog('log',result);
       cb(null,result)
     });
   });
@@ -106,7 +108,7 @@ Token.prototype.getToken = function(options, cb) {
       if ( cb ) cb(err)
       return printError(err);
     }
-    console.log(JSON.stringify(res.body, null, 2));
+    writeConsoleLog('log',JSON.stringify(res.body, null, 2));
     if ( cb ) cb(null, res.body);
   });
 }
@@ -126,15 +128,15 @@ function getPublicKey(organization, environment, authUri, isPublicCloud, cb) {
 
 function printError(err) {
   if (err.response) {
-    console.log(err.response.error);
+    writeConsoleLog('log',err.response.error);
   } else {
-    console.log(err);
+    writeConsoleLog('log',err);
   }
 }
 
 /*
 function optionError(message) {
-  console.error(message);
+  writeConsoleLog('error',message);
   this.help();
 }
 */

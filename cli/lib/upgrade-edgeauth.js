@@ -7,6 +7,7 @@ var deployAuthLib = require('./deploy-auth');
 var deployAuth;
 
 const path = require('path');
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
 
 const UpgradeAuth = function() {
 
@@ -49,7 +50,7 @@ UpgradeAuth.prototype.upgradeauth = function upgradeauth(options, cb) {
 
     deployAuth.deployProxyWithPassword(options.mgmtUrl, 'na', opts, opts.directory, function(err, result) {
         if (err) {
-            console.log(err);
+            writeConsoleLog('log',err);
         }
     });
 

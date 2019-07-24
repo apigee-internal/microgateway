@@ -3,6 +3,7 @@
 const cluster = require('cluster');
 const agentConfig = require('../../lib/agent-config');
 const assert = require('assert');
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
 
 var args;
 
@@ -15,7 +16,7 @@ assert(argsJson);
 
 agentConfig(argsJson, (e) => {
   if (e) {
-    console.error('edge micro failed to start', e);
+    writeConsoleLog('error','edge micro failed to start', e);
     return;
   }
   if (!cluster.isMaster) {
@@ -26,6 +27,6 @@ agentConfig(argsJson, (e) => {
       }
     });
   } else {
-    console.log('edge micro started');
+    writeConsoleLog('log','edge micro started');
   }
 });

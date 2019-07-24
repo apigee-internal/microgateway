@@ -6,6 +6,7 @@ const debug = require('debug')('configure');
 const upgradekvm = require('./lib/upgrade-kvm')();
 const upgradeauth = require('./lib/upgrade-edgeauth')();
 const rotatekey = require('./lib/rotate-key')();
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
 
 var prompt = require('cli-prompt');
 
@@ -232,7 +233,7 @@ function promptForPassword(options, cb) {
 function optionError(caller) {
     return(((obj) => { 
       return((message) => {
-        console.error(message);
+        writeConsoleLog('error',message);
         obj.help();  
       });
      })(caller))

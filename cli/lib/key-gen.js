@@ -10,7 +10,8 @@ const util = require('util');
 const assert = require('assert')
 const edgeconfig = require('microgateway-config');
 const configLocations = require('../../config/locations');
-
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
+edgeconfig.setConsoleLogger(writeConsoleLog);
 
 const KeyGen = function() {
 
@@ -39,12 +40,12 @@ KeyGen.prototype.revoke = function(options, cb) {
         }, function(err, res) {
             err = translateError(err, res);
             if (err) {
-				console.log(err);
+				writeConsoleLog('log',err);
                 return cb(err);
             }
             if (res.statusCode >= 200 && res.statusCode <= 202) {
                 if (!res.body.region || !res.body.host) {
-                    cb(console.error('invalid response from region api', regionUrl, res.text));
+                    cb(writeConsoleLog('error','invalid response from region api', regionUrl, res.text));
                     return;
                 } else {
                     const credentialUrl = util.format('https://%s/edgemicro/%s/organization/%s/environment/%s', res.body.host, 'credential', options.org, options.env);
@@ -60,13 +61,13 @@ KeyGen.prototype.revoke = function(options, cb) {
                         }, function(er, re) {
                             er = translateError(er, re);
                             if (er) {
-								console.log(er);
+                              writeConsoleLog('log',er);
                                 return cb(er);
                             }
 							if (res.statusCode >= 200 && res.statusCode <= 202) {
-								console.log("key " + options.key + " revoked successfully");
+								writeConsoleLog('log',"key " + options.key + " revoked successfully");
 							} else {
-								console.log("revoking key " + options.key + " failed with reason code " + res.StatusCode)
+								writeConsoleLog('log',"revoking key " + options.key + " failed with reason code " + res.StatusCode)
 							}
                     });
 				}
@@ -79,19 +80,19 @@ KeyGen.prototype.generate = function generate(options, cb) {
   this.baseUri = config.edge_config.baseUri;
   this._generate(options, (err, result) => {
     if(err){
-      console.error("failed")
-      console.error(err)
+      writeConsoleLog('error',"failed")
+      writeConsoleLog('error',err)
 
       cb(err);
     }
-    console.info(config.edge_config.bootstrapMessage);
-    console.info('  bootstrap:', result.bootstrap);
-    console.log();
-    console.info(config.edge_config.keySecretMessage);
-    console.info('  key:', result.key);
-    console.info('  secret:', result.secret);
-    console.log();
-    console.log('finished');
+    writeConsoleLog('info',config.edge_config.bootstrapMessage);
+    writeConsoleLog('info','  bootstrap:', result.bootstrap);
+    writeConsoleLog('log');
+    writeConsoleLog('info',config.edge_config.keySecretMessage);
+    writeConsoleLog('info','  key:', result.key);
+    writeConsoleLog('info','  secret:', result.secret);
+    writeConsoleLog('log');
+    writeConsoleLog('log','finished');
     cb(err,result)
   });
 };
@@ -161,11 +162,11 @@ KeyGen.prototype._generate = function _generate(options, cb) {
           }
           if (res.statusCode >= 200 && res.statusCode <= 202) {
             if (!res.body.region || !res.body.host) {
-              cb(console.error('invalid response from region api', regionUrl, res.text));
+              cb(writeConsoleLog('error','invalid response from region api', regionUrl, res.text));
               return;
             }
 
-            console.log('configuring host', res.body.host, 'for region', res.body.region);
+            writeConsoleLog('log','configuring host', res.body.host, 'for region', res.body.region);
             const bootstrapUrl = util.format(baseUri, 'bootstrap', options.org, options.env);
             const parsedUrl = url.parse(bootstrapUrl);
             parsedUrl.host = res.body.host; // update to regional host
@@ -182,13 +183,13 @@ KeyGen.prototype._generate = function _generate(options, cb) {
 
           } else {
 
-            cb(console.error('error retrieving region for org', res.statusCode, res.text));
+            cb(writeConsoleLog('error','error retrieving region for org', res.statusCode, res.text));
 
           }
         });
       } else {
 
-        cb(console.error('error uploading credentials', res.statusCode, res.text));
+        cb(writeConsoleLog('error','error uploading credentials', res.statusCode, res.text));
 
       }
     });

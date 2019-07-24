@@ -108,7 +108,7 @@ var ReloadCluster = (file, opt) => {
     
         respawnerTimers.add(respawnerTimer);
     } catch (e) {
-      console.warn(e);
+      opt.logger.consoleLog('warn',e);
     }
   }
 
@@ -153,7 +153,7 @@ var ReloadCluster = (file, opt) => {
           worker.disconnect();  
         }
       } catch (e) {
-        console.warn(e);
+        opt.logger.consoleLog('warn',e);
       }
     } else {
       process.nextTick(forceKillWorker);
