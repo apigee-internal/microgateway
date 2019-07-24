@@ -21,6 +21,7 @@ var foreverOptions = require('../forever.json');
 const forever = require('forever-monitor');
 const pidpath = configLocations.getPIDFilePath();
 var portastic = require('portastic');
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
 
 const setup = function setup() {
     commander
@@ -96,7 +97,7 @@ const setup = function setup() {
         .action((options) => {
             options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
             init(options, (err, location) => {
-                console.log("config initialized to %s", location)
+                writeConsoleLog('log',"config initialized to %s", location)
             })
         });
 
@@ -223,7 +224,7 @@ const setup = function setup() {
                     debug("downloading file...");
                     request.get(options.configUrl, function(error, response, body) {
                         if (error) {
-                            console.error("config file did not download: " + error);
+                            writeConsoleLog('error',"config file did not download: " + error);
                             process.exit(1);
                         }
                         try {
@@ -231,12 +232,12 @@ const setup = function setup() {
                             fs.writeFileSync(filePath, body, 'utf8');
                             run.start(options);
                         } catch (err) {
-                            console.error("config file could not be written: " + err);
+                            writeConsoleLog('error',"config file could not be written: " + err);
                             process.exit(1);
                         }
                     });
                 } else {
-                    console.error("url protocol not supported: " + parsedUrl.protocol);
+                    writeConsoleLog('error',"url protocol not supported: " + parsedUrl.protocol);
                     process.exit(1);
                 }
             } else {
@@ -287,7 +288,7 @@ const setup = function setup() {
                     debug("downloading file...");
                     request.get(options.configUrl, function(error, response, body) {
                         if (error) {
-                            console.error("config file did not download: " + error);
+                            writeConsoleLog('error',"config file did not download: " + error);
                             process.exit(1);
                         }
                         try {
@@ -295,7 +296,7 @@ const setup = function setup() {
                             fs.writeFileSync(filePath, body, 'utf8');
                             run.reload(options);
                         } catch (err) {
-                            console.error("config file could not be written: " + err);
+                            writeConsoleLog('error',"config file could not be written: " + err);
                             process.exit(1);
                         }
                     });
@@ -349,7 +350,7 @@ const setup = function setup() {
                     fs.appendFileSync(pidpath, process.pid + '|');
                     child.start();
                 } catch (piderr) {
-                    console.error('failed to start microgateway: ' + piderr);
+                    writeConsoleLog('error','failed to start microgateway: ' + piderr);
                     process.exit(1);
                 }
             } else {
@@ -361,10 +362,10 @@ const setup = function setup() {
                         });
                         fs.unlinkSync(pidpath);
                     } else {
-                        console.log('pid file not found. please run this command from the folder where microgateway was started.')
+                        writeConsoleLog('log','pid file not found. please run this command from the folder where microgateway was started.')
                     }
                 } catch (piderr) {
-                    console.error('failed to stop microgateway: ' + piderr);
+                    writeConsoleLog('error','failed to stop microgateway: ' + piderr);
                     process.exit(1);
                 }
             }
@@ -590,7 +591,7 @@ const setup = function setup() {
 function optionError(caller) {
     return(((obj) => { 
       return((message) => {
-        console.error(message);
+        writeConsoleLog('error',message);
         obj.help();  
       });
      })(caller))
@@ -615,7 +616,7 @@ function validateUrl(target) {
         url.parse(target, true);
         return true;
     } catch (err) {
-        console.error("Malformed URL: " + err);
+        writeConsoleLog('error',"Malformed URL: " + err);
         return false;
     }
 }

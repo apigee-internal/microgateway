@@ -17,6 +17,8 @@ const cert = require('./cert-lib');
 const edgeconfig = require('microgateway-config');
 const configLocations = require('../../config/locations');
 const deploymentFx = require('./deploy-auth');
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
+edgeconfig.setConsoleLogger(writeConsoleLog);
 
 const DEFAULT_HOSTS = 'default,secure';
 
@@ -29,7 +31,7 @@ module.exports = function() {
 // begins edgemicro configuration process
 Private.prototype.configureEdgemicro = function(options, cb) {
     if (!fs.existsSync(configLocations.getDefaultPath(options.configDir))) {
-        console.error("Missing %s, Please run 'edgemicro init'", configLocations.getDefaultPath(options.configDir))
+        writeConsoleLog('error',"Missing %s, Please run 'edgemicro init'", configLocations.getDefaultPath(options.configDir))
         return cb("Please call edgemicro init first")
     }
 
@@ -44,16 +46,16 @@ Private.prototype.configureEdgemicro = function(options, cb) {
     assert(options.mgmtUrl, 'mgmtUrl is required');
 
     const cache = configLocations.getCachePath(options.org, options.env);
-    console.log('delete cache config');
+    writeConsoleLog('log','delete cache config');
     if (fs.existsSync(cache)) {
         fs.unlinkSync(cache);
-        console.log('deleted ' + cache);
+        writeConsoleLog('log','deleted ' + cache);
     }
 
     const targetPath = configLocations.getSourcePath(options.org, options.env);
     if (fs.existsSync(targetPath)) {
         fs.unlinkSync(targetPath);
-        console.log('deleted ' + targetPath);
+        writeConsoleLog('log','deleted ' + targetPath);
     }
 
     options.proxyName = this.name = 'edgemicro-auth';
@@ -84,7 +86,7 @@ Private.prototype.configureEdgemicro = function(options, cb) {
     var configFileDirectory = options.configDir || configLocations.homeDir;
 
     const that = this;
-    console.log('init config');
+    writeConsoleLog('log','init config');
     edgeconfig.init({
         source: configLocations.getDefaultPath(options.configDir),
         targetDir: configFileDirectory,
@@ -96,19 +98,19 @@ Private.prototype.configureEdgemicro = function(options, cb) {
         options.internaldeployed = false;
         that.deployment.checkDeployedProxies(options, (err, options) => {
             if (err) {
-                console.error(err);
+                writeConsoleLog('error',err);
                 if ( cb ) { cb(err) } else process.exit(1);
                 return;
             } else {
                 that.deployment.checkDeployedInternalProxies(options, (err, options) => {
                     if (err) {
-                        console.error(err);
+                        writeConsoleLog('error',err);
                         if ( cb ) { cb(err) } else process.exit(1);
                         return;
                     } else {
                         that.configureEdgemicroWithCreds(options, (err) => {
                             if (err) {
-                                console.error(err);
+                                writeConsoleLog('error',err);
                                 if ( cb ) { cb(err) } else process.exit(1);
                                 return;
                             }
@@ -178,7 +180,7 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
         function(parallelCb) {
             async.waterfall(calloutFlow, function(err /*, result */) {
                 if (err) {
-                    console.log('error - editing apiproxy Callout.xml');
+                    writeConsoleLog('log','error - editing apiproxy Callout.xml');
                     return parallelCb(err);
                 }
 
@@ -219,7 +221,7 @@ Private.prototype.configureEdgeMicroInternalProxy = function configureEdgeMicroI
         tasks.push(function(parallelCb) {
             async.waterfall(defaultFlow, function(err /*, result */) {
                 if (err) {
-                    console.log('error - editing apiproxy default.xml');
+                    writeConsoleLog('log','error - editing apiproxy default.xml');
                     return parallelCb(err);
                 }
 
@@ -247,42 +249,42 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
 
     if (options.internaldeployed === false) {
         tasks.push(function(callback) {
-            console.log('configuring edgemicro internal proxy');
+            writeConsoleLog('log','configuring edgemicro internal proxy');
             that.configureEdgeMicroInternalProxy(options, callback);
         });
 
         tasks.push(function(callback) {
-            console.log('deploying edgemicro internal proxy');
+            writeConsoleLog('log','deploying edgemicro internal proxy');
             that.deployment.deployEdgeMicroInternalProxy(options, callback);
         });
     } else {
-        console.log('Proxy edgemicro-internal is already deployed');
+        writeConsoleLog('log','Proxy edgemicro-internal is already deployed');
     }
 
     if (options.deployed === false) {
         tasks.push(function(callback) {
-            console.log('deploying ', that.name, ' app');
+            writeConsoleLog('log','deploying ', that.name, ' app');
             that.deployment.deployWithLeanPayload(options, callback);
         });
     } else {
-        console.log(that.name, ' is already deployed');
+        writeConsoleLog('log',that.name, ' is already deployed');
     }
 
     tasks.push(function(callback) {
-        console.log('checking org for existing KVM');
+	writeConsoleLog('log','checking org for existing KVM');
         that.cert.checkPrivateCert(options, function(err /*, certs */ ) {
             if (err) {
-                console.log('error checking for cert. Installing new cert.');
+                writeConsoleLog('log','error checking for cert. Installing new cert.');
                 that.cert.installCertWithPassword(options, callback);
             } else {
-                console.log('KVM already exists in your org');
+                writeConsoleLog('log','KVM already exists in your org');
                 that.cert.retrievePublicKeyPrivate(callback);
             }
         });
     });
 
     tasks.push(function(callback) {
-        console.log('generating keys');
+        writeConsoleLog('log','generating keys');
         that.generateKeysWithPassword(options, callback);
     });
 
@@ -329,18 +331,18 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
                 agentConfig['analytics']['flushInterval'] = 500;
             }
 
-            console.log();
-            console.log('saving configuration information to:', agentConfigPath);
+            writeConsoleLog('log')
+            writeConsoleLog('log','saving configuration information to:', agentConfigPath);
             edgeconfig.save(agentConfig, agentConfigPath);
-            console.log();
+            writeConsoleLog('log')
 
             if (options.internaldeployed === false && options.deployed === false) {
-                console.log('vault info:\n', results[3]);
+		writeConsoleLog('log','vault info:\n', results[3]);
             } else if (options.internaldeployed === true && options.internaldeployed === false) {
-                console.log('vault info:\n', results[1]);
+		writeConsoleLog('log','vault info:\n', results[1]);
             }
 
-            console.log('edgemicro configuration complete!');
+            writeConsoleLog('log','edgemicro configuration complete!');
             cb();
 
         });
@@ -415,27 +417,27 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
 
                     if (res.statusCode >= 200 && res.statusCode <= 202) {
                         if (!res.body.region || !res.body.host) {
-                            cb(console.error('invalid response from region api', regionUrl, res.text));
+                            cb(writeConsoleLog('error','invalid response from region api', regionUrl, res.text));
                             return;
                         }
 
-                        console.log('configuring host', res.body.host, 'for region', res.body.region);
+                        writeConsoleLog('log','configuring host', res.body.host, 'for region', res.body.region);
                         const parsedRes = url.parse(res.body.host);
                         parsedUrl.host = parsedRes.host; // update to regional host
-                        console.log();
-                        console.info(that.config.edge_config.keySecretMessage);
-                        console.info('  key:', key);
-                        console.info('  secret:', secret);
-                        console.log();
+                        writeConsoleLog('log')
+                        writeConsoleLog('info'that.config.edge_config.keySecretMessage);
+                        writeConsoleLog('info','  key:', key);
+                        writeConsoleLog('info','  secret:', secret);
+                        writeConsoleLog('log')
                         process.env.EDGEMICRO_KEY = key;
                         process.env.EDGEMICRO_SECRET = secret;
                         return cb(null, updatedUrl);
                     } else {
-                        cb(console.error('error retrieving region for org', res.statusCode, res.text));
+                        cb(writeConsoleLog('error','error retrieving region for org', res.statusCode, res.text));
                     }
                 });
             } else {
-                cb(console.error('error uploading credentials', res.statusCode, res.text));
+                cb(writeConsoleLog('error','error uploading credentials', res.statusCode, res.text));
             }
         });
     });
@@ -453,7 +455,7 @@ function translateError(err, res) {
 
 /*
 function optionError(message) {
-    console.error(message);
+    writeConsoleLog('error',message);
     this.help();
 }
 */

@@ -22,20 +22,22 @@
 
 'use strict';
 var edgemicroVersion = require('../package.json').version;
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
 const version = process.version;
 const ltsVersion = 8;
 const experimental = ["v7", "v9","v11"];
 const latest = 12;
 
+
 //don't print versions when obtaining a token. 
 if (!process.argv.includes("token") && !process.argv.includes("get")) {
-    console.log('current nodejs version is %s', version);
-    console.log('current edgemicro version is %s', edgemicroVersion);    
+    writeConsoleLog('log','current nodejs version is %s', version);
+    writeConsoleLog('log','current edgemicro version is %s', edgemicroVersion);
 }
 
 for (var ver in experimental) {
     if (version.includes(experimental[ver])) {
-        console.log("You are using a version of NodeJS that is not supported");
+        writeConsoleLog('log',"You are using a version of NodeJS that is not supported");
         return;
     }
 }
@@ -43,7 +45,7 @@ for (var ver in experimental) {
 var majorVersion = parseInt(version.split(".")[0].replace("v", ""));
 
 if (majorVersion < ltsVersion || majorVersion > latest) {
-    console.log("You are using a version of NodeJS that is not supported");
+    writeConsoleLog('log',"You are using a version of NodeJS that is not supported");
     return;
 } else {
     require('./cmd')()

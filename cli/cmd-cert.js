@@ -3,6 +3,7 @@
 const commander = require('commander');
 const cert = require('./lib/cert')();
 const prompt = require('cli-prompt');
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
 
 const setup = function setup() {
 
@@ -112,7 +113,7 @@ const setup = function setup() {
 function optionError(caller) {
   return(((obj) => { 
     return((message) => {
-      console.error(message);
+      writeConsoleLog('error',message);
       obj.help();  
     });
    })(caller))

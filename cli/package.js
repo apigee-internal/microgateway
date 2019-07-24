@@ -12,10 +12,11 @@ const os = require('os');
 const path = require('path');
 const parseArgs = require('minimist');
 const yaml = require('js-yaml');
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
 
 const argv = parseArgs(process.argv.slice(2));
 if (!argv.version) {
-  console.error('Usage:', process.argv[1], '--version <major.minor.patch>');
+  writeConsoleLog('error','Usage:', process.argv[1], '--version <major.minor.patch>');
   process.exit(1);
 }
 
@@ -31,13 +32,13 @@ async.parallel([
   function(cb) { available('tsc', cb); }
 ], function(err /*, results*/ ) {
   if (err) {
-    console.error('gulp/tsc not found in path (try "npm i -g gulp typescript")');
+    writeConsoleLog('error','gulp/tsc not found in path (try "npm i -g gulp typescript")');
     process.exit(1);
   }
 });
 
 process.chdir(buildDir);
-console.info('building package in', buildDir);
+writeConsoleLog('info','building package in', buildDir);
 
 const topLevelFiles = [
   'build.yaml',
@@ -105,17 +106,17 @@ async.series(tasks, function(err  /*, results */) {
 });
 
 function git_clone(repo, branch, callback) {
-  console.log('git clone', repo);
+  writeConsoleLog('log','git clone', repo);
   exec(
     'git clone ' + (branch ? '-b ' + branch + ' ': '') + '-q ' + repo,
     function(error, stdout, stderr) {
-      // console.info(stdout);
-      console.error(stderr);
+      // writeConsoleLog('info',stdout);
+      writeConsoleLog('error',stderr);
       if (error) {
-        console.error('error cloning repo', repo, error);
+        writeConsoleLog('error','error cloning repo', repo, error);
         callback(error);
       } else {
-        console.info('cloned', repo);
+        writeConsoleLog('info','cloned', repo);
         callback();
       }
     }
@@ -123,18 +124,18 @@ function git_clone(repo, branch, callback) {
 }
 
 function npm_install(dir, production, callback) {
-  console.log('npm install', dir, production ? '(production)' : '(development)');
+  writeConsoleLog('log','npm install', dir, production ? '(production)' : '(development)');
   exec(
     'npm install ' + (production ? '--production' : ''),
     {cwd: dir},
     function(error, stdout, stderr) {
-      // console.info(stdout);
-      console.error(stderr);
+      // writeConsoleLog('info',stdout);
+      writeConsoleLog('error',stderr);
       if (error) {
-        console.error('error running npm install in dir', dir, error);
+        writeConsoleLog('error','error running npm install in dir', dir, error);
         callback(error);
       } else {
-        console.info('installed modules in', dir);
+        writeConsoleLog('info','installed modules in', dir);
         callback();
       }
     }
@@ -142,7 +143,7 @@ function npm_install(dir, production, callback) {
 }
 
 function build_properties(repo, callback) {
-  console.log('creating build properties in', repo);
+  writeConsoleLog('log','creating build properties in', repo);
   const properties = {};
   properties.version = argv.version;
   properties.date = (new Date()).toISOString();
@@ -150,9 +151,9 @@ function build_properties(repo, callback) {
     'git show HEAD|grep commit|cut -f2 -d" "',
     {cwd: repo},
     function(error, stdout, stderr) {
-      console.error(stderr);
+      writeConsoleLog('error',stderr);
       if (error) {
-        console.error('error running "git show HEAD" in repo', repo, error);
+        writeConsoleLog('error','error running "git show HEAD" in repo', repo, error);
         callback(error);
       } else {
         properties.head = stdout.trim();
@@ -166,7 +167,7 @@ function build_properties(repo, callback) {
 
 function update_version(repo, callback) {
   const pkgJSON = path.join(repo, 'package.json');
-  console.log('updating version in', pkgJSON);
+  writeConsoleLog('log','updating version in', pkgJSON);
   const pkg = JSON.parse(fs.readFileSync(pkgJSON));
   pkg.version = argv.version;
   fs.writeFileSync(pkgJSON, JSON.stringify(pkg, null, 2));
@@ -175,14 +176,14 @@ function update_version(repo, callback) {
 
 function git_tag(repo, callback) {
   const tag = 'v' + argv.version;
-  console.log('tagging repo', repo, 'with version', tag);
+  writeConsoleLog('log','tagging repo', repo, 'with version', tag);
   exec(
     'git tag ' + tag,
     {cwd: repo},
     function(error, stdout, stderr) {
-      console.error(stderr);
+      writeConsoleLog('error',stderr);
       if (error) {
-        console.error('error running "git tag" in repo', repo, error);
+        writeConsoleLog('error','error running "git tag" in repo', repo, error);
         callback(error);
       } else {
         callback();
@@ -192,18 +193,18 @@ function git_tag(repo, callback) {
 }
 
 function gulp(dir, target, callback) {
-  console.log('gulp', target);
+  writeConsoleLog('log','gulp', target);
   exec(
     'gulp ' + target,
     {cwd: dir},
     function(error, stdout, stderr) {
-      // console.info(stdout);
-      console.error(stderr);
+      // writeConsoleLog('info',stdout);
+      writeConsoleLog('error',stderr);
       if (error) {
-        console.error('error running gulp in dir', dir, error);
+        writeConsoleLog('error','error running gulp in dir', dir, error);
         callback(error);
       } else {
-        console.info('compiled sources in', dir);
+        writeConsoleLog('info','compiled sources in', dir);
         callback();
       }
     }
@@ -213,7 +214,7 @@ function gulp(dir, target, callback) {
 function zip(zipfile, dir, dirs, excludes, callback) {
   const command = '/usr/bin/zip';
   const args = ['-q', '--symlinks', '-r', zipfile].concat(dirs, '-x', excludes);
-  console.log(dir, command, args.join(' '));
+  writeConsoleLog('log',dir, command, args.join(' '));
   const zip = spawn(command, args, {
     cwd: dir,
     stdio: 'inherit'
@@ -221,10 +222,10 @@ function zip(zipfile, dir, dirs, excludes, callback) {
 
   zip.on('exit', function(error) {
     if (error) {
-      console.error('error creating zip', error);
+      writeConsoleLog('error','error creating zip', error);
       callback(error);
     } else {
-      console.info('built', path.join(dir, zipfile));
+      writeConsoleLog('info','built', path.join(dir, zipfile));
       callback();
     }
   });
@@ -233,7 +234,7 @@ function zip(zipfile, dir, dirs, excludes, callback) {
 function available(cmd, callback) {
   exec('/usr/bin/which ' + cmd,
     function(error, stdout /*, stderr */) {
-      // console.info(error, stdout);
+      // writeConsoleLog('info',error, stdout);
       callback(error, stdout);
     }
   );

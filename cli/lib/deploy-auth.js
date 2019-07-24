@@ -14,9 +14,10 @@ const DEFAULT_HOSTS = 'default,secure';
 const debug = require('debug')('edgemicro-auth')
 //const _ = require('lodash')
 var exec = require('child_process').exec;
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
 
 var run = function(cmd, cb) {
-    //console.log('run %s',cmd)
+    //writeConsoleLog('log','run %s',cmd)
     // var child = 
     exec(cmd, {
         maxBuffer: 1024 * 500
@@ -81,14 +82,14 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload(opti
 
     // copy bin folder into tmp
     tasks.push(function(cb) {
-        //console.log('copy auth app into tmp dir');
+        //writeConsoleLog('log','copy auth app into tmp dir');
         cpr(path.resolve(__dirname, '..', '..', 'node_modules', 'microgateway-edgeauth'), tmpDir.name, cb);
     });
 
 
     // copy bin folder into tmp
     tasks.push(function(cb) {
-        //console.log('copy config into tmp dir');
+        //writeConsoleLog('log','copy config into tmp dir');
         cpr(path.resolve(__dirname, '..', '..', 'config'), tmpDir.name + '/config', cb);
     });
 
@@ -127,7 +128,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload(opti
 
 // checks for previously deployed edgemicro internal proxies
 Deployment.prototype.checkDeployedInternalProxies = function checkDeployedInternalProxies(options, cb) {
-    //console.log('checking for previously deployed proxies')
+    //writeConsoleLog('log','checking for previously deployed proxies')
     const opts = {
         organization: options.org,
         api: 'edgemicro-internal',
@@ -159,7 +160,7 @@ Deployment.prototype.checkDeployedInternalProxies = function checkDeployedIntern
 
 // checks for previously deployed edgemicro proxies
 Deployment.prototype.checkDeployedProxies = function checkDeployedProxies(options, cb) {
-    //console.log('checking for previously deployed proxies')
+    //writeConsoleLog('log','checking for previously deployed proxies')
     const opts = {
         organization: options.org,
         api: 'edgemicro-auth',
@@ -264,7 +265,7 @@ Deployment.prototype.deployProxyWithPassword = function deployProxyWithPassword(
     if (options.runtimeUrl) {
       setEdgeMicroInternalEndpoint(dir + "/apiproxy/policies/Authenticate-Call.xml", options.runtimeUrl);
     } 
-    console.log('Give me a minute or two... this can take a while...');
+    writeConsoleLog('log','Give me a minute or two... this can take a while...');
     apigeetool.deployProxy(opts, function(err) {
         if (err) {
             if (err.code === 'ECONNRESET' && err.message === 'socket hang up') {
@@ -275,17 +276,17 @@ Deployment.prototype.deployProxyWithPassword = function deployProxyWithPassword(
 
             return callback(err);
         } else {
-            console.log('App %s deployed.', options.proxyName);
+            writeConsoleLog('log','App %s deployed.', options.proxyName);
             callback(null, options.runtimeUrl ? authUri + '/publicKey' : util.format(authUri + '/publicKey', options.org, options.env));
         }
 
-        //console.log('App %s added to your org. Now adding resources.', options.proxyName);
+        //writeConsoleLog('log','App %s added to your org. Now adding resources.', options.proxyName);
         /*    opts.password = options.password; // override a apigeetool side-effect bug
             installJavaCallout(managementUri, opts, function(err) {
               if (err) {
                 return callback(err);
               }
-              console.log('App %s deployed.', options.proxyName);
+              writeConsoleLog('log','App %s deployed.', options.proxyName);
               callback(null, options.runtimeUrl ? authUri + '/publicKey' : util.format(authUri + '/publicKey', options.org, options.env));
 
             });*/

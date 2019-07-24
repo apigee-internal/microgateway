@@ -6,7 +6,7 @@ const debug = require("debug")("jwkrotatekey");
 //const commander = require('commander');
 const request = require("request");
 const async = require('async');
-
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
 
 function createCert(cb) {
 
@@ -93,9 +93,9 @@ function updateNonCPSKVM(options, serviceKey, newCertificate, newPublicKey, oldP
        json: payload
     }, function(err, res /*, body */) {
        if (err || res.statusCode > 299) {
-           console.error(err);
+           writeConsoleLog('error',err);
        } else {
-           console.log("Key Rotation successfully completed!");
+           writeConsoleLog('log',"Key Rotation successfully completed!");
        }
     });	
 }
@@ -262,10 +262,10 @@ function updateCPSKVM(options, serviceKey, newCertificate, newPublicKey, oldPubl
 		}												
 	], function (err /*, results */) {
 		if (err) {
-			console.error(err);
+			writeConsoleLog('error',err);
 			process.exit(1);
 		} else {
-			console.log("Key Rotation successfully completed!");
+			writeConsoleLog('log',"Key Rotation successfully completed!");
 		}
     });
 }
@@ -289,7 +289,7 @@ RotateKey.prototype.rotatekey = function rotatekey(options /*, cb */) {
     	function(cb) {
 		    var privateKeyURI = util.format("%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s/entries/private_key",
 		        options.baseuri, options.org, options.env, options.kvm);
-		    console.log("Checking if private key exists in the KVM...");
+		    writeConsoleLog('log',"Checking if private key exists in the KVM...");
 		    request({
 		        uri: privateKeyURI,
 		        auth: generateCredentialsObject(options),
@@ -300,7 +300,7 @@ RotateKey.prototype.rotatekey = function rotatekey(options /*, cb */) {
 		    }); 		
     	},
 		function(cb) {
-			console.log("Checking for certificate...");
+			writeConsoleLog('log',"Checking for certificate...");
             var publicKeyURI = util.format("https://%s-%s.apigee.net/edgemicro-auth/publicKey",
                 options.org, options.env);			
             request({
@@ -314,11 +314,11 @@ RotateKey.prototype.rotatekey = function rotatekey(options /*, cb */) {
 		}
     ], function(err, results){
     	if (err) {
-    		console.error(err);
+			writeConsoleLog('error',err);
 			process.exit(1);
     	} else {
     		var oldCertificate = results[1];
-			console.log("Found Certificate");
+			writeConsoleLog('log',"Found Certificate");
 			//debug("Old Certificate: \n" + oldCertificate);
 			async.series([
 				function(cb) {
@@ -329,7 +329,7 @@ RotateKey.prototype.rotatekey = function rotatekey(options /*, cb */) {
 					
 				}, 
 				function(cb) {
-					console.log("Generating New key/cert pair...");
+					writeConsoleLog('log',"Generating New key/cert pair...");
 					createCert(function(e, newkeys) {
 						if (e) cb(e);
 						else cb(null, newkeys);
@@ -337,14 +337,14 @@ RotateKey.prototype.rotatekey = function rotatekey(options /*, cb */) {
 				}
 			], function(e, res){
 				if (err) {
-					console.error(e);
+					writeConsoleLog('error',e);
 					process.exit(1);
 				} else {
-					console.log ("Extract new public key");
+					writeConsoleLog('log',"Extract new public key");
 					var newCertificate = res[1].certificate;
 					pem.getPublicKey(newCertificate, function(ee, newkey) {
 						if (ee) {
-							console.error(ee);
+							writeConsoleLog('error',ee);
 							process.exit(1);
 						} else {
 							debug("Checking for CPS...");

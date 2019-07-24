@@ -4,7 +4,7 @@ const pem = require("pem");
 const util = require("util");
 //const debug = require("debug")("jwkrotatekey");
 const request = require("request");
-
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
 
 function generateCredentialsObject(options) {
     if (options.token) {
@@ -36,18 +36,18 @@ UpgradeKVM.prototype.upgradekvm = function upgradekvm(options, cb) {
 
     var publicKeyURI = util.format('https://%s-%s.apigee.net/edgemicro-auth/publicKey', options.org, options.env);
 
-    console.log("Checking for certificate...");
+    writeConsoleLog('log',"Checking for certificate...");
     request({
         uri: publicKeyURI,
         auth: generateCredentialsObject(options),
         method: "GET"
     }, function(err, res, body) {
         if (err) {
-            console.error(err);
+            writeConsoleLog('error',err);
         } else {
-            console.log("Certificate found!");
+            writeConsoleLog('log',"Certificate found!");
             pem.getPublicKey(body, function(err, publicKey) {
-                console.log(publicKey.publicKey);
+                writeConsoleLog('log',publicKey.publicKey);
                 var updatekvmuri = util.format("%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s",
                     options.baseuri, options.org, options.env, options.kvm);
                 var payload = {
@@ -78,9 +78,9 @@ UpgradeKVM.prototype.upgradekvm = function upgradekvm(options, cb) {
                         if ( cb ) { cb(err) } else process.exit(1);
                         return;
                     } if (res.statusCode !== 200) {
-                        console.log("error upgrading KVM: "+ res.statusCode);
+			writeConsoleLog('log',"error upgrading KVM: "+ res.statusCode);
                     } else {
-                        console.log("KVM update complete");
+                        writeConsoleLog('log',"KVM update complete");
                         process.exit(0);
                     }
                 });

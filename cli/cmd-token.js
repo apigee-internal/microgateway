@@ -2,6 +2,7 @@
 
 const commander = require('commander');
 const token = require('./lib/token')();
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
 
 const setup = function setup() {
 
@@ -62,7 +63,7 @@ const setup = function setup() {
 function optionError(caller) {
   return(((obj) => { 
     return((message) => {
-      console.error(message);
+      writeConsoleLog('error',message);
       obj.help();  
     });
    })(caller))

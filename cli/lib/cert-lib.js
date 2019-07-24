@@ -10,6 +10,7 @@ const async = require('async');
 const debug = require('debug')('cert')
 //const yaml = require('js-yaml');
 //const prompt = require('cli-prompt');
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
 
 const ERR_STORE_EXISTS = 'com.apigee.secure-store.storekey.already.exists';
 const ERR_STORE_MISSING = 'com.apigee.secure-store.securestore_does_not_exist';
@@ -93,7 +94,7 @@ CertLogic.prototype.installPrivateCert = function(options, callback) {
             if (callback) {
                 return callback(err);
             } else {
-                return console.log(err, err.stack);
+                return writeConsoleLog('log',err, err.stack);
             }
         }
 
@@ -111,9 +112,9 @@ CertLogic.prototype.installPrivateCert = function(options, callback) {
                         deleteVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, cb);
                     },
                     function(cb) {
-                        console.log('creating KVM');
-                        console.log('adding private_key');
-                        console.log('adding public_key');
+                        writeConsoleLog('log','creating KVM');
+                        writeConsoleLog('log','adding private_key');
+                        writeConsoleLog('log','adding public_key');
                         var entries = [{
                                 'name': 'private_key',
                                 'value': privateKey
@@ -245,15 +246,15 @@ CertLogic.prototype.generateKeysWithPassword = function generateKeysWithPassword
                     if (res.statusCode >= 200 && res.statusCode <= 202) {
                         if (!res.body.region || !res.body.host) {
                             if (cb) {
-                                cb(console.error('invalid response from region api', regionUrl, res.text));
+                                cb(writeConsoleLog('error','invalid response from region api', regionUrl, res.text));
                             } else {
-                                console.error('invalid response from region api', regionUrl, res.text);
+                                writeConsoleLog('error','invalid response from region api', regionUrl, res.text);
                             }
 
                             return;
                         }
 
-                        console.log('configuring host', res.body.host, 'for region', res.body.region);
+                        writeConsoleLog('log','configuring host', res.body.host, 'for region', res.body.region);
                         var bootstrapUrl = util.format(managementUri, 'bootstrap', options.org, options.env);
                         var parsedUrl = url.parse(bootstrapUrl);
                         parsedUrl.host = res.body.host; // update to regional host
@@ -267,11 +268,11 @@ CertLogic.prototype.generateKeysWithPassword = function generateKeysWithPassword
 
 
                     } else {
-                        cb(console.error('error retrieving region for org', res.statusCode, res.text));
+                        cb(writeConsoleLog('error','error retrieving region for org', res.statusCode, res.text));
                     }
                 });
             } else {
-                cb(console.error('error uploading credentials', res.statusCode, res.text));
+                cb(writeConsoleLog('error','error uploading credentials', res.statusCode, res.text));
             }
         });
     });
@@ -311,7 +312,7 @@ function createCert(cb) {
 }
 
 function deleteVault(credentials, managementUri, organization, environment, vaultName, cb) {
-    console.log('deleting KVM');
+    writeConsoleLog('log','deleting KVM');
 
     var uri = util.format('%s/v1/organizations/%s/environments/%s/keyvaluemaps/%s', managementUri, organization, environment, vaultName);
 
@@ -429,9 +430,9 @@ function uploadCert(options, managementUri, vaultName, privateKey, publicKey, ca
                     deleteVault(generateCredentialsObject(options), managementUri, options.org, options.env, vaultName, cb);
                 },
                 function(cb) {
-                    console.log('creating KVM');
-                    console.log('adding private_key');
-                    console.log('adding public_key');
+                    writeConsoleLog('log','creating KVM');
+                    writeConsoleLog('log','adding private_key');
+                    writeConsoleLog('log','adding public_key');
                     var entries = [{
                             'name': 'private_key',
                             'value': privateKey

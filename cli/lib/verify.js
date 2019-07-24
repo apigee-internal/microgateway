@@ -4,6 +4,8 @@ const edgeconfig = require('microgateway-config');
 const request = require('request');
 const async = require('async');
 //const assert = require('assert');
+const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
+edgeconfig.setConsoleLogger(writeConsoleLog);
 
 const configLocations = require('../../config/locations');
 
@@ -45,18 +47,18 @@ Verify.prototype.verify = function verify(options) {
       },
         function (err, res) {
           if (err) {
-            console.log('verifying analytics negative case: FAIL');
+            writeConsoleLog('log','verifying analytics negative case: FAIL');
             return cb(err);
           }
 
           if (res.statusCode === 401) {
-            console.log('verifying analytics negative case: FAIL');
+            writeConsoleLog('log','verifying analytics negative case: FAIL');
             return cb(new Error('analytics up - got 401 Unauthorized. Invalid key/secret credentials.'));
           } else if (res.statusCode !== 500) {
-            console.log('verifying analytics negative case: FAIL');
+            writeConsoleLog('log','verifying analytics negative case: FAIL');
             return cb(new Error('analytics up - got code: ' + res.statusCode));
           } else {
-            console.log('verifying analytics negative case: OK');
+            writeConsoleLog('log','verifying analytics negative case: OK');
             cb();
           }
         });
@@ -73,18 +75,18 @@ Verify.prototype.verify = function verify(options) {
       },
         function (err, res/*, body */) {
           if (err) {
-            console.log('verifying bootstrap url availability:FAIL');
+            writeConsoleLog('log','verifying bootstrap url availability:FAIL');
             return cb(err);
           }
 
           if (res.statusCode === 401) {
-            console.log('verifying bootstrap url availability:FAIL');
+            writeConsoleLog('log','verifying bootstrap url availability:FAIL');
             return cb(new Error('bootstrap - got 401 Unauthorized. Invalid key/secret credentials.'));
           } else if (res.statusCode !== 200) {
-            console.log('verifying bootstrap url availability:FAIL');
+            writeConsoleLog('log','verifying bootstrap url availability:FAIL');
             return cb(new Error('bootstrap - got code: ' + res.statusCode))
           } else {
-            console.log('verifying bootstrap url availability:OK');
+            writeConsoleLog('log','verifying bootstrap url availability:OK');
             cb();
           }
         })
@@ -97,15 +99,15 @@ Verify.prototype.verify = function verify(options) {
       },
         function (err, res/* , body */) {
           if (err) {
-            console.log('verifying jwt_public_key availability: FAIL');
+            writeConsoleLog('log','verifying jwt_public_key availability: FAIL');
             return cb(err);
           }
 
           if (res.statusCode !== 200) {
-            console.log('verifying jwt_public_key availability: FAIL');
+            writeConsoleLog('log','verifying jwt_public_key availability: FAIL');
             return cb(new Error('jwt - got code: ' + res.statusCode));
           } else {
-            console.log('verifying jwt_public_key availability: OK');
+            writeConsoleLog('log','verifying jwt_public_key availability: OK');
             cb();
           }
         });
@@ -124,15 +126,15 @@ Verify.prototype.verify = function verify(options) {
       },
         function (err, res/* , body */) {
           if (err) {
-            console.log('verifying products availability: FAIL');
+            writeConsoleLog('log','verifying products availability: FAIL');
             return cb(err);
           }
 
           if (res.statusCode !== 200) {
-            console.log('verifying products availability: FAIL');
+            writeConsoleLog('log','verifying products availability: FAIL');
             return cb(new Error('products - got code: ' + res.statusCode));
           } else {
-            console.log('verifying products availability: OK');
+            writeConsoleLog('log','verifying products availability: OK');
             cb();
           }
         });
@@ -163,11 +165,11 @@ Verify.prototype.verify = function verify(options) {
           });
       }, function (err) {
         if (err) {
-          console.log('verifying quota with configured products: FAIL');
+          writeConsoleLog('log','verifying quota with configured products: FAIL');
           cb(err);
         }
 
-        console.log('verifying quota with configured products: OK');
+        writeConsoleLog('log','verifying quota with configured products: OK');
         cb();
       });
     },
@@ -202,18 +204,18 @@ Verify.prototype.verify = function verify(options) {
       },
         function (err, res/* , body */) {
           if (err) {
-            console.log('verifying analytics with payload: FAIL');
+            writeConsoleLog('log','verifying analytics with payload: FAIL');
             return cb(err);
           }
 
           if (res.statusCode === 401) {
-            console.log('verifying analytics with payload: FAIL');
+            writeConsoleLog('log','verifying analytics with payload: FAIL');
             return cb(new Error('analytics synthetic - got 401 Unauthorized. Invalid key/secret credentials.'));
           } else if (res.statusCode !== 200) {
-            console.log('verifying analytics with payload: FAIL');
+            writeConsoleLog('log','verifying analytics with payload: FAIL');
             return cb(new Error('analytics synthetic - got code: ' + res.statusCode));
           } else {
-            console.log('verifying analytics with payload: OK');
+            writeConsoleLog('log','verifying analytics with payload: OK');
             return cb();
           }
         })
@@ -231,7 +233,7 @@ Verify.prototype.verify = function verify(options) {
       }
       downloadedConfig = config;
       async.series(tasks, function ( /*asyncErr, res */ ) {
-        console.log('verification complete');
+      writeConsoleLog('log','verification complete');
         agent.close(process.exit); // close and stop agent
       });
     })
@@ -241,8 +243,8 @@ Verify.prototype.verify = function verify(options) {
 }
 function printError(err) {
   if (err.response) {
-    console.log(err.response.error);
+    writeConsoleLog('log',err.response.error);
   } else {
-    console.log(err);
+    writeConsoleLog('log',err);
   }
 }
