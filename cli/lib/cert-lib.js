@@ -3,13 +3,13 @@ const request = require('request');
 const util = require('util');
 const fs = require('fs');
 const path = require('path');
-const yaml = require('js-yaml');
-const prompt = require('cli-prompt');
 const url = require('url');
 const pem = require('pem');
 const crypto = require('crypto');
 const async = require('async');
 const debug = require('debug')('cert')
+//const yaml = require('js-yaml');
+//const prompt = require('cli-prompt');
 
 const ERR_STORE_EXISTS = 'com.apigee.secure-store.storekey.already.exists';
 const ERR_STORE_MISSING = 'com.apigee.secure-store.securestore_does_not_exist';
@@ -176,8 +176,8 @@ CertLogic.prototype.installCertWithPassword = function(options, callback) {
 
 CertLogic.prototype.generateKeysWithPassword = function generateKeysWithPassword(options, cb) {
 
-    const keySecretMessage = this.keySecretMessage;
-    const bootstrapMessage = this.bootstrapMessage;
+    //const keySecretMessage = this.keySecretMessage;
+    // bootstrapMessage = this.bootstrapMessage;
     const managementUri = this.baseUri;
 
     function genkey(cb) {

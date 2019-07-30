@@ -4,7 +4,7 @@ const path = require('path');
 const configLocations = require('../../config/locations');
 
 module.exports =  function init(opts, cb) {
-  if(typeof opts == 'function') {
+  if(typeof opts === 'function') {
     cb = opts;
   }
   
@@ -45,7 +45,7 @@ function copyFile(source, target, cb) {
   wr.on("error", function(err) {
     done(err);
   });
-  wr.on("close", function(ex) {
+  wr.on("close", function( /* ex */) {
     done();
   });
   rd.pipe(wr);

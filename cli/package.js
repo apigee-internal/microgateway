@@ -29,7 +29,7 @@ if (fs.existsSync(buildDir)) {
 async.parallel([
   function(cb) { available('gulp', cb); },
   function(cb) { available('tsc', cb); }
-], function(err, results) {
+], function(err /*, results*/ ) {
   if (err) {
     console.error('gulp/tsc not found in path (try "npm i -g gulp typescript")');
     process.exit(1);
@@ -100,7 +100,7 @@ tasks.push(function(cb) {
   zip(zipfile, rootDir, topLevelFiles.concat(dirs), excludes, cb);
 });
 
-async.series(tasks, function(err, results) {
+async.series(tasks, function(err  /*, results */) {
   if (err) throw err;
 });
 
@@ -232,9 +232,10 @@ function zip(zipfile, dir, dirs, excludes, callback) {
 
 function available(cmd, callback) {
   exec('/usr/bin/which ' + cmd,
-    function(error, stdout, stderr) {
+    function(error, stdout /*, stderr */) {
       // console.info(error, stdout);
       callback(error, stdout);
     }
   );
 }
+
