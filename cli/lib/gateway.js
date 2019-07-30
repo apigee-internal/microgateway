@@ -24,6 +24,12 @@ module.exports = function() {
     return new Gateway();
 };
 
+function initaliaseMicroGatewayLogging(config) {
+    // gateway from require
+    gateway.Logging.init(config);
+}
+
+
 Gateway.prototype.start = (options,cb) => {
     //const self = this;
     try {
@@ -95,7 +101,8 @@ Gateway.prototype.start = (options,cb) => {
         }
 
         config.uid = uuid();
-        gateway.Logging.init(config);
+        initaliaseMicroGatewayLogging(config);
+
         var opt = {};
         delete args.keys;
         //set pluginDir
@@ -128,9 +135,14 @@ Gateway.prototype.start = (options,cb) => {
             socket.on('message', (message) => {
                 if (message.command === 'reload') {
                     console.log('Recieved reload instruction. Proceeding to reload');
-                    mgCluster.reload(() => {
-                        console.log('Reload completed');
-                        socket.sendMessage(true);
+                    mgCluster.reload((msg) => {
+                        if ( typeof msg === 'string') {
+                            console.log(msg)
+                            socket.sendMessage({ 'reloaded' : false, 'message' : msg });
+                        } else {
+                            socket.sendMessage(true);
+                            console.log('Reload completed');
+                        }
                     });
                 } else if (message.command === 'stop') {
                     console.log('Recieved stop instruction. Proceeding to stop');
@@ -335,8 +347,7 @@ function hasConfigChanged(oldConfig, newConfig) {
 
     //do not compare uid
     delete oldConfig['uid'];
-
-    
+    //
     if (_.isEqual(oldConfig, newConfig)) {
         debug("no changes detected");
         return false;
