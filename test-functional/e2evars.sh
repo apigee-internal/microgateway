@@ -16,7 +16,6 @@ else
     export MOCHA_ENDPOINT=$MOCHA_ENDPOINT_CFG
 fi
 
-
 cd ./test-functional
 pwd
 

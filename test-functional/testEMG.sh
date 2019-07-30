@@ -20,22 +20,30 @@ function installEMG() {
   local result=0
 
   logInfo "Install EMG"
+  local usingLocalRepository=$1
 
   if [ -x "$(which edgemicro)" ]; then
-    EDGEMICRO=$(which edgemicro)
-    result=$? 
-    logInfo "EMG is already installed. Skip installation step"
+    if [ -z "$usingLocalRepository" ]; then
+        EDGEMICRO=$(which edgemicro)
+        result=$?
+        logInfo "EMG is already installed. Skip installation step"
+    else
+        result=0
+        logInfo "EMG being run from local repository"
+    fi
   else
     npm install -g edgemicro > installEMG.txt 2>&1
-    EDGEMICRO=$(which edgemicro)
-    result=$? 
+    result=$?
     logInfo "Install EMG with status $status"
+    if [ -z "$usingLocalRepository" ]; then
+        EDGEMICRO=$(which edgemicro)
+    fi
+    rm -f installEMG.txt
   fi
 
-  rm -f installEMG.txt
+  echo $EDGEMICRO
 
   return $result
-
 }
 
 function checkEMGVersion() {
@@ -153,6 +161,7 @@ verifyEMG() {
 startEMG() {
 
   local result=0
+  local catLog=$1
 
   logInfo "Start EMG"
 
@@ -168,6 +177,12 @@ startEMG() {
   result=$?
   if [ $result -ne 0 ]; then
        logError "Failed to start EMG with status $result"
+       if [ ! -z $catLog ]; then
+           set -x
+           echo $catLog
+           cat edgemicro.logs
+           set +x
+       fi
   else
        sleep 5
        cat edgemicro.logs | grep "PROCESS PID" > /dev/null 2>&1
@@ -176,6 +191,10 @@ startEMG() {
             logInfo "Successfully started EMG with status $result"
        else
             logError "Failed to start EMG with status $result"
+            set -x
+            echo $catLog
+            cat edgemicro.logs
+            set +x
        fi
   fi
 
@@ -490,7 +509,7 @@ stopEMG() {
   else
        sleep 10
        killall node
-       result=$?
+#result=$?
        if [ $result -eq 0 ]; then
             logInfo "Successfully stopped EMG with status $result"
        else
@@ -519,11 +538,12 @@ uninstallEMG() {
        logInfo "Successfully uninstalled EMG with status $result"
   fi
 
-  rm -f edgemicro.logs	
+  rm -f edgemicro.logs
   rm -f edgemicro.sock
   rm -f edgemicro.configure.txt
   rm -f headers.txt
   rm -f uninstallEMG.txt
+  rm -f tmp_emg_file.yaml
 
   return $result
 

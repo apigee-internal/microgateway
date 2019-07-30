@@ -32,13 +32,17 @@ DEVELOPER_APP_NAME="edgemicro_dev_app_nightly"
 
 echo $1
 which edgemicro
+LOCAL_REPOSITORY_TESTING=''
 #bash
 if [ -z "$1" ]
 then
     EDGEMICRO=$(which edgemicro || echo edgemicro)
 else
-    EDGEMICRO="node cli/edgemicro"
+    EDGEMICRO="node ../cli/edgemicro"
+    LOCAL_REPOSITORY_TESTING=$(pwd)
 fi
+echo $EDGEMICRO
+
 
 TIMESTAMP=`date "+%Y-%m-%d-%H"`
 LOGFILE="NightlyTestLog.$TIMESTAMP"
@@ -286,7 +290,7 @@ main() {
   echo
   testCount=`expr $testCount + 1`
   echo "$testCount) installEMG"
-  installEMG; ret=$?
+  installEMG $LOCAL_REPOSITORY_TESTING; ret=$?
   if [ $ret -eq 0 ]; then
        echo "$STATUS_PASS_STR"
        testPassCount=`expr $testPassCount + 1`
@@ -351,7 +355,7 @@ main() {
   echo
   testCount=`expr $testCount + 1`
   echo "$testCount) startEMG"
-  startEMG; ret=$?
+  startEMG $LOCAL_REPOSITORY_TESTING; ret=$?
   if [ $ret -eq 0 ]; then
        echo "$STATUS_PASS_STR"
        testPassCount=`expr $testPassCount + 1`
