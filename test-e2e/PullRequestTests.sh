@@ -3,7 +3,6 @@
 #
 # Author: dkoroth@google.com
 #
-#set -x
 
 source ./testhelper.sh
 source ./testEMG.sh
@@ -17,7 +16,7 @@ source ./testEMG.sh
 
 # Proxy environment configured at api.enterprise.apigee.com
 # Default is 'test' environment
-#MOCHA_ENV=
+#MOCHA_ENV=test
 
 proxyNamePrefix="edgemicro_"
 proxyTargetUrl="http://mocktarget.apigee.net/json"
@@ -25,23 +24,15 @@ proxyTargetUrl="http://mocktarget.apigee.net/json"
 EMG_CONFIG_DIR="$HOME/.edgemicro"
 EMG_CONFIG_FILE="$HOME/.edgemicro/$MOCHA_ORG-$MOCHA_ENV-config.yaml"
 
-PRODUCT_NAME="edgemicro_product_nightly"
-PROXY_NAME="edgemicro_proxy_nightly"
-DEVELOPER_NAME="edgemicro_dev_nightly"
-DEVELOPER_APP_NAME="edgemicro_dev_app_nightly"
+PRODUCT_NAME="edgemicro_product_pr"
+PROXY_NAME="edgemicro_proxy_pr"
+DEVELOPER_NAME="edgemicro_dev_pr"
+DEVELOPER_APP_NAME="edgemicro_dev_app_pr"
 
-echo $1
-which edgemicro
-#bash
-if [ -z "$1" ]
-then
-    EDGEMICRO=$(which edgemicro || echo edgemicro)
-else
-    EDGEMICRO="node cli/edgemicro"
-fi
+EDGEMICRO=$(which edgemicro || echo edgemicro)
 
 TIMESTAMP=`date "+%Y-%m-%d-%H"`
-LOGFILE="NightlyTestLog.$TIMESTAMP"
+LOGFILE="PullRequestTestLog.$TIMESTAMP"
 
 RED=`tput setaf 1`
 GREEN=`tput setaf 2`
@@ -86,204 +77,6 @@ main() {
   # Cleanup all the temporary files
   cleanUp
 
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listAPIProxies"
-  listAPIProxies; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) createAPIProxy"
-  createAPIProxy ${PROXY_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) createAPIProxyBundle"
-  createAPIProxyBundle ${PROXY_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) updateAPIProxy"
-  updateAPIProxy ${PROXY_NAME} ${PROXY_NAME}.zip ${proxyBundleVersion}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) deployAPIProxy"
-  deployAPIProxy ${PROXY_NAME} ${MOCHA_ENV} ${proxyBundleVersion}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listAPIProxy"
-  listAPIProxy ${PROXY_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) createAPIProduct"
-  createAPIProduct ${PRODUCT_NAME} ${PROXY_NAME}; ret=$?
-  rm -f ${PRODUCT_NAME}.json
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listAPIProduct"
-  listAPIProduct ${PRODUCT_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listDevelopers"
-  listDevelopers; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) createDeveloper"
-  createDeveloper ${DEVELOPER_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listDeveloper"
-  listDeveloper ${DEVELOPER_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listDeveloperApps"
-  listDeveloperApps ${DEVELOPER_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) createDeveloperApp"
-
-  createDeveloperApp ${DEVELOPER_NAME} ${DEVELOPER_APP_NAME} ${PRODUCT_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-  rm -f ${DEVELOPER_APP_NAME}.json
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listDeveloperApps"
-  listDeveloperApps ${DEVELOPER_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listDeveloperApp"
-  listDeveloperApp ${DEVELOPER_NAME} ${DEVELOPER_APP_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
   testCount=`expr $testCount + 1`
   echo "$testCount) installEMG"
   installEMG; ret=$?
@@ -531,72 +324,7 @@ main() {
   fi
 
   echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) deleteDeveloperApp"
-  deleteDeveloperApp ${DEVELOPER_NAME} ${DEVELOPER_APP_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
 
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) deleteAPIProduct"
-  deleteAPIProduct ${PRODUCT_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) undeployAPIProxy"
-  undeployAPIProxy ${PROXY_NAME} ${MOCHA_ENV} ${proxyBundleVersion}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-  rm -f ${PROXY_NAME}.zip
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) deleteAPIProxy"
-  deleteAPIProxy ${PROXY_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) deleteDeveloper"
-  deleteDeveloper ${DEVELOPER_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
   let testSkipCount="$testCount - ($testPassCount + $testFailCount)"
   echo "$testCount tests, $testPassCount passed, $testFailCount failed, $testSkipCount skipped"
 
@@ -605,5 +333,4 @@ main() {
 }
 
 main $@
-
 

@@ -1,0 +1,10 @@
+{
+ "name" : "app_name",
+ "apiProducts": [ "app" ],
+ "attributes" : [ 
+  {
+   "name" : "DisplayName",
+   "value" : "app_name"
+  }
+ ]
+}

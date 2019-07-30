@@ -3,7 +3,6 @@
 #
 # Author: dkoroth@google.com
 #
-#set -x
 
 source ./testhelper.sh
 source ./testEMG.sh
@@ -30,15 +29,7 @@ PROXY_NAME="edgemicro_proxy_nightly"
 DEVELOPER_NAME="edgemicro_dev_nightly"
 DEVELOPER_APP_NAME="edgemicro_dev_app_nightly"
 
-echo $1
-which edgemicro
-#bash
-if [ -z "$1" ]
-then
-    EDGEMICRO=$(which edgemicro || echo edgemicro)
-else
-    EDGEMICRO="node cli/edgemicro"
-fi
+EDGEMICRO=$(which edgemicro || echo edgemicro)
 
 TIMESTAMP=`date "+%Y-%m-%d-%H"`
 LOGFILE="NightlyTestLog.$TIMESTAMP"
@@ -166,7 +157,8 @@ main() {
   echo
   testCount=`expr $testCount + 1`
   echo "$testCount) createAPIProduct"
-  createAPIProduct ${PRODUCT_NAME} ${PROXY_NAME}; ret=$?
+  cat templates/apiproduct-template.json | jq --arg proxyArr "${PROXY_NAME} edgemicro-auth" '(.proxies) = ($proxyArr|split(" ")) | .quota = 3' > ${PRODUCT_NAME}.json
+  createAPIProduct ${PRODUCT_NAME}; ret=$?
   rm -f ${PRODUCT_NAME}.json
   if [ $ret -eq 0 ]; then
        echo "$STATUS_PASS_STR"
@@ -245,8 +237,8 @@ main() {
   echo
   testCount=`expr $testCount + 1`
   echo "$testCount) createDeveloperApp"
-
-  createDeveloperApp ${DEVELOPER_NAME} ${DEVELOPER_APP_NAME} ${PRODUCT_NAME}; ret=$?
+  cat templates/apideveloperapp-template.json | jq --arg productArr ${PRODUCT_NAME} '(.apiProducts) = ($productArr|split(" "))' > ${DEVELOPER_APP_NAME}.json
+  createDeveloperApp ${DEVELOPER_NAME} ${DEVELOPER_APP_NAME}; ret=$?
   if [ $ret -eq 0 ]; then
        echo "$STATUS_PASS_STR"
        testPassCount=`expr $testPassCount + 1`

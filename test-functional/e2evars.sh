@@ -16,7 +16,8 @@ else
     export MOCHA_ENDPOINT=$MOCHA_ENDPOINT_CFG
 fi
 
-cd ./test-e2e-local
+
+cd ./test-functional
 pwd
 
-bash NightlyTests.sh
+bash NightlyTests.sh $1
