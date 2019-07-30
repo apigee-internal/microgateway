@@ -49,8 +49,9 @@
     "nyc": "^13.3.0",
     "request-promise": "^4.2.4",
     "restify": "^4.0.4",
-    "test-until": "^1.1.1",
-    "run-sequence": "^1.1.0"
+    "rewire": "^4.0.1",
+    "run-sequence": "^1.1.0",
+    "test-until": "^1.1.1"
   },
   "eslintConfig": {
     "env": {
