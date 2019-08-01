@@ -460,6 +460,7 @@ class ClusterManager extends EventEmitter {
     this.opt.workerReadyWhen = opt.workerReadyWhen || 'listening';
     this.opt.args = opt.args || [];
     this.opt.log = opt.log || {respawns: true};
+    this.opt.logger = opt.logger;
     //gRespawnIntervalManager = new RespawnIntervalManager({minRespawnInterval: opt.minRespawnInterval});
   }
 
@@ -493,17 +494,17 @@ class ClusterManager extends EventEmitter {
     // This exit event happens, whenever a worker exits.
 
     this.handleWorkerExit = (w) => {
-      console.log(`handleWorkerExit ${w.id}`)
+      this.opt.logger.info(`handleWorkerExit ${w.id}`);
       this.workerExit(w)
     }
 
     this.handleWorkerDisconnect = (w) => {
-      console.log(`emitWorkerDisconnect ${w.id}`)
+      this.opt.logger.info(`emitWorkerDisconnect ${w.id}`);
       this.workerDisconnect(w)
     }
 
     this.handleWorkerListening = (w, adr) => {
-      console.log(`handleWorkerListening ${w.id}`)
+      this.opt.logger.info(`handleWorkerListening ${w.id}`)
       this.workerConnect(w,adr)
       if ( this.readyEvent === 'listening' ) {
         this.handleReadyEvent(w)
@@ -511,7 +512,7 @@ class ClusterManager extends EventEmitter {
     }
   
     this.handleWorkerOnline = (w) => {
-      console.log(`worker ${w.id} is online ...`)
+      this.opt.logger.info(`worker ${w.id} is online ...`)
       this.workerConnect(w)
       if ( this.readyEvent === 'online' ) {
         this.handleReadyEvent(w)
