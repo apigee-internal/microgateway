@@ -125,11 +125,7 @@ function configureEdgemicroWithCreds(options, cb) {
   tasks.push(
     function (callback) {
       setTimeout(() => {
-<<<<<<< HEAD
-	writeConsoleLog('log', 'checking org for existing KVM');
-=======
-        console.log('checking org for existing KVM');
->>>>>>> 137582169 mainly addressed here
+	      writeConsoleLog('log', 'checking org for existing KVM');
         cert.checkCertWithPassword(options, function (err/*, certs */) {
           if (err) {
             writeConsoleLog('log', 'error checking for cert. Installing new cert.');
@@ -200,13 +196,8 @@ function configureEdgemicroWithCreds(options, cb) {
     edgeconfig.save(agentConfig, agentConfigPath); // if it didn't throw, save succeeded
     writeConsoleLog('log');
 
-<<<<<<< HEAD
     if (options.deployed === true) {
       writeConsoleLog('log', 'vault info:\n', results[0]);
-=======
-    if (options.deployed === true) {  
-      console.log('vault info:\n', results[0]);
->>>>>>> 137582169 mainly addressed here
     } else {
       writeConsoleLog('log', 'vault info:\n', results[1]);
     }

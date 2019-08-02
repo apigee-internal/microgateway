@@ -337,15 +337,9 @@ Private.prototype.configureEdgemicroWithCreds = function configureEdgemicroWithC
             writeConsoleLog('log')
 
             if (options.internaldeployed === false && options.deployed === false) {
-<<<<<<< HEAD
-		writeConsoleLog('log','vault info:\n', results[3]);
+		        writeConsoleLog('log','vault info:\n', results[3]);
             } else if (options.internaldeployed === true && options.internaldeployed === false) {
-		writeConsoleLog('log','vault info:\n', results[1]);
-=======
-                console.log('vault info:\n', results[3]);
-            } else if (options.internaldeployed === true && options.internaldeployed === false) {
-                console.log('vault info:\n', results[1]);
->>>>>>> 137582169 mainly addressed here
+		        writeConsoleLog('log','vault info:\n', results[1]);
             }
 
             writeConsoleLog('log','edgemicro configuration complete!');
