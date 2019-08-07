@@ -43,17 +43,17 @@ module.exports.ExitCounter = class ExitCounter {
       sum += this.periods[i]
     }
     var avg = sum/n
-
     return avg
   }
 
   // --
   calcExitRate() {
+
     var prevExitCount = this.currentExitCount;
     this.currentExitCount = 0;
     this.add(prevExitCount)
-    if ( this.averageRate() > this.theta ) {
-      console.log("EXPERIENCING HIGH RATE OF PROCESS EXITS")
+
+    if ( this.averageRate() > this.threshold ) {
       return(false)
     }
     return(true)

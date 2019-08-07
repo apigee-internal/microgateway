@@ -247,7 +247,7 @@ class ClusterManager extends EventEmitter {
     this.reloading = false
     this.callbackTO = null  // callback timeout
     this.shuttingdown = false 
-    this.mayReload = true
+    this.mayReload = true  // if may reload is true, then reloads will not be prevented.
     //
     //this.readyEvent = opt.workerReadyWhen === 'started' ? 'online' : opt.workerReadyWhen === 'listening' ? 'listening' : 'message';
     // // //
@@ -255,8 +255,17 @@ class ClusterManager extends EventEmitter {
     this.setupClusterProcs(file)
     this.setUpClusterHandlers()
     // 
-    gExitCounter = new ExitCounter(2*this.numWorkers,(b) => {
-      this.mayReload = b;
+    var heuristicTheta = (Math.log2(this.numWorkers) + this.numWorkers/2)/2;
+    gExitCounter = new ExitCounter(heuristicTheta,(b) => {
+      if ( !(this.mayReload) && b ) {
+        // too many processes are dying to quickly, so log this that reloading is blocked until further notice. 
+        this.opt.logger.warn(`ClusterManager: RELOADING REENABLED AFTER too many child processes exiting`);
+      }
+      this.mayReload = b;  // b is boolean value 
+      if ( !b ) {
+        // too many processes are dying to quickly, so log this that reloading is blocked until further notice. 
+        this.opt.logger.warn(`ClusterManager: too many child processes exiting -- RELOADING DISABLED UNTIL FURTHER NOTICE`);
+      }
     });
     this.healthCheckInterval = setInterval(() => {
       healthCheck(this) 
