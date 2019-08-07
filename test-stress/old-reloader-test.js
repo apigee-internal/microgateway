@@ -9,17 +9,21 @@ const reloadCluster = require('./reload-cluster-old.js');
 
 const path = require('path');
 
+
 class FauxLogger {
 	constructor() {
 	}
 	writeLogRecord(message) {
 
 	}
-
 	info(message) {
 		
 	}
+	warn(obj, msg) {
+		console.log(obj)  // this is how it is for
+    }
 }
+
 
 function runWithRandomFailures() {
 	// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----

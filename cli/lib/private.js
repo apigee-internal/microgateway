@@ -425,7 +425,7 @@ Private.prototype.generateKeysWithPassword = function generateKeysWithPassword(o
                         const parsedRes = url.parse(res.body.host);
                         parsedUrl.host = parsedRes.host; // update to regional host
                         writeConsoleLog('log')
-                        writeConsoleLog('info'that.config.edge_config.keySecretMessage);
+                        writeConsoleLog('info',that.config.edge_config.keySecretMessage);
                         writeConsoleLog('info','  key:', key);
                         writeConsoleLog('info','  secret:', secret);
                         writeConsoleLog('log')

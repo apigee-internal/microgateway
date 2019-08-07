@@ -52,6 +52,28 @@ function whatProcesses(cb) {
 }
 
 
+var mockLogger = {
+    info: function (obj, msg) {
+    },
+    warn: function (obj, msg) {
+		console.log(obj)  // this is how it is for
+    },
+    error: function (obj, msg) {
+    },
+    eventLog: function (obj, msg) {
+    },
+    consoleLog: function (level, ...data) {
+    },
+    stats: function (statsInfo, msg) {
+    },
+    setLevel: function (level) {
+    },
+    writeLogRecord: function(record,cb) {              
+    }
+  };
+
+
+
 function reloadRandom(cl) {
     var rT = Math.trunc(Math.round(Math.random()*10000))
 	rT = parseInt('' + rT)
@@ -74,7 +96,9 @@ function reloadRandom(cl) {
 
 function runWithRandomFailures() {
 	// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-	var mgCluster = reloadCluster(__dirname + "/random_fails.js",{})
+	var mgCluster = reloadCluster(__dirname + "/random_fails.js",{
+		logger : mockLogger
+	})
 	mgCluster.run()
 
 	reloadRandom(mgCluster)

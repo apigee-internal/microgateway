@@ -77,9 +77,36 @@ function reloadRandom(cl) {
 	
 }
 
+
+
+
+var mockLogger = {
+    info: function (obj, msg) {
+    },
+    warn: function (obj, msg) {
+		console.log(obj)  // this is how it is for
+    },
+    error: function (obj, msg) {
+    },
+    eventLog: function (obj, msg) {
+    },
+    consoleLog: function (level, ...data) {
+    },
+    stats: function (statsInfo, msg) {
+    },
+    setLevel: function (level) {
+    },
+    writeLogRecord: function(record,cb) {              
+    }
+  };
+
+
+
 function runWithRandomFailures() {
 	// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-	var mgCluster = reloadCluster(__dirname + "/gauged_fails.js",{})
+	var mgCluster = reloadCluster(__dirname + "/gauged_fails.js",{
+		logger : mockLogger
+	})
 	mgCluster.run()
 
 	reloadRandom(mgCluster)

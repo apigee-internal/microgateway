@@ -6,6 +6,7 @@ const assert = require('assert');
 const rewire = require('rewire')
 
 const reloadCluster = rewire('../cli/lib/reload-cluster.js');
+const itemManagers = require('../cli/lib/util/item-managers.js')
 
 const path = require('path');
 
@@ -75,6 +76,33 @@ describe('reaload-cluster module', () => {
 		cbl.runCallBacks()
 		assert(nn === 6)
 		//
+		done()
+	});
+
+
+	it('test exit counter', (done) => {
+		var exitCounter = new itemManagers.ExitCounter(3,(b) => {
+			// test progress
+		})
+		exitCounter.stop();
+		exitCounter.incr()
+		exitCounter.incr()
+		exitCounter.incr()
+		var state = exitCounter.calcExitRate()
+		var rate = exitCounter.averageRate()
+		assert(rate === 3)
+		assert(exitCounter.periods.length === 1)
+		assert(state)
+		exitCounter.incr()
+		exitCounter.incr()
+		exitCounter.incr()
+		exitCounter.incr()
+		state = exitCounter.calcExitRate()
+		rate = exitCounter.averageRate()
+		assert(rate === 3.5)
+		assert(exitCounter.periods.length === 2)
+		assert(!state)
+
 		done()
 	});
 

@@ -17,11 +17,14 @@ class FauxLogger {
 	writeLogRecord(message) {
 
 	}
-
 	info(message) {
 		
 	}
+	warn(obj, msg) {
+		console.log(obj)  // this is how it is for
+    }
 }
+
 
 function whatProcesses(cb) {
 	//
