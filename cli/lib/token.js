@@ -72,6 +72,7 @@ Token.prototype.verifyToken = function(options, cb) {
       writeConsoleLog('log',result);
       cb(null,result)
     });
+    //
   });
 
 }
@@ -128,9 +129,9 @@ function getPublicKey(organization, environment, authUri, isPublicCloud, cb) {
 
 function printError(err) {
   if (err.response) {
-    writeConsoleLog('log',err.response.error);
+    writeConsoleLog('error',err.response.error);
   } else {
-    writeConsoleLog('log',err);
+    writeConsoleLog('error',err);
   }
 }
 

@@ -300,6 +300,7 @@ class ClusterManager extends EventEmitter {
     if ( argv ) {
       argv.forEach((arg,j) => {
         if (arg.includes('--inspect-brk')) {
+          // comment this out if you want to start hand debugging manually: argv[j] = arg.replace('--inspect-brk', '--inspect')
           argv[j] = arg.replace('--inspect-brk', '--inspect')
         }
       });
