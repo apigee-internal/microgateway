@@ -1,4 +1,4 @@
-FROM node:8-alpine
+FROM node:12-alpine
 
 COPY installnode.sh /tmp
 COPY --chown=100:101 installedgemicro.sh /tmp

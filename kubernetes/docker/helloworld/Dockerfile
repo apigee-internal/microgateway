@@ -1,4 +1,4 @@
-FROM node:8-alpine 
+FROM node:12-alpine
 WORKDIR /usr/src/app
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
@@ -9,4 +9,3 @@ RUN npm install
 COPY . .
 EXPOSE 8081
 CMD [ "npm", "start" ]
-
