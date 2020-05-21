@@ -31,7 +31,7 @@ start_edge_micro() {
 
   if [[ -n "$EDGEMICRO_CONFIG"  ]]
     then
-      echo $EDGEMICRO_CONFIG | base64 -d > ${APIGEE_ROOT}/.edgemicro/$EDGEMICRO_ORG-$EDGEMICRO_ENV-config.yaml
+      echo "$EDGEMICRO_CONFIG" | base64 -d > ${APIGEE_ROOT}/.edgemicro/$EDGEMICRO_ORG-$EDGEMICRO_ENV-config.yaml
       chown apigee:apigee ${APIGEE_ROOT}/.edgemicro/*
   fi
 
