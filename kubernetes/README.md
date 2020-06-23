@@ -497,7 +497,14 @@ gcloud beta container clusters delete edge-micro
 
 ### Build & Release
 
-In order to build the binaries locally, Go to ./kubernetes/edgemicroctl 
+
+In order to build the binaries locally, you need to install these two components
+
+- go
+- goreleaser
+
+Once these are installed, there are many choices to build and release edgemicroctl. On your ./kubernetes/edgemicroctl  folder :
+
 
 - Build locally with go for testing.
 

@@ -2,7 +2,6 @@ module github.com/apigee-internal/microgateway/kubernetes/edgemicroctl
 
 go 1.13
 
-
 require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/gogo/googleapis v1.4.0
