@@ -500,8 +500,8 @@ gcloud beta container clusters delete edge-micro
 
 In order to build the binaries locally, you need to install these two components
 
-- go
-- goreleaser
+- go  (Version - go1.13.8 + )
+- goreleaser (Version - 0.127.0 + )
 
 Once these are installed, there are many choices to build and release edgemicroctl. On your ./kubernetes/edgemicroctl  folder :
 
