@@ -24,7 +24,7 @@ builds:
       - 386
 archives:
   - format: tar.gz
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    name_template: "{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}"
     wrap_in_directory: true
     replacements:
       darwin: Darwin
@@ -46,5 +46,5 @@ release:
 nfpms:
   # note that this is an array of nfpm configs
   -
-    file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    file_name_template: "{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}"
     bindir: bin
