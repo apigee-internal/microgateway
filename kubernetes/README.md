@@ -495,8 +495,35 @@ gcloud beta container clusters delete edge-micro
 
 ```
 
+### Build & Release
+
+In order to build the binaries locally, Go to ./kubernetes/edgemicroctl 
+
+- Build locally with go for testing.
+
+```
+go build
+```
+This will create edgemicroctl binary under the same folder.
+
+
+- Build locally with goreleaser
+
+```
+goreleaser --snapshot --skip-publish --rm-dist
+```
+This will create the snapshot release under ./kubernetes/edgemicroctl/dist folder. 
+
+
+- Create github release:
+```
+export GITHUB_TOKEN=<<your github api token>>
+goreleaser
+```
+
 ## References
 It uses istio-sidecar-proxy-injector and istio-init docker images from istio project.
+
 
 ## License
 
