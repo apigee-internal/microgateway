@@ -125,7 +125,7 @@ Gateway.prototype.start = (options,cb) => {
         delete args.keys;
         //set pluginDir
         if (!args.pluginDir) {
-            if (config.edgemicro.plugins.dir) {
+            if (config.edgemicro.plugins && config.edgemicro.plugins.dir) {
                 args.pluginDir = path.resolve(config.edgemicro.plugins.dir);
             }
         }
