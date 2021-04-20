@@ -52,4 +52,5 @@ module.exports = {
   },  
   homeDir: homeDir,
   defaultDir: configDir,
+  defaultIPCFileName: defaultIPCFileName
 };

@@ -311,6 +311,11 @@ const setup = function setup() {
         .command('stop')
         .description('stop the edgemicro cluster')
         .action((options) => {
+            options.org = options.org || process.env.EDGEMICRO_ORG;
+            options.env = options.env || process.env.EDGEMICRO_ENV;
+            options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
+            options.secret = options.secret || process.env.EDGEMICRO_SECRET;
+            options.key = options.key || process.env.EDGEMICRO_KEY;
             run.stop(options);
         });
 
@@ -318,6 +323,11 @@ const setup = function setup() {
         .command('status')
         .description('Status of the edgemicro cluster')
         .action((options) => {
+            options.org = options.org || process.env.EDGEMICRO_ORG;
+            options.env = options.env || process.env.EDGEMICRO_ENV;
+            options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
+            options.secret = options.secret || process.env.EDGEMICRO_SECRET;
+            options.key = options.key || process.env.EDGEMICRO_KEY;
             run.status(options);
         });
 

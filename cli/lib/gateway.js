@@ -8,8 +8,6 @@ const reloadCluster = require('./reload-cluster');
 const JsonSocket = require('../../third_party/json-socket/json-socket');
 const configLocations = require('../../config/locations');
 const isWin = /^win/.test(process.platform);
-const ipcPath = configLocations.getIPCFilePath();
-const pidPath = configLocations.getPIDFilePath();
 const defaultPollInterval = 600;
 const uuid = require('uuid/v1');
 const debug = require('debug')('microgateway');
@@ -43,19 +41,6 @@ function initializeMicroGatewayLogging(config,options) {
 
 Gateway.prototype.start = (options,cb) => {
     //const self = this;
-    try {
-        fs.accessSync(ipcPath, fs.F_OK);
-        writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'Edgemicro seems to be already running.');
-        writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'If the server is not running, it might because of incorrect shutdown of the prevous start.');
-        writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'Try removing ' + ipcPath + ' and start again');
-        process.exit(1);
-    } catch (e) {
-        // Socket does not exist
-        // so ignore and proceed
-        if (e.code !== "ENOENT") {
-            debug(e.message);            
-        }
-    }
 
     const source = configLocations.getSourcePath(options.org, options.env, options.configDir);
     const cache = configLocations.getCachePath(options.org, options.env, options.configDir);
@@ -96,6 +81,24 @@ Gateway.prototype.start = (options,cb) => {
     };
 
     const startGateway = (err, config) => {
+
+        const ipcPath = getIPCFilePath(config);
+        const pidPath = getPIDFilePath(config);
+
+        try {
+            fs.accessSync(ipcPath, fs.F_OK);
+            writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'Edgemicro seems to be already running.');
+            writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'If the server is not running, it might because of incorrect shutdown of the prevous start.');
+            writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'Try removing ' + ipcPath + ' and start again');
+            process.exit(1);
+        } catch (e) {
+            // Socket does not exist
+            // so ignore and proceed
+            if (e.code !== "ENOENT") {
+                debug(e.message);            
+            }
+        }
+
         if (err) {
             const exists = fs.existsSync(cache);
             writeConsoleLog('error', { component: CONSOLE_LOG_TAG_COMP }, "Failed to retieve config from gateway. continuing, will try cached copy..");
@@ -312,103 +315,154 @@ Gateway.prototype.reload = (options) => {
         secret: options.secret
     };
 
-    var socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
-    socket.on('connect', () => {
-        edgeconfig.get({
-            source: source,
-            keys: keys,
-            org: options.org,
-            env: options.env
-        }, (err, config) => {
-            if (err) {
-                const exists = fs.existsSync(cache);
-                writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},"failed to retieve config from gateway. continuing, will try cached copy..");
-                writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},err);
-                if (!exists) {
-                    writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'cache configuration ' + cache + ' does not exist. exiting.');
-                    return;
+    const reloadGateway = (err, config) => {
+        const ipcPath = getIPCFilePath(config);
+        var socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
+        socket.on('connect', () => {
+                if (err) {
+                    const exists = fs.existsSync(cache);
+                    writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},"failed to retieve config from gateway. continuing, will try cached copy..");
+                    writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},err);
+                    if (!exists) {
+                        writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'cache configuration ' + cache + ' does not exist. exiting.');
+                        return;
+                    } else {
+                        writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP},'using cached configuration from %s', cache);
+                        config = edgeconfig.load({
+                            source: cache
+                        })
+                    }
                 } else {
-                    writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP},'using cached configuration from %s', cache);
-                    config = edgeconfig.load({
-                        source: cache
-                    })
+                    edgeconfig.save(config, cache);
                 }
-            } else {
-                edgeconfig.save(config, cache);
+    
+                socket.sendMessage({
+                    command: 'reload'
+                });
+                socket.on('message', (success) => {
+                    if (typeof success === 'object' && success.message) {
+                        writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP}, success.message);
+                    }
+                    else if (success) {
+                        writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP},'Reload Completed Successfully');
+                    } else {
+                        writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'Reloading edgemicro was unsuccessful');
+                    }
+                    process.exit(0);
+                });
+        });
+        socket.on('error', (error) => {
+            if (error) {
+                if (error.code === 'ENOENT') {
+                    writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'edgemicro is not running.');
+                }
             }
+        });
+        socket.connect(ipcPath);
+    }
+    const _config = {
+        source: source,
+        keys: keys,
+        org: options.org,
+        env: options.env
+    };
+    try {
+        edgeconfig.get(_config, reloadGateway);
+    } catch(e) {
+        reloadGateway(e);
+    }
+};
 
+
+Gateway.prototype.stop = ( options ) => {
+    const source = configLocations.getSourcePath(options.org, options.env, options.configDir);
+    const keys = {
+        key: options.key,
+        secret: options.secret
+    };
+    
+    const stopGateway = (err, config) => {
+        
+        const ipcPath = getIPCFilePath(config);
+
+        var socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
+        socket.on('connect', () => {
             socket.sendMessage({
-                command: 'reload'
+                command: 'stop'
             });
             socket.on('message', (success) => {
-                if (typeof success === 'object' && success.message) {
-                    writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP}, success.message);
-                }
-                else if (success) {
-                    writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP},'Reload Completed Successfully');
+                if (success) {
+                    writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP},'Stop Completed Succesfully');
                 } else {
-                    writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'Reloading edgemicro was unsuccessful');
+                    writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'Stopping edgemicro was unsuccessful');
                 }
                 process.exit(0);
             });
         });
-    });
-    socket.on('error', (error) => {
-        if (error) {
-            if (error.code === 'ENOENT') {
-		        writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'edgemicro is not running.');
+        socket.on('error', (error) => {
+            if (error) {
+                if (error.code === 'ENOENT') {
+                    writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'edgemicro is not running.');
+                }
             }
-        }
-    });
-    socket.connect(ipcPath);
+        });
+        socket.connect(ipcPath);
+    };
+
+    const _config = {
+        source: source,
+        keys: keys,
+        org: options.org,
+        env: options.env
+    };
+    try {
+        edgeconfig.get(_config, stopGateway);
+    } catch(e) {
+        stopGateway(e);
+    }
 };
 
+Gateway.prototype.status = ( options ) => {
+    const source = configLocations.getSourcePath(options.org, options.env, options.configDir);
+    const keys = {
+        key: options.key,
+        secret: options.secret
+    };
 
-Gateway.prototype.stop = ( /*options */ ) => {
-    var socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
-    socket.on('connect', () => {
-        socket.sendMessage({
-            command: 'stop'
+    const getGatewayStatus = (err, config) => {
+        const ipcPath = getIPCFilePath(config);
+
+        var socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
+        socket.on('connect', () => {
+            socket.sendMessage({
+                command: 'status'
+            });
+            socket.on('message', (result) => {
+                writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP},'edgemicro is running with ' + result + ' workers');
+                process.exit(0);
+            });
         });
-        socket.on('message', (success) => {
-            if (success) {
-                writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP},'Stop Completed Succesfully');
-            } else {
-                writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'Stopping edgemicro was unsuccessful');
-            }
-            process.exit(0);
-        });
-    });
-    socket.on('error', (error) => {
-        if (error) {
+        socket.on('error', (error)=> {
+          if (error) {
             if (error.code === 'ENOENT') {
-		        writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'edgemicro is not running.');
+            writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'edgemicro is not running.');
+                process.exit(1);
             }
-        }
-    });
-    socket.connect(ipcPath);
-};
-
-Gateway.prototype.status = ( /* options */ ) => {
-    var socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
-    socket.on('connect', () => {
-        socket.sendMessage({
-            command: 'status'
+          }
         });
-        socket.on('message', (result) => {
-            writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP},'edgemicro is running with ' + result + ' workers');
-            process.exit(0);
-        });
-    });
-    socket.on('error', (error)=> {
-      if (error) {
-        if (error.code === 'ENOENT') {
-	    writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'edgemicro is not running.');
-            process.exit(1);
-        }
-      }
-    });
-    socket.connect(ipcPath);
+        socket.connect(ipcPath);
+    };
+    const _config = {
+        source: source,
+        keys: keys,
+        org: options.org,
+        env: options.env
+    };
+    try {
+        edgeconfig.get(_config, getGatewayStatus);
+    } catch(e) {
+        getGatewayStatus(e);
+    }
 };
 
 function hasConfigChanged(oldConfig, newConfig) {
@@ -463,4 +517,18 @@ function validator(newConfig) {
 
 function checkObject (o) {
     return (typeof o === 'object' && o instanceof Object && !(o instanceof Array));
+}
+
+function getIPCFilePath(config) {
+    if(typeof config === 'undefined') {
+        return configLocations.getIPCFilePath();
+    }
+    return config.edgemicro.ipcFilePath ? config.edgemicro.ipcFilePath + configLocations.defaultIPCFileName + '.sock' : configLocations.getIPCFilePath();
+}
+
+function getPIDFilePath(config) {
+    if(typeof config === 'undefined') {
+        return configLocations.getPIDFilePath();
+    }
+    return config.edgemicro.ipcFilePath ? config.edgemicro.ipcFilePath + configLocations.defaultIPCFileName + '.pid' : configLocations.getPIDFilePath();
 }
