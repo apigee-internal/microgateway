@@ -1,5 +1,13 @@
 # Microgateway on Kubernetes
 
+---
+**NOTE**
+
+This installation process has been deprecated. Please refer to [installer/README.md](installer/README.md) for the new Microgateway Kubernetes installer.
+
+---
+
+
 ## Overview
 
 Edge Microgateway can be deployed as a service or as a sidecar gateway in front og your services deployed in kubernetes cluster. Developers faces challenges in exposing their microservices and rely on API Management providers for exposing,securing and managing their apis. This document explains how to deploy microgateway on the kubernetes platform.
