@@ -1,0 +1,87 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-microgateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edge-microgateway 
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: edge-microgateway
+    spec:
+      containers:
+      - env:
+        - name: EDGEMICRO_ORG
+          valueFrom:
+            secretKeyRef:
+              name: mgwsecret
+              key: mgw-org
+        - name: EDGEMICRO_ENV
+          valueFrom:
+            secretKeyRef:
+              name: mgwsecret
+              key: mgw-env
+        - name: EDGEMICRO_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mgwsecret
+              key: mgw-key
+        - name: EDGEMICRO_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mgwsecret
+              key: mgw-secret
+        - name: EDGEMICRO_CONFIG
+          valueFrom:
+            secretKeyRef:
+              name: mgwsecret
+              key: mgw-config
+        - name: EDGEMICRO_CONFIG_DIR
+          value: /opt/apigee/.edgemicro
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: INSTANCE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        image: gcr.io/apigee-microgateway/edgemicro:latest
+        imagePullPolicy: Always
+        name: edge-microgateway
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            cpu: "1"
+            memory: 2Gi
+          requests:
+            cpu: "1"
+            memory: 1Gi
+        volumeMounts:
+        - name: mgw-northbound-tls
+          mountPath: "/opt/apigee/tls"
+          readOnly: true
+      volumes:
+      - name: mgw-northbound-tls
+        secret:
+          secretName: mgwsecret
+          items:
+          - key: mgw-northbound-tls-server-key
+            path: "server.key"
+          - key: mgw-northbound-tls-server-cert
+            path: "server.pem"
+          - key: mgw-northbound-tls-client-ca-cert
+            path: "client-ca.pem"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
