@@ -55,7 +55,6 @@ start_edge_micro() {
   PROXY_NAME=edgemicro_$SERVICE_NAME
   TARGET_PORT=$SERVICE_PORT
   BASE_PATH=/
-  BACKGROUND=" &"
   MGSTART=" edgemicro start -o $EDGEMICRO_ORG -e $EDGEMICRO_ENV -k $EDGEMICRO_KEY -s $EDGEMICRO_SECRET -r $EDGEMICRO_PORT -d $EDGEMICRO_PLUGIN_DIRECTORY"
   LOCALPROXY=" export EDGEMICRO_LOCAL_PROXY=$EDGEMICRO_LOCAL_PROXY "
   MGDIR="${APIGEE_ROOT} "
@@ -108,9 +107,9 @@ start_edge_micro() {
   if [[ -n "$EDGEMICRO_LOCAL_PROXY" ]]
     then
     DECORATOR=" export EDGEMICRO_DECORATOR=1 "
-    CMDSTRING="$DECORATOR &&  $LOCALPROXY && $MGSTART -a $PROXY_NAME -v 1 -b / -t http://localhost:$TARGET_PORT  $BACKGROUND"
+    CMDSTRING="$DECORATOR &&  $LOCALPROXY && $MGSTART -a $PROXY_NAME -v 1 -b / -t http://localhost:$TARGET_PORT"
   else
-    CMDSTRING="$MGSTART $BACKGROUND"
+    CMDSTRING="$MGSTART"
   fi
 
   if [[ -n "$DEBUG" ]]
@@ -127,12 +126,12 @@ if [[ -n "$LOG_CONSOLE_OUTPUT_TO_FILE"  ]]
   then
     if [ "$LOG_CONSOLE_OUTPUT_TO_FILE" = "false" ] || [ "$LOG_CONSOLE_OUTPUT_TO_FILE" = "False" ] || [ "$LOG_CONSOLE_OUTPUT_TO_FILE" = "FALSE" ]
       then
-        start_edge_micro  2>&1
+        start_edge_micro  2>&1 &
       else
-        start_edge_micro  2>&1 | tee -i $LOG_FILE
+        start_edge_micro  2>&1 | tee -i $LOG_FILE &
     fi
   else
-    start_edge_micro  2>&1 | tee -i $LOG_FILE
+    start_edge_micro  2>&1 | tee -i $LOG_FILE &
 fi
 
 # SIGUSR1-handler
