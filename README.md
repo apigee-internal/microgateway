@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/apigee-internal/microgateway.svg?branch=master)](https://travis-ci.org/apigee-internal/microgateway)
-
 # Apigee Microgateway 
 
 **Note: Description and code apply to Microgateway v2.x It's not compatible with v1.x series of Microgateway.**

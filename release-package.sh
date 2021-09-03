@@ -11,7 +11,6 @@ rm -rf tests*
 rm -rf .git
 rm -f .gitignore
 rm -rf .idea
-rm -rf .travis.yml
 rm -rf .vscode
 npm i --production
 popd

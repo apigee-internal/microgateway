@@ -15,16 +15,9 @@ All modules with code quality changes have been tested with internal tools that 
 
 In these release the Apigee team brought Edgemicro up to version 3.0.0 and beyond. 
 
-Tests have been repaired and  organized in order to make them run well on the Travis system. 
-The state of tests, in particular unit tests,  that run on Travis makes a baseline for test quality. 
-In the future, more tests will be added and will be required to function within the existing test pool
-and keep Travis functional. 
-
 Some minor bug fixes have been  done in relation to unit tests. And, we have begun with preparations for
 some code improvement. 
 
-The Travis system now runs tests on newer versions of node.js than in the past. 
-Previously the Travis system ran against node.js v6.14
 The microgateway code now runs against node.js versions v8 LTS, v10 TLS, and v12 LTS additionally to v6.14.
 
 
