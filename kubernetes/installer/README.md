@@ -1,8 +1,8 @@
-# Apigee Microgateway Installer for Kubernetes
+# Apigee Edge Microgateway Installer for Kubernetes
 
-This installation guide provide instructions and manifests required for deploying Apigee Microgateway on Kubernetes.
+This installation guide provides instructions and manifests required for deploying Apigee Edge Microgateway on Kubernetes.
 
-Apigee Microgateway is orchestrated on Kubernetes using a [Kubernetes Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/). The Microgateway configuration file and other configuration parameters are provided to the Microgateway pods using a [Kubernetes Secret](https://kubernetes.io/docs/concepts/configuration/secret/). The Microgateway API endpoint can be accessed on the Kubernetes cluster using a [Kubernetes Service](https://kubernetes.io/docs/concepts/services-networking/service/). It could also be exposed using a [Load Balancer](https://kubernetes.io/docs/concepts/configuration/secret/).
+Edge Microgateway is orchestrated on Kubernetes using a [Kubernetes Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/). The Microgateway configuration file and other configuration parameters are provided to the Microgateway pods using a [Kubernetes Secret](https://kubernetes.io/docs/concepts/configuration/secret/). The Microgateway API endpoint can be accessed on the Kubernetes cluster using a [Kubernetes Service](https://kubernetes.io/docs/concepts/services-networking/service/). It could also be exposed using a [Load Balancer](https://kubernetes.io/docs/concepts/configuration/secret/).
 
 First, complete [prerequisites](#Prerequisites) and move to the next steps according your requirement.
 
@@ -78,7 +78,34 @@ First, complete [prerequisites](#Prerequisites) and move to the next steps accor
    For an example:
    ```
    /opt/apigee/microgateway/kubernetes/manifests/
+
    ```
+
+## Create entities on Apigee Edge
+
+Creating a "microgateway-aware" proxy is a standard Edge Microgateway requirement. See also [What you need to know about Microgateway-aware proxies](https://apigee.devsite.corp.google.com/api-platform/microgateway/2.5.x/overview-edge-microgateway#whatyouneedtoknowaboutedgemicrogateway-whatyouneedtoknowaboutedgemicrogatewayawareproxies).
+
+Do the following steps to create an API proxy, API product, developer, and developer app:
+
+1. Create a microgateway-aware proxy with these properties:
+
+  - Proxy name: `edgemicro_hello`
+  - Base path: `/hello`
+  - Target: https://mocktarget.apigee.net
+
+    For detailed steps, see [Create an Edge Microgateway-aware API proxy on Edge](https://apigee.devsite.corp.google.com/api-platform/microgateway/3.2.x/setting-and-configuring-edge-microgateway#part2createentitiesonapigeeedge-1createanedgemicrogatewayawareapiproxyonedge).
+
+2. Create an API product that references the proxy. The product must include these API resources:
+
+  - `edgemicro_hello`
+  - `edgemicro-auth`
+
+    For detailed steps, see [Create an API product](https://apigee.devsite.corp.google.com/api-platform/microgateway/3.2.x/setting-and-configuring-edge-microgateway#part2createentitiesonapigeeedge-2createaproduct).
+
+3. Create a developer. For detailed steps, see [Create a developer](https://apigee.devsite.corp.google.com/api-platform/microgateway/3.2.x/setting-and-configuring-edge-microgateway#part2createentitiesonapigeeedge-3optionalcreateatestdeveloper).
+
+4. Create a developer app that includes the API product you just created. [Create a developer app](https://apigee.devsite.corp.google.com/api-platform/microgateway/3.2.x/setting-and-configuring-edge-microgateway#part2createentitiesonapigeeedge-4createadeveloperapp).
+
 
 ## Deploy Microgateway on Kubernetes
 
