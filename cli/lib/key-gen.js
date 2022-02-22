@@ -55,10 +55,7 @@ KeyGen.prototype.revoke = function(options, cb) {
                     request({
                             uri: credentialUrl,
                             method: 'DELETE',
-                            auth: {
-                                username: options.username,
-                                password: options.password
-                            },
+                            auth: generateCredentialsObject(options),
                             json: keys
                         }, function(er, re) {
                             er = translateError(er, re);

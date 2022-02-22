@@ -436,9 +436,35 @@ const setup = function setup() {
         .option('-p, --password <password>', 'password of the organization admin')
         .option('-k, --key <key>', 'Microgateway Key to be revoked')
         .option('-s, --secret <secret>', 'Microgateway secret to be revoked')
+        .option('-t, --token <token>', 'Microgateway login token')
         .description('revoke authentication keys for runtime auth between Microgateway and Edge')
         .action((options) => {
             options.error = optionError(options);
+            options.token = options.token || process.env.EDGEMICRO_SAML_TOKEN;
+            
+            if (options.token) {
+                //If there is a token lets configure with standard opts.
+                if (!options.org) {
+                    return options.error('org is required');
+                }
+                if (!options.env) {
+                    return options.error('env is required');
+                }
+                if(!options.key){
+                    return options.error('key is required');
+                }
+                if(!options.secret){
+                    return options.error('secret is required');
+                }
+                options.configDir = options.configDir || process.env.EDGEMICRO_CONFIG_DIR;
+                keyGenerator.revoke(options, (err) => {
+                    if ( err ) {
+                        process.exit(1)
+                    } else {
+                        process.exit(0)
+                    }
+                });
+              }else{
             if (!options.username) {
                 return options.error('username is required');
             }
@@ -466,7 +492,7 @@ const setup = function setup() {
                     }
                 });
             });
-
+        }
         });
 
     commander
