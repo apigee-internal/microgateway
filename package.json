@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "apigeetool": "^0.15.1",
-    "async": "^1.5.2",
+    "async": "^3.2.2",
     "body-parser": "^1.19.0",
     "cli-prompt": "^0.5.0",
     "commander": "^2.9.0",
