@@ -37,7 +37,7 @@
     "volos-cache-memory": "^0.10.1",
     "volos-spikearrest-common": "^0.10.4",
     "volos-spikearrest-memory": "^0.10.2",
-    "xml2js": "^0.4.16"
+    "xml2js": "^0.5.0"
   },
   "devDependencies": {
     "eslint": "^6.1.0",
