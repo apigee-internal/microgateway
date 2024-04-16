@@ -16,7 +16,7 @@ project_id=$2
 
 if [ $# -eq 2 ]; then
 
-  sed -i .bak  "s/ *edgemicro.*/ apigee-internal\/microgateway#$version/g" installnode.sh
+  sed -i.bak  "s/ *edgemicro.*/ apigee-internal\/microgateway#$version/g" installnode.sh
   docker build --no-cache -t edgemicro-beta:$version $DIR -f Dockerfile.beta
   docker tag edgemicro-beta:$version us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:$version
   docker tag edgemicro-beta:$version us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:beta
