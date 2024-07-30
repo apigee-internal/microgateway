@@ -41,9 +41,6 @@
   "devDependencies": {
     "eslint": "^8.44.0",
     "eslint-config-google": "^0.13.0",
-    "gulp": "^4.0.2",
-    "gulp-shell": "^0.8.0",
-    "gulp-sourcemaps": "^1.5.2",
     "jshint-stylish": "^2.2.1",
     "minimist": "^1.2.6",
     "mocha": "^9.2.0",
@@ -59,7 +56,6 @@
     "start": "node app.js",
     "stop": "node stop.js",
     "lint": "eslint ./cli ./lib app.js",
-    "package": "node cli/package.js",
     "test": "mocha tests/*.*.integ.test.js --timeout 90000 && nyc mocha tests/*.*.unit.test.js"
   },
   "directories": {
