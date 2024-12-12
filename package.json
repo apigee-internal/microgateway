@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "async": "^2.6.4",
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.20.3",
     "cli-prompt": "^0.5.0",
     "commander": "^2.9.0",
     "config": "^3.3.9",
@@ -17,7 +17,6 @@
     "debug": "^3.1.0",
     "diff": "^3.4.0",
     "dotenv": "^8.0.0",
-    "fs-extra": "^0.20.1",
     "js-yaml": "^3.5.4",
     "jsonwebtoken": "^9.0.1",
     "lodash": "^4.17.19",
@@ -31,7 +30,7 @@
     "postman-request": "^2.88.1-postman.33",
     "rimraf": "^2.4.3",
     "tmp": "0.0.28",
-    "uuid": "^3.2.1",
+    "uuid": "^11.0.3",
     "volos-cache-memory": "^0.10.1",
     "volos-spikearrest-common": "^0.10.4",
     "volos-spikearrest-memory": "^0.10.2",
@@ -39,7 +38,7 @@
     "xml2js": "^0.5.0"
   },
   "devDependencies": {
-    "eslint": "^8.44.0",
+    "eslint": "^8.56.0",
     "eslint-config-google": "^0.13.0",
     "jshint-stylish": "^2.2.1",
     "minimist": "^1.2.6",
@@ -85,7 +84,7 @@
   ],
   "author": "Kevin Swiber <kswiber@gmail.com>",
   "engines": {
-    "node": "^16 || ^18 || ^20",
+    "node": "^18 || ^20 || ^22",
     "npm": ">=8.19.3"
   },
   "cpu": [
