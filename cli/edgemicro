@@ -24,9 +24,9 @@
 var edgemicroVersion = require('../package.json').version;
 const writeConsoleLog = require('microgateway-core').Logging.writeConsoleLog;
 const version = process.version;
-const ltsVersion = 16;
-const experimental = ["v15","v17","v19"];
-const latest = 20;
+const ltsVersion = 18;
+const experimental = ["v19", "v21"];
+const latest = 22;
 
 const CONSOLE_LOG_TAG_COMP = 'microgateway edgemicro';
 
@@ -38,14 +38,14 @@ if (!process.argv.includes("token") && !process.argv.includes("get")) {
 
 for (var ver in experimental) {
     if (version.includes(experimental[ver])) {
-        writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP},"You are using a version of NodeJS that is not supported");
+        writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP ,"You are using a version of NodeJS that is not supported");
         return;
     }
 }
 var majorVersion = parseInt(version.split(".")[0].replace("v", ""));
 
-if (majorVersion == 16) {
-    writeConsoleLog('log', {component: CONSOLE_LOG_TAG_COMP},'\x1b[33m%s\x1b[0m',`Current Node.js version is ${version}. Note, v16.x.x will be out of support soon, see https://docs.apigee.com/release/notes/edge-microgateway-release-notes-0`);
+if (majorVersion == 18) {
+    writeConsoleLog('log', {component: CONSOLE_LOG_TAG_COMP},'\x1b[33m%s\x1b[0m',`Current Node.js version is ${version}. Note, v18.x.x will be out of support soon, see https://docs.apigee.com/release/notes/edge-microgateway-release-notes-0`);
 }
 
 if (majorVersion < ltsVersion || majorVersion > latest) {
