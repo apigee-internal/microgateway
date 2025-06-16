@@ -212,11 +212,10 @@ function workersFullHouse(rlc) {
   var clearoutCount = Object.keys(tClosers).length
   if ( clearoutCount > rlc.numWorkers ) {
     clearOutStoppedProcesses(() => {
-      workersFullHouse(rlc)
-    },rlc.numWorker)
+      setImmediate(() => workersFullHouse(rlc))  // Use setImmediate to break synchronous recursion
+    },rlc.numWorkers)
   } else {
     while ( wantsmore > 0 ) { // wantsmore should be always > 0, otherwise while loop goes to infinite.
-      //console.log(wantsmore)
       rlc.requestNewWorker()
       wantsmore--;
     }  
