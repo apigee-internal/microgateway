@@ -29,7 +29,7 @@
     "portastic": "^1.0.1",
     "postman-request": "^2.88.1-postman.40",
     "rimraf": "^6.0.1",
-    "tmp": "0.2.3",
+    "tmp": "0.2.4",
     "uuid": "^11.0.3",
     "volos-cache-memory": "^0.10.1",
     "volos-spikearrest-common": "^0.10.4",
