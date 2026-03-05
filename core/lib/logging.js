@@ -207,8 +207,9 @@ module.exports.init = function init(stubConfig, options) {
         remoteAddress: (sourceRequest.socket ? (sourceRequest.socket.remoteAddress + ':' + sourceRequest.socket.remotePort) : ':0'),
         clientIP: clientIP,
         targetHostName: sourceRequest.targetHostname + targetPortStr
-    }
-    }
+      }
+    },
+    traceHelper: require('./trace-helper')
   };
 
 

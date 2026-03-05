@@ -691,6 +691,110 @@ testPublicUrlProxy() {
   return $ret
 }
 
+# ======================================================================
+# Zookeeper Downtime Simulation Tests
+# These tests simulate Zookeeper unavailability during EMG restart
+# to verify that EMG handles bootstrap download failures gracefully.
+# ======================================================================
+
+setZookeeperTrap() {
+  trap 'removeZookeeperBlocklist' EXIT SIGINT SIGTERM
+}
+
+unsetZookeeperTrap() {
+  trap - EXIT SIGINT SIGTERM
+}
+
+addZookeeperBlocklist() {
+  local result=0
+
+  logInfo "Adding Zookeeper blocklist entry to /etc/hosts"
+
+  # Check for sudo access first
+  if ! sudo -n true 2>/dev/null; then
+    logWarn "Sudo access required for Zookeeper tests. Please ensure you have sudo privileges."
+  fi
+
+  # Check if entry already exists
+  if grep -q "127.0.0.1 edgemicroservices.apigee.net" /etc/hosts; then
+    logInfo "Zookeeper blocklist entry already exists"
+    setZookeeperTrap
+    return 0
+  fi
+
+  # Add blocklist entry (requires sudo)
+  sudo bash -c 'echo "127.0.0.1 edgemicroservices.apigee.net" >> /etc/hosts'
+  result=$?
+
+  if [ $result -eq 0 ]; then
+    logInfo "Successfully added Zookeeper blocklist entry"
+    setZookeeperTrap
+  else
+    logError "Failed to add Zookeeper blocklist entry with status $result"
+  fi
+
+  return $result
+}
+
+removeZookeeperBlocklist() {
+  local result=0
+
+  logInfo "Removing Zookeeper blocklist entry from /etc/hosts"
+
+  # Check if entry exists before removing
+  if ! grep -q "127.0.0.1 edgemicroservices.apigee.net" /etc/hosts; then
+    logInfo "Zookeeper blocklist entry does not exist, skipping removal."
+    unsetZookeeperTrap
+    return 0
+  fi
+
+  # Remove the blocklist entry (requires sudo)
+  # Use a more portable way to modify /etc/hosts
+  tmp_hosts=$(mktemp)
+  grep -v "127.0.0.1 edgemicroservices.apigee.net" /etc/hosts > "$tmp_hosts"
+  sudo cp "$tmp_hosts" /etc/hosts
+  result=$?
+  rm -f "$tmp_hosts"
+
+  if [ $result -eq 0 ]; then
+    logInfo "Successfully removed Zookeeper blocklist entry"
+    unsetZookeeperTrap
+  else
+    logError "Failed to remove Zookeeper blocklist entry with status $result"
+  fi
+
+  return $result
+}
+
+testZookeeperDowntimeResilience() {
+  local result=0
+  local ret=0
+  local response_body=""
+
+  logInfo "Test Zookeeper Downtime Resilience - Proxy should still work after EMG restart with blocked Zookeeper"
+
+  # Test the proxy - it should return 200 if EMG retained its config,
+  # or 404 if the config was lost (which is the bug we're testing for)
+  response_body=$(curl -q -s http://localhost:8000/v1/${PROXY_NAME} -D headers.txt)
+  ret=$?
+
+  result=$(grep HTTP headers.txt | cut -d ' ' -f2)
+
+  if [ ${ret} -eq 0 -a ${result} -eq 200 ]; then
+    logInfo "SUCCESS: Proxy still works after Zookeeper downtime simulation - code $result"
+  elif [ ${result} -eq 404 ]; then
+    logError "ZOOKEEPER DOWNTIME BUG DETECTED: Proxy returned 404 - EMG lost its config after restart with blocked Zookeeper"
+    ret=1
+  else
+    logError "Failed Zookeeper downtime resilience test with unexpected code $result"
+    ret=1
+  fi
+
+  rm -f headers.txt
+
+  return $ret
+}
+
 stopEMG() {
 
   local result=0

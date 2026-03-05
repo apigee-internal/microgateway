@@ -731,6 +731,62 @@ main() {
        testFailCount=`expr $testFailCount + 1`
   fi
 
+  # ======================================================================
+  # Zookeeper Downtime Simulation Tests
+  # ======================================================================
+
+  echo
+  testCount=`expr $testCount + 1`
+  echo "$testCount) addZookeeperBlocklist"
+  addZookeeperBlocklist; ret=$?
+  if [ $ret -eq 0 ]; then
+       echo "$STATUS_PASS_STR"
+       testPassCount=`expr $testPassCount + 1`
+  else
+       echo "$STATUS_FAIL_STR"
+       result=1
+       testFailCount=`expr $testFailCount + 1`
+  fi
+
+  echo
+  testCount=`expr $testCount + 1`
+  echo "$testCount) configAndReloadEMG (with Zookeeper blocked)"
+  configAndReloadEMG; ret=$?
+  if [ $ret -eq 0 ]; then
+       echo "$STATUS_PASS_STR"
+       testPassCount=`expr $testPassCount + 1`
+  else
+       echo "$STATUS_FAIL_STR"
+       result=1
+       testFailCount=`expr $testFailCount + 1`
+  fi
+
+  echo
+  testCount=`expr $testCount + 1`
+  echo "$testCount) testZookeeperDowntimeResilience"
+  testZookeeperDowntimeResilience; ret=$?
+  if [ $ret -eq 0 ]; then
+       echo "$STATUS_PASS_STR"
+       testPassCount=`expr $testPassCount + 1`
+  else
+       echo "$STATUS_FAIL_STR"
+       result=1
+       testFailCount=`expr $testFailCount + 1`
+  fi
+
+  echo
+  testCount=`expr $testCount + 1`
+  echo "$testCount) removeZookeeperBlocklist"
+  removeZookeeperBlocklist; ret=$?
+  if [ $ret -eq 0 ]; then
+       echo "$STATUS_PASS_STR"
+       testPassCount=`expr $testPassCount + 1`
+  else
+       echo "$STATUS_FAIL_STR"
+       result=1
+       testFailCount=`expr $testFailCount + 1`
+  fi
+
   echo
   testCount=`expr $testCount + 1`
   echo "$testCount) stopEMG"
