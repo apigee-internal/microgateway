@@ -75,7 +75,7 @@ if ( nargs > 2 ) {
       }
       
 
-      console.log(yaml.safeDump(testingOne))
+      console.log(yaml.dump(testingOne))
 */
 
 
@@ -85,7 +85,7 @@ if ( nargs > 2 ) {
 
         // Get document, or throw exception on error
         try {
-            var doc = yaml.safeLoad(yamlStr);
+          var doc = yaml.load(yamlStr);
             // console.log(doc);  // test only
 
             if ( doc !== undefined ) {
@@ -106,7 +106,7 @@ if ( nargs > 2 ) {
                   }
               }
   
-              console.log(yaml.safeDump(doc))  
+              console.log(yaml.dump(doc))  
             }
             
         } catch (e) {

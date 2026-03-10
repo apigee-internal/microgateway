@@ -92,7 +92,7 @@ IO.prototype.loadSync = function (options) {
   var content;
   try {
     const file = fs.readFileSync(source);
-    content = yaml.safeLoad(file.toString());
+    content = yaml.load(file.toString());
     content._hash = hash; // indicates this is a cached config
   } catch (err) {
     writeConsoleLog('error',{component: CONSOLE_LOG_TAG_COMP},'error reading config from', source, err);
@@ -131,7 +131,7 @@ IO.prototype.save = function (config, options, cb) {
       return; // skip private properties
     save[key] = config[key];
   });
-  const dump = yaml.safeDump(save, {skipInvalid: true});
+  const dump = yaml.dump(save, { skipInvalid: true });
   if (options.sync) {
     fs.writeFileSync(target, dump);
     if ( _.isFunction(cb) ) cb();

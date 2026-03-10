@@ -24,7 +24,7 @@ describe('config - init', () => {
         }, (err, configPath) => {
             assert.equal(null, err);
             assert.equal(configPath, fixtureDefaultCustomConfig);
-            let configPathJSON = jsyaml.safeLoad(fs.readFileSync(fixtureDefaultCustomConfig, 'utf8'));
+            let configPathJSON = jsyaml.load(fs.readFileSync(fixtureDefaultCustomConfig, 'utf8'));
             assert.deepStrictEqual(configPathJSON.edgemicro.max_connections, fixtureDefaultConfigMaxConnections);
             done();
         });
