@@ -1,4 +1,4 @@
-FROM node:22.21.1-bookworm-slim
+FROM node:24.14.0-bookworm-slim
 
 COPY installnode.sh /tmp
 COPY --chown=101:101 installedgemicro.sh /tmp
