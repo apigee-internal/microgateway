@@ -246,7 +246,8 @@ const writeConsoleLog = function (level, obj, ...dataList) {
       component = obj.component;
     }
     let message = Timestamp + ' ['+ ProcessId + ']'+ ' ['+ component + ']';
-      console[level](message, util.format(...dataList));
+    const sanitized = sanitizeForLog(util.format(...dataList));
+    console[level](message, sanitized);
   }
 }
 
@@ -372,9 +373,9 @@ function serializeLogRecord(level, configLevel, obj, text, isTransactionLog, sta
       ProcessId = cluster.worker.id;
   }
 
-  var message = preamble + level + ' '+ ProcessId + ' ' + (text ? text + ' ' : '') +
+  var message = preamble + level + ' '+ ProcessId + ' ' + (text ? sanitizeForLog(text) + ' ' : '') +
     Object.keys(record).map(function (key) {
-      return key + '=' + record[key]; // assumes vaules are primitive, no recursion
+      return key + '=' + sanitizeForLog(record[key]); // assumes vaules are primitive, no recursion
     }).join(', ') +
     os.EOL;
     
@@ -417,7 +418,7 @@ const isValidIPaddress = (ipaddress) =>
 
 const serializeEventLogRecord = (level, record, text, stackTrace) => {
   const Timestamp = new Date().toISOString();
-  const hostname = record.h || record.transactionContextData.host || ''; // by deault print source request hostname, else print from corresponding req object
+  const hostname = sanitizeForLog(record.h || record.transactionContextData.host); // by deault print source request hostname, else print from corresponding req object
   let ProcessId = '';
   if (cluster.isMaster) {
     ProcessId = process.pid;
@@ -427,17 +428,17 @@ const serializeEventLogRecord = (level, record, text, stackTrace) => {
   const Org = process.env.CurrentOrgName;
   const Environment = process.env.CurrentEnvironmentName;
   let url = record.transactionContextData.url; // by deault print source request url
-  const APIProxy = url ? url.replace('/','') : '';
-  let ClientIp = record.transactionContextData.clientIP || '';
-  const ClientId = record.transactionContextData.clientId || '';
-  const component = record.component || '';
-  let reqMethod = record.m || record.transactionContextData.method || ''; // by deault print source request method, else print from corresponding req object
-  let respStatusCode = record.s || '';
-  let errMessage = record.message || '';
-  let errCode = record.code || '';
-  let customMessage =  ( text && text !== undefined ) ? text : '';
-  let correlationId = record.transactionContextData.correlation_id || '';
-  let timeTaken = record.d || '';
+  const APIProxy = sanitizeForLog(url.replace('/',''));
+  let ClientIp = sanitizeForLog(record.transactionContextData.clientIP);
+  const ClientId = sanitizeForLog(record.transactionContextData.clientId);
+  const component = sanitizeForLog(record.component);
+  let reqMethod = sanitizeForLog(record.m || record.transactionContextData.method); // by deault print source request method, else print from corresponding req object
+  let respStatusCode = sanitizeForLog(record.s);
+  let errMessage = sanitizeForLog(record.message);
+  let errCode = sanitizeForLog(record.code);
+  let customMessage = sanitizeForLog(text);
+  let correlationId = sanitizeForLog(record.transactionContextData.correlation_id);
+  let timeTaken = sanitizeForLog(record.d);
   let errorStack =  record.stack || '';
 
   let message = Timestamp + ' ['+ level + ']'
@@ -463,6 +464,17 @@ const serializeEventLogRecord = (level, record, text, stackTrace) => {
   }
 
   return message;
+}
+
+// Sanitize input to prevent log injection (CWE-117): 
+// strip CRLF and ANSI escape sequences from externally-sourced values before printing. 
+// Also limit length to prevent excessively long log entries.
+function sanitizeForLog(input) {
+    if (input === null || input === undefined) return '';
+    return String(input)
+        .replace(/[\r\n\t]/g, ' ')                           // Remove CRLF/tab
+        .replace(/\x1b(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '') // Remove ANSI escape
+        .slice(0, 512);                                       // Limit length
 }
 
 module.exports._calculateLogFilePath = _calculateLogFilePath;
