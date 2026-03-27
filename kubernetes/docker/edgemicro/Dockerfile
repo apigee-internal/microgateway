@@ -1,4 +1,14 @@
-FROM node:24.14.0-bookworm-slim
+FROM node:24.14.1-bookworm-slim
+
+# === SECURITY PATCH LAYER ===
+# 1. Update OS packages to resolve Debian CVEs 
+# 2. Force-update global npm to resolve NPM CVEs
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    npm install -g npm@latest && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+# ============================
 
 COPY installnode.sh /tmp
 COPY --chown=101:101 installedgemicro.sh /tmp
