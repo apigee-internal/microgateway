@@ -247,8 +247,8 @@ function enableTLS(config, opts) {
             } else if (config.edge_config.tlsOptions.agentOptions.pfx) {
                 opts['pfx'] = fs.readFileSync(path.resolve(config.edge_config.tlsOptions.agentOptions.pfx));
             }
-            if (config.edge_config.tlsOptions.agentOptions.rejectUnauthorized) {
-                opts['rejectUnauthorized'] = true;
+            if (config.edge_config.tlsOptions.agentOptions.hasOwnProperty('rejectUnauthorized')) {
+                opts['rejectUnauthorized'] = config.edge_config.tlsOptions.agentOptions.rejectUnauthorized;
             }
             if (config.edge_config.tlsOptions.agentOptions.secureProtocol) {
                 opts['secureProtocol'] = true;
