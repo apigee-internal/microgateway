@@ -17,8 +17,10 @@ if [ $# -eq 2 ]; then
   docker build --no-cache -t edgemicro:$version $DIR
   docker tag edgemicro:$version gcr.io/$project_id/edgemicro:$version
   docker tag edgemicro:$version gcr.io/$project_id/edgemicro:latest
+  docker tag edgemicro:$version gcr.io/$project_id/edgemicro:public-image-for-$version
   docker push gcr.io/$project_id/edgemicro:$version
   docker push gcr.io/$project_id/edgemicro:latest
+  docker push gcr.io/$project_id/edgemicro:public-image-for-$version
   rm installnode.sh
   mv installnode.sh.bak installnode.sh
 

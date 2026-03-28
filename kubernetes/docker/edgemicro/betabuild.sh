@@ -20,8 +20,10 @@ if [ $# -eq 2 ]; then
   docker build --no-cache -t edgemicro-beta:$version $DIR -f Dockerfile.beta
   docker tag edgemicro-beta:$version us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:$version
   docker tag edgemicro-beta:$version us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:beta
+  docker tag edgemicro-beta:$version us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:public-image-for-$version
   docker push us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:$version
   docker push us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:beta
+  docker push us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:public-image-for-$version
   rm installnode.sh
   mv installnode.sh.bak installnode.sh
 
