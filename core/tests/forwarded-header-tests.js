@@ -4,7 +4,7 @@ const _ = require('lodash')
 const assert = require('assert')
 const http = require('http')
 const gatewayService = require('../index')
-const request = require('postman-request')
+const request = require('request')
 const should = require('should')
 const fs = require('fs');
 

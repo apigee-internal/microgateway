@@ -1,7 +1,7 @@
 
 'use strict';
 
-const request = require('postman-request');
+const request = require('request');
 const util = require('util');
 const fs = require('fs');
 const path = require('path');

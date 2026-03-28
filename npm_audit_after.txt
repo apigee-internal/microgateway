@@ -1,0 +1,145 @@
+# npm audit report
+
+ajv  <6.14.0
+Severity: moderate
+ajv has ReDoS when using `$data` option - https://github.com/advisories/GHSA-2g4f-4pwh-qvx6
+fix available via `npm audit fix`
+node_modules/microgateway-plugins/node_modules/ajv
+
+brace-expansion  <1.1.13 || >=2.0.0 <2.0.3
+Severity: moderate
+brace-expansion: Zero-step sequence causes process hang and memory exhaustion - https://github.com/advisories/GHSA-f886-m6hf-6m8v
+brace-expansion: Zero-step sequence causes process hang and memory exhaustion - https://github.com/advisories/GHSA-f886-m6hf-6m8v
+fix available via `npm audit fix`
+node_modules/microgateway-plugins/node_modules/brace-expansion
+node_modules/microgateway-plugins/node_modules/glob/node_modules/brace-expansion
+node_modules/microgateway-plugins/node_modules/mocha/node_modules/brace-expansion
+
+diff  6.0.0 - 8.0.2
+jsdiff has a Denial of Service vulnerability in parsePatch and applyPatch - https://github.com/advisories/GHSA-73rr-hh4g-fpgx
+fix available via `npm audit fix --force`
+Will install sinon@21.0.3, which is a breaking change
+node_modules/microgateway-plugins/node_modules/diff
+node_modules/mocha/node_modules/diff
+node_modules/sinon/node_modules/diff
+  mocha  8.0.0 - 12.0.0-beta-3
+  Depends on vulnerable versions of diff
+  Depends on vulnerable versions of serialize-javascript
+  node_modules/microgateway-plugins/node_modules/mocha
+  node_modules/mocha
+  sinon  19.0.0 - 21.0.0
+  Depends on vulnerable versions of diff
+  node_modules/sinon
+
+flatted  <=3.4.1
+Severity: high
+flatted vulnerable to unbounded recursion DoS in parse() revive phase - https://github.com/advisories/GHSA-25h7-pfq9-p65f
+Prototype Pollution via parse() in NodeJS flatted - https://github.com/advisories/GHSA-rf6f-7fwh-wjgh
+fix available via `npm audit fix`
+node_modules/microgateway-plugins/node_modules/flatted
+
+form-data  <2.5.4
+Severity: critical
+form-data uses unsafe random function in form-data for choosing boundary - https://github.com/advisories/GHSA-fjxv-7rqg-78g4
+No fix available
+node_modules/form-data
+  postman-request  *
+  Depends on vulnerable versions of form-data
+  Depends on vulnerable versions of qs
+  Depends on vulnerable versions of tough-cookie
+  node_modules/microgateway-plugins/node_modules/postman-request
+  node_modules/microgateway-plugins/node_modules/volos-analytics-apigee/node_modules/postman-request
+  node_modules/microgateway-plugins/node_modules/volos-quota-apigee/node_modules/postman-request
+  node_modules/postman-request
+    microgateway-plugins  >=3.3.3
+    Depends on vulnerable versions of postman-request
+    Depends on vulnerable versions of volos-analytics-apigee
+    Depends on vulnerable versions of volos-quota-apigee
+    node_modules/microgateway-plugins
+    volos-analytics-apigee  >=0.5.0
+    Depends on vulnerable versions of postman-request
+    node_modules/microgateway-plugins/node_modules/volos-analytics-apigee
+    volos-quota-apigee  >=0.14.0
+    Depends on vulnerable versions of postman-request
+    node_modules/microgateway-plugins/node_modules/volos-quota-apigee
+    volos-util-apigee  *
+    Depends on vulnerable versions of postman-request
+    node_modules/volos-util-apigee
+
+lodash  4.0.0 - 4.17.21
+Severity: moderate
+Lodash has Prototype Pollution Vulnerability in `_.unset` and `_.omit` functions - https://github.com/advisories/GHSA-xxjr-mmjv-4gpg
+fix available via `npm audit fix`
+node_modules/microgateway-plugins/node_modules/lodash
+
+minimatch  <=3.1.3 || 9.0.0 - 9.0.6
+Severity: high
+minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern - https://github.com/advisories/GHSA-3ppc-4f35-3m26
+minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern - https://github.com/advisories/GHSA-3ppc-4f35-3m26
+minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments - https://github.com/advisories/GHSA-7r86-cg39-jmmj
+minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments - https://github.com/advisories/GHSA-7r86-cg39-jmmj
+minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions - https://github.com/advisories/GHSA-23c5-xmqv-rm74
+minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions - https://github.com/advisories/GHSA-23c5-xmqv-rm74
+fix available via `npm audit fix`
+node_modules/microgateway-plugins/node_modules/glob/node_modules/minimatch
+node_modules/microgateway-plugins/node_modules/minimatch
+node_modules/microgateway-plugins/node_modules/mocha/node_modules/minimatch
+
+qs  <=6.14.1
+Severity: moderate
+qs's arrayLimit bypass in comma parsing allows denial of service - https://github.com/advisories/GHSA-w7fw-mjwx-w883
+qs's arrayLimit bypass in its bracket notation allows DoS via memory exhaustion - https://github.com/advisories/GHSA-6rw7-vpxm-498p
+fix available via `npm audit fix`
+node_modules/microgateway-plugins/node_modules/qs
+node_modules/microgateway-plugins/node_modules/superagent/node_modules/qs
+node_modules/microgateway-plugins/node_modules/volos-analytics-apigee/node_modules/qs
+node_modules/microgateway-plugins/node_modules/volos-quota-apigee/node_modules/qs
+
+serialize-javascript  <=7.0.4
+Severity: high
+Serialize JavaScript is Vulnerable to RCE via RegExp.flags and Date.prototype.toISOString() - https://github.com/advisories/GHSA-5c6j-r48x-rmvq
+Serialize JavaScript has CPU Exhaustion Denial of Service via crafted array-like objects - https://github.com/advisories/GHSA-qj8w-gfj5-8c6v
+fix available via `npm audit fix`
+node_modules/microgateway-plugins/node_modules/serialize-javascript
+
+tough-cookie  <4.1.3
+Severity: moderate
+tough-cookie Prototype Pollution vulnerability - https://github.com/advisories/GHSA-72xf-g2v4-qvf3
+fix available via `npm audit fix`
+node_modules/tough-cookie
+
+underscore  <=1.13.7
+Severity: high
+Underscore has unlimited recursion in _.flatten and _.isEqual, potential for DoS attack - https://github.com/advisories/GHSA-qpx9-hpmf-5gmw
+fix available via `npm audit fix`
+node_modules/microgateway-plugins/node_modules/volos-cache-common/node_modules/underscore
+node_modules/microgateway-plugins/node_modules/volos-quota-apigee/node_modules/volos-quota-common/node_modules/underscore
+node_modules/microgateway-plugins/node_modules/volos-quota-common/node_modules/underscore
+node_modules/microgateway-plugins/node_modules/volos-quota-redis/node_modules/underscore
+node_modules/microgateway-plugins/node_modules/volos-quota-redis/node_modules/volos-quota-common/node_modules/underscore
+node_modules/microgateway-plugins/node_modules/volos-spikearrest-common/node_modules/underscore
+  volos-cache-common  0.9.2 - 0.10.8
+  Depends on vulnerable versions of underscore
+  node_modules/microgateway-plugins/node_modules/volos-cache-common
+  volos-quota-common  0.9.3 - 0.11.12 || >=0.14.1
+  Depends on vulnerable versions of underscore
+  node_modules/microgateway-plugins/node_modules/volos-quota-apigee/node_modules/volos-quota-common
+  node_modules/microgateway-plugins/node_modules/volos-quota-common
+  node_modules/microgateway-plugins/node_modules/volos-quota-redis/node_modules/volos-quota-common
+  volos-quota-redis  0.9.6 - 0.11.6
+  Depends on vulnerable versions of underscore
+  node_modules/microgateway-plugins/node_modules/volos-quota-redis
+  volos-spikearrest-common  <=0.10.4
+  Depends on vulnerable versions of underscore
+  node_modules/microgateway-plugins/node_modules/volos-spikearrest-common
+
+22 vulnerabilities (2 low, 5 moderate, 9 high, 6 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues possible (including breaking changes), run:
+  npm audit fix --force
+
+Some issues need review, and may require choosing
+a different dependency.

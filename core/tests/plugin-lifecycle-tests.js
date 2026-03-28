@@ -3,7 +3,7 @@ var assert = require('assert');
 var gatewayService = require('../index');
 var serverFactory = require('./hello_rest/index');
 var TestPlugin = require('./testPlugin');
-var request = require('postman-request');
+var request = require('request');
 var should = require('should')
 
 

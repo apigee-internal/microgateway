@@ -1,7 +1,7 @@
 'use strict';
 const edgeconfig = require('../../config');
 //const path = require('path');
-const request = require('postman-request');
+const request = require('request');
 const async = require('async');
 //const assert = require('assert');
 const writeConsoleLog = require('../../core').Logging.writeConsoleLog;

@@ -3,7 +3,7 @@
 const pem = require("pem");
 const util = require("util");
 const debug = require("debug")("upgradekvm");
-const request = require('postman-request');
+const request = require('request');
 const writeConsoleLog = require('../../core').Logging.writeConsoleLog;
 const CONSOLE_LOG_TAG_COMP = 'microgateway upgrade kvm';
 

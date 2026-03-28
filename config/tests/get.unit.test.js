@@ -14,20 +14,20 @@ const keys = {
 
 let configlibmockValid = proxyquire.load('../index.js', {
     './lib/network': proxyquire.load('../lib/network', {
-        'postman-request': mockRequestValid
+        'request': mockRequestValid
     })
 });
 
 let configlibmockInvalidProducts = proxyquire.load('../index.js', {
     './lib/network': proxyquire.load('../lib/network', {
-        'postman-request': mockRequestInvalidProducts
+        'request': mockRequestInvalidProducts
     })
 });
 
 
 let configlibmockInvalidProxies = proxyquire.load('../index.js', {
     './lib/network': proxyquire.load('../lib/network', {
-        'postman-request': mockRequestInvalidProxies
+        'request': mockRequestInvalidProxies
     })
 });
 
