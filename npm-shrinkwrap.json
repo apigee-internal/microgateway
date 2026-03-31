@@ -1,12 +1,12 @@
 {
   "name": "edgemicro",
-  "version": "3.3.8",
+  "version": "3.3.9",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "edgemicro",
-      "version": "3.3.8",
+      "version": "3.3.9",
       "cpu": [
         "!arm",
         "!mips"
@@ -24,7 +24,7 @@
         "jsonwebtoken": "^9.0.1",
         "lodash": "^4.17.23",
         "microgateway-edgeauth": "^3.2.2",
-        "microgateway-plugins": "apigee/microgateway-plugins#for-3.3.9",
+        "microgateway-plugins": "^3.3.9",
         "minimatch": "^10.2.4",
         "opentracing": "^0.14.3",
         "pem": "^1.8.1",
@@ -1001,9 +1001,9 @@
       }
     },
     "node_modules/@sinonjs/fake-timers": {
-      "version": "15.1.1",
-      "resolved": "https://registry.npmjs.org/@sinonjs/fake-timers/-/fake-timers-15.1.1.tgz",
-      "integrity": "sha512-cO5W33JgAPbOh07tvZjUOJ7oWhtaqGHiZw+11DPbyqh2kHTBc3eF/CjJDeQ4205RLQsX6rxCuYOroFQwl7JDRw==",
+      "version": "15.2.0",
+      "resolved": "https://registry.npmjs.org/@sinonjs/fake-timers/-/fake-timers-15.2.0.tgz",
+      "integrity": "sha512-+SM3gQi95RWZLlD+Npy/UC5mHftlXwnVJMRpMyiqjrF4yNnbvi/Ubh3x9sLw6gxWSuibOn00uiLu1CKozehWlQ==",
       "dev": true,
       "license": "BSD-3-Clause",
       "dependencies": {
@@ -1252,9 +1252,9 @@
       "license": "MIT"
     },
     "node_modules/baseline-browser-mapping": {
-      "version": "2.10.11",
-      "resolved": "https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.10.11.tgz",
-      "integrity": "sha512-DAKrHphkJyiGuau/cFieRYhcTFeK/lBuD++C7cZ6KZHbMhBrisoi+EvhQ5RZrIfV5qwsW8kgQ07JIC+MDJRAhg==",
+      "version": "2.10.13",
+      "resolved": "https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.10.13.tgz",
+      "integrity": "sha512-BL2sTuHOdy0YT1lYieUxTw/QMtPBC3pmlJC6xk8BBYVv6vcw3SGdKemQ+Xsx9ik2F/lYDO9tqsFQH1r9PFuHKw==",
       "dev": true,
       "license": "Apache-2.0",
       "bin": {
@@ -1386,9 +1386,9 @@
       "license": "ISC"
     },
     "node_modules/browserslist": {
-      "version": "4.28.1",
-      "resolved": "https://registry.npmjs.org/browserslist/-/browserslist-4.28.1.tgz",
-      "integrity": "sha512-ZC5Bd0LgJXgwGqUknZY/vkUQ04r8NXnJZ3yYi4vDmSiZmC/pdSN0NbNRPxZpbtO4uAfDUAFffO8IZoM3Gj8IkA==",
+      "version": "4.28.2",
+      "resolved": "https://registry.npmjs.org/browserslist/-/browserslist-4.28.2.tgz",
+      "integrity": "sha512-48xSriZYYg+8qXna9kwqjIVzuQxi+KYWp2+5nCYnYKPTr0LvD89Jqk2Or5ogxz0NUMfIjhh2lIUX/LyX9B4oIg==",
       "dev": true,
       "funding": [
         {
@@ -1406,11 +1406,11 @@
       ],
       "license": "MIT",
       "dependencies": {
-        "baseline-browser-mapping": "^2.9.0",
-        "caniuse-lite": "^1.0.30001759",
-        "electron-to-chromium": "^1.5.263",
-        "node-releases": "^2.0.27",
-        "update-browserslist-db": "^1.2.0"
+        "baseline-browser-mapping": "^2.10.12",
+        "caniuse-lite": "^1.0.30001782",
+        "electron-to-chromium": "^1.5.328",
+        "node-releases": "^2.0.36",
+        "update-browserslist-db": "^1.2.3"
       },
       "bin": {
         "browserslist": "cli.js"
@@ -1532,9 +1532,9 @@
       }
     },
     "node_modules/caniuse-lite": {
-      "version": "1.0.30001781",
-      "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001781.tgz",
-      "integrity": "sha512-RdwNCyMsNBftLjW6w01z8bKEvT6e/5tpPVEgtn22TiLGlstHOVecsX2KHFkD5e/vRnIE4EGzpuIODb3mtswtkw==",
+      "version": "1.0.30001782",
+      "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001782.tgz",
+      "integrity": "sha512-dZcaJLJeDMh4rELYFw1tvSn1bhZWYFOt468FcbHHxx/Z/dFidd1I6ciyFdi3iwfQCyOjqo9upF6lGQYtMiJWxw==",
       "dev": true,
       "funding": [
         {
@@ -2049,9 +2049,9 @@
       "license": "MIT"
     },
     "node_modules/electron-to-chromium": {
-      "version": "1.5.328",
-      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.328.tgz",
-      "integrity": "sha512-QNQ5l45DzYytThO21403XN3FvK0hOkWDG8viNf6jqS42msJ8I4tGDSpBCgvDRRPnkffafiwAym2X2eHeGD2V0w==",
+      "version": "1.5.329",
+      "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.329.tgz",
+      "integrity": "sha512-/4t+AS1l4S3ZC0Ja7PHFIWeBIxGA3QGqV8/yKsP36v7NcyUCl+bIcmw6s5zVuMIECWwBrAK/6QLzTmbJChBboQ==",
       "dev": true,
       "license": "ISC"
     },
@@ -3774,8 +3774,9 @@
       "license": "Apache-2.0"
     },
     "node_modules/microgateway-plugins": {
-      "version": "3.3.8",
-      "resolved": "git+ssh://git@github.com/apigee/microgateway-plugins.git#c7b0444c85998073c38eae2408a4a36f8d2ea407",
+      "version": "3.3.9",
+      "resolved": "https://registry.npmjs.org/microgateway-plugins/-/microgateway-plugins-3.3.9.tgz",
+      "integrity": "sha512-msnRO+MyicKECXh91T2aBmawE9XcXNd1aqFZaCTuf1PXEnSgY0pHkGkz8cr+jSIK4/RZN7+q86SciLT6B7WgNA==",
       "license": "Apache-2.0",
       "dependencies": {
         "async": "^2.6.4",
@@ -3818,12 +3819,12 @@
       }
     },
     "node_modules/minimatch": {
-      "version": "10.2.4",
-      "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-10.2.4.tgz",
-      "integrity": "sha512-oRjTw/97aTBN0RHbYCdtF1MQfvusSIBQM0IZEgzl6426+8jSC0nF1a/GmnVLpfB9yyr6g6FTqWqiZVbxrtaCIg==",
+      "version": "10.2.5",
+      "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-10.2.5.tgz",
+      "integrity": "sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg==",
       "license": "BlueOak-1.0.0",
       "dependencies": {
-        "brace-expansion": "^5.0.2"
+        "brace-expansion": "^5.0.5"
       },
       "engines": {
         "node": "18 || 20 || >=22"
