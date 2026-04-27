@@ -44,9 +44,9 @@ fi
 
 # Using '|' as the sed delimiter eliminates the need to escape slashes in the repo path
 if [ "$branch" == "npm" ]; then
-  sed -i.bak "s| *edgemicro.*| edgemicro@$semver|g" installnode.sh
+  sed -i.bak "s|npm install.*-g edgemicro.*|npm install --omit=dev --omit=optional -g edgemicro@$semver|g" installnode.sh
 else
-  sed -i.bak  "s| *edgemicro.*| ${repo}#$branch|g" installnode.sh
+  sed -i.bak "s|npm install.*-g edgemicro.*|npm install --omit=dev --omit=optional -g ${repo}#$branch|g" installnode.sh
 fi
 
 # Clear older image and build cache
@@ -54,9 +54,7 @@ echo "Clearing older image and cache..."
 docker rmi edgemicro-beta:$branch 2>/dev/null || true
 docker builder prune -f || true
 
-# Build with --platform linux/amd64 to ensure it runs correctly on general-purpose servers (x86_64) instead of ARM64
-docker build --platform linux/amd64 --no-cache -t edgemicro-beta:$branch $DIR -f Dockerfile.beta
-
+docker build --provenance=false --no-cache -t edgemicro-beta:$branch $DIR -f Dockerfile.beta
 
 # Query existing tags to find the next beta number
 echo "Querying existing tags for public-image-$semver-beta.*"
@@ -90,6 +88,7 @@ for tag in $existing_tags; do
     gcloud artifacts docker tags add "us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:$tag" "us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:$dep_tag"
   fi
 done
+
 rm installnode.sh
 mv installnode.sh.bak installnode.sh
 
