@@ -78,16 +78,16 @@ new_tag="public-image-$semver-beta.$new_n"
 docker tag edgemicro-beta:$branch us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:$new_tag
 docker push us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:$new_tag
 
-# Add deprecated tags to older images
-for tag in $existing_tags; do
-  if [[ "$tag" =~ public-image-$semver-beta\.([0-9]+) ]]; then
-    n="${BASH_REMATCH[1]}"
-    dep_tag="deprecated-public-image-$semver-beta.$n"
+# # Add deprecated tags to older images
+# for tag in $existing_tags; do
+#   if [[ "$tag" =~ public-image-$semver-beta\.([0-9]+) ]]; then
+#     n="${BASH_REMATCH[1]}"
+#     dep_tag="deprecated-public-image-$semver-beta.$n"
     
-    echo "Adding tag $dep_tag to existing tag $tag"
-    gcloud artifacts docker tags add "us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:$tag" "us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:$dep_tag"
-  fi
-done
+#     echo "Adding tag $dep_tag to existing tag $tag"
+#     gcloud artifacts docker tags add "us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:$tag" "us-west1-docker.pkg.dev/$project_id/edgemicro-beta/emg:$dep_tag"
+#   fi
+# done
 
 rm installnode.sh
 mv installnode.sh.bak installnode.sh
