@@ -46,7 +46,7 @@ fi
 if [ "$branch" == "npm" ]; then
   sed -i.bak "s|npm install.*-g edgemicro.*|npm install --omit=dev --omit=optional -g edgemicro@$semver|g" installnode.sh
 else
-  sed -i.bak "s|npm install.*-g edgemicro.*|npm install --omit=dev --omit=optional -g ${repo}#$branch|g" installnode.sh
+  sed -i.bak "s|npm install.*-g edgemicro.*|npm install --omit=dev --omit=optional --allow-git=all -g ${repo}#$branch|g" installnode.sh
 fi
 
 # Clear older image and build cache
