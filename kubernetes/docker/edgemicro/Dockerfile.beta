@@ -1,4 +1,4 @@
-FROM node:24.18.0-trixie-slim
+FROM node:24.18.1-trixie-slim
 
 # === SECURITY PATCH LAYER ===
 # 1. Update OS packages to resolve Debian CVEs 
@@ -6,6 +6,7 @@ FROM node:24.18.0-trixie-slim
 RUN apt-get update && \
     apt-get upgrade -y && \
     npm install -g npm@latest && \
+    npm config set allow-git all --global && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 # ============================
@@ -18,7 +19,7 @@ COPY --chown=101:101 installedgemicro.sh /tmp
 RUN addgroup --system --gid 101 apigee && \
     adduser --shell /bin/bash --uid 101 --system --ingroup apigee --home /opt/apigee apigee
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 #install node.js
 RUN chmod +x /tmp/installnode.sh && \
