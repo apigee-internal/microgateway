@@ -1,4 +1,4 @@
-FROM node:24.18.0-trixie-slim
+FROM node:24.18.1-trixie-slim
 
 # === SECURITY PATCH LAYER ===
 # 1. Update OS packages to resolve Debian CVEs 
