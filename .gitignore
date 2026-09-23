@@ -61,3 +61,6 @@ test-e2e-local/tmp_emg_file.yaml
 test-stress/rateset.txt
 bin
 .agents
+test-reports/
+tests/log/
+test-functional/NightlyTestLog.*

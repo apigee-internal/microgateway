@@ -1,223 +1,68 @@
-# Install jq to edit EMG json files
-npm install -g jq
+# Edge Microgateway Functional Test Suite
 
-# Install yq to edit EMG yaml files
-npm install -g yq
+Self-healing, deterministic E2E functional test suite for Apigee Edge Microgateway.
 
-1. To run the test against released version of Edge Micro Gateway
+## Architecture (`test-functional/`)
 
-   # Run PreSubmit Test
-   MOCHA_USER=<username> MOCHA_PASSWORD=<password> MOCHA_ORG=<orgName> MOCHA_ENV=<env> sh PullRequestTests.sh
+| File | Responsibility |
+| :--- | :--- |
+| `NightlyTests.sh` | Declarative suite runner (`LIFECYCLE_SETUP`, `FUNCTIONAL_TESTS`, `LIFECYCLE_TEARDOWN`). |
+| `testEMG.sh` | Self-contained test cases (`test*` functions following `Arrange -> Act -> Assert -> Restore`). |
+| `testhelper.sh` | Test harness, mode resolution, auto OAuth2 token minting, `50ms` readiness polling, persistent Apigee Cloud fixtures (`ensureApigeeFixtures`), and DRY assertion helpers. |
 
-   # Run Nightly Test
-   MOCHA_USER=<username> MOCHA_PASSWORD=<password> MOCHA_ORG=<orgName> MOCHA_ENV=<env> sh NightlyTests.sh
+---
 
-   Scripts will install edge microgateway using the command 'npm install -g edgemicro@latest' and run the test.
+## Running Tests (Local & CI)
 
-2. To run the test against the master or any child branches
+Export Apigee credentials (`MOCHA_ORG` defaults to `connectors-test2`, `MOCHA_ENV` defaults to `test`):
 
-   git clone https://github.com/apigee-internal/microgateway.git
+```bash
+export MOCHA_USER="emg-ciuser@google.com"
+export MOCHA_PASSWORD="<password>"
+```
 
-   cd microgateway
+### 1. Current Branch / Local Repo Code (`branch` mode — Default & Presubmit CI)
+Runs directly against the checked-out repository (`node cli/edgemicro`) without global installation:
 
-   npm install
+```bash
+npm run test:functional
+# or
+cd test-functional && ./NightlyTests.sh
+```
 
-   PATH=<base-path>/microgateway/cli:$PATH
+### 2. Packaged Repository Build (`master` mode — Continuous & Release CI)
+Packs the current repository (`npm pack`) and installs it globally (`npm install -g`) to verify the packaged artifact:
 
-   # which edgemicro
-   <base-path>/microgateway/cli/edgemicro
+```bash
+npm run test:functional:master
+# or
+cd test-functional && ./NightlyTests.sh master
+```
 
-   # Run PreSubmit Test
-   MOCHA_USER=<username> MOCHA_PASSWORD=<password> MOCHA_ORG=<orgName> MOCHA_ENV=<env> sh PullRequestTests.sh
+### 3. Public npm Registry Release (`npm` mode)
+Installs and tests the published version from the public npm registry (`edgemicro@latest` or a specific version):
 
-   # Run Nightly Test
-   MOCHA_USER=<username> MOCHA_PASSWORD=<password> MOCHA_ORG=<orgName> MOCHA_ENV=<env> sh NightlyTests.sh
+```bash
+npm run test:functional:npm
+# or
+cd test-functional && ./NightlyTests.sh npm
+cd test-functional && ./NightlyTests.sh npm:3.3.3
+```
 
-Sample test runs - PullRequestTests.sh
---------------------------------------
+### 4. Run a Single Isolated Test Case
+Pass any test function name as an argument to execute only that test case (along with setup/teardown):
 
-sh PullRequestTests.sh
+```bash
+cd test-functional && ./NightlyTests.sh testZookeeperDowntimeResilience
+cd test-functional && ./NightlyTests.sh npm testQuota
+```
 
-1) installEMG
-Status: PASS
+---
 
-2) checkEMGVersion
-Status: PASS
+## Adding a New Test Case
 
-3) initEMG
-Status: PASS
-
-4) configureEMG
-Status: PASS
-
-5) verifyEMG
-Status: PASS
-
-6) startEMG
-Status: PASS
-
-7) configAndReloadEMG
-Status: PASS
-
-8) setProductNameFilter
-Status: PASS
-
-9) testAPIProxy
-Status: PASS
-
-10) testQuota
-Status: PASS
-
-11) testInvalidAPIKey
-Status: PASS
-
-12) testRevokedAPIKey
-Status: PASS
-
-13) testInvalidJWT
-Status: PASS
-
-14) testExpiredJWT
-Status: PASS
-
-15) setInvalidProductNameFilter
-Status: PASS
-
-16) testInvalidProductNameFilter
-Status: PASS
-
-17) resetInvalidProductNameFilter
-Status: PASS
-
-18) stopEMG
-Status: PASS
-
-19) uninstallEMG
-Status: PASS
-
-19 tests, 19 passed, 0 failed, 0 skipped
-
-Sample test runs - NightlyTests.sh
-----------------------------------
-
-sh NightlyTests.sh 
-
-1) listAPIProxies
-Status: PASS
-
-2) createAPIProxy
-Status: PASS
-
-3) createAPIProxyBundle
-Status: PASS
-
-4) updateAPIProxy
-Status: PASS
-
-5) deployAPIProxy
-Status: PASS
-
-6) listAPIProxy
-Status: PASS
-
-7) createAPIProduct
-Status: PASS
-
-8) listAPIProduct
-Status: PASS
-
-9) listDevelopers
-Status: PASS
-
-10) createDeveloper
-Status: PASS
-
-11) listDeveloper
-Status: PASS
-
-12) listDeveloperApps
-Status: PASS
-
-13) createDeveloperApp
-Status: PASS
-
-14) listDeveloperApps
-Status: PASS
-
-15) listDeveloperApp
-Status: PASS
-
-16) installEMG
-Status: PASS
-
-17) checkEMGVersion
-Status: PASS
-
-18) initEMG
-Status: PASS
-
-19) configureEMG
-Status: PASS
-
-20) verifyEMG
-Status: PASS
-
-21) startEMG
-Status: PASS
-
-22) configAndReloadEMG
-Status: PASS
-
-23) setProductNameFilter
-Status: PASS
-
-24) testAPIProxy
-Status: PASS
-
-25) testQuota
-Status: PASS
-
-26) testInvalidAPIKey
-Status: PASS
-
-27) testRevokedAPIKey
-Status: PASS
-
-28) testInvalidJWT
-Status: PASS
-
-29) testExpiredJWT
-Status: PASS
-
-30) setInvalidProductNameFilter
-Status: PASS
-
-31) testInvalidProductNameFilter
-Status: PASS
-
-32) resetInvalidProductNameFilter
-Status: PASS
-
-33) stopEMG
-Status: PASS
-
-34) uninstallEMG
-Status: PASS
-
-35) deleteDeveloperApp
-Status: PASS
-
-36) deleteAPIProduct
-Status: PASS
-
-37) undeployAPIProxy
-Status: PASS
-
-38) deleteAPIProxy
-Status: PASS
-
-39) deleteDeveloper
-Status: PASS
-
-39 tests, 39 passed, 0 failed, 0 skipped
-
+1. Define a self-contained `test<FeatureName>()` function in `testEMG.sh` using the built-in DRY primitives:
+   - `emg_config_reload '<yaml.path>' <val> ...` — Updates config and waits (`50ms` poll) for IPC worker reload.
+   - `assert_proxy_status <expected_http_code> [path] [header_name] [header_val]` — Executes request and asserts HTTP status.
+   - `emg_reset_log` / `assert_log_has <pattern> [secondary]` / `assert_log_lacks <pattern>` — Asserts gateway log output.
+2. Add `test<FeatureName>` to the `FUNCTIONAL_TESTS` array in `NightlyTests.sh`.
