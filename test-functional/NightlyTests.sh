@@ -1,919 +1,124 @@
-#!/bin/sh
+#!/usr/bin/env bash
+# Re-exec under bash if invoked via `sh NightlyTests.sh ...`
+if [ -z "${BASH_VERSION:-}" ]; then
+  exec bash "$0" "$@"
+fi
 
 #
-# Author: dkoroth@google.com
+# Edge Microgateway Functional Test Runner
 #
-#set -x
+# Usage:
+#   ./NightlyTests.sh [branch|master|npm|npm:<version>|docker:<image>] [testName]
+#
+# Examples:
+#   ./NightlyTests.sh                                           # Default: 'branch' mode (tests current repo code)
+#   ./NightlyTests.sh master                                    # 'master' mode (npm pack + global install from repo)
+#   ./NightlyTests.sh npm                                       # 'npm' mode (npm install -g edgemicro@latest)
+#   ./NightlyTests.sh npm:3.3.3                                 # 'npm' mode for a specific published version
+#   ./NightlyTests.sh docker:gcr.io/apigee-microgateway/edgemicro:3.3.11  # 'docker' mode (runs full suite + SIGTERM check in container)
+#   ./NightlyTests.sh testQuota                                 # Run a single test case against current branch code
+#   ./NightlyTests.sh npm testZookeeperDowntimeResilience       # Run a single test case against published npm release
+#
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCRIPT_DIR}"
 
 source ./testhelper.sh
 source ./testEMG.sh
 
-# Username and Password for the api.enterprise.apigee.com
-#MOCHA_USER=
-#MOCHA_PASSWORD=
-
-# OrgName configured at api.enterprise.apigee.com
-#MOCHA_ORG=
-
-# Proxy environment configured at api.enterprise.apigee.com
-# Default is 'test' environment
-#MOCHA_ENV=
-
-proxyNamePrefix="edgemicro_"
-proxyTargetUrl="http://mocktarget.apigee.net/json"
-
 EMG_CONFIG_DIR="$HOME/.edgemicro"
 EMG_CONFIG_FILE="$HOME/.edgemicro/$MOCHA_ORG-$MOCHA_ENV-config.yaml"
 
-PRODUCT_NAME="edgemicro_product_nightly"
-PROXY_NAME="edgemicro_proxy_nightly"
-PROXY_NAME_QUOTA="edgemicro_proxy_nightly_quota"
-DEVELOPER_NAME="edgemicro_dev_nightly"
-DEVELOPER_APP_NAME="edgemicro_dev_app_nightly"
+resolve_edgemicro_mode "${1:-}" "${2:-}"
 
-echo $1
-which edgemicro
-LOCAL_REPOSITORY_TESTING=''
-#bash
-if [ -z "$1" ]
-then
-    EDGEMICRO=$(which edgemicro || echo edgemicro)
+TIMESTAMP=$(date "+%Y-%m-%d-%H")
+LOGFILE="${EMG_WORK_DIR}/NightlyTestLog.${TIMESTAMP}"
+
+if [ -t 1 ] && command -v tput >/dev/null 2>&1; then
+  RED=$(tput setaf 1 2>/dev/null || true)
+  GREEN=$(tput setaf 2 2>/dev/null || true)
+  NC=$(tput sgr0 2>/dev/null || true)
 else
-    EDGEMICRO="node ../cli/edgemicro"
-    LOCAL_REPOSITORY_TESTING=$(pwd)
+  RED=""; GREEN=""; NC=""
 fi
-echo $EDGEMICRO
-
-
-TIMESTAMP=`date "+%Y-%m-%d-%H"`
-LOGFILE="NightlyTestLog.$TIMESTAMP"
-
-RED=`tput setaf 1`
-GREEN=`tput setaf 2`
-NC=`tput sgr0`
 
 STATUS_PASS_STR="Status: ${GREEN}PASS${NC}"
 STATUS_FAIL_STR="Status: ${RED}FAIL${NC}"
 
+# 1. Suite Setup Lifecycle
+LIFECYCLE_SETUP=(
+  ensureApigeeFixtures
+  installEMG
+  checkEMGVersion
+  initEMG
+  configureEMG
+  verifyEMG
+  startEMG
+)
+
+# 2. Self-Contained Functional Test Cases (Arrange -> Act -> Assert -> Restore)
+FUNCTIONAL_TESTS=(
+  # Auth, OAuth2 JWT & Quota Enforcement
+  testAPIProxy
+  testQuota
+  testAuthToken
+  testApiProxyWithAuthToken
+  testInvalidAPIKey
+  testInvalidAPIKeyWithUpstreamResp
+  testInvalidAPIKeyWithUpstreamRespFalse
+  testRevokedAPIKey
+  testInvalidJWT
+  testExpiredJWT
+
+  # Observability, Structured Logging & Stack Trace
+  testLogFileCreated
+  testInvalidApiKeyEventLog
+  testInfoLogs
+  testDebugLogs
+  testTraceEventLog
+  testStackTraceConfig
+  testStackTraceFalseConfig
+
+  # Product Filter, Public URL Mode & Control-Plane (Zookeeper) Outage Resilience
+  testInvalidProductNameFilter
+  testPublicUrlProxy
+  testZookeeperDowntimeResilience
+)
+
+# In 'docker' mode, run the entire FUNCTIONAL_TESTS suite plus container SIGTERM graceful shutdown
+if [ "${EMG_TEST_MODE:-}" = "docker" ]; then
+  FUNCTIONAL_TESTS+=(testDockerGracefulShutdown)
+fi
+
+# 3. Suite Teardown Lifecycle
+LIFECYCLE_TEARDOWN=(
+  stopEMG
+  uninstallEMG
+)
+
 main() {
+  ensure_apigee_bearer_token || exit 1
 
-  local result=0
-  local ret=0
-  local testCount=0
-  local testPassCount=0
-  local testFailCount=0
-  local testSkipCount=0
-
-  # check MOCHA_USER is set
-  if [ -z $MOCHA_USER ]; then
-       echo "MOCHA_USER is not set"
-       exit 1
-  fi
-   
-  # check MOCHA_PASSWORD is set
-  if [ -z $MOCHA_PASSWORD ]; then
-       echo "MOCHA_PASSWORD is not set"
-       exit 1
-  fi
-
-  # check MOCHA_ORG is set
-  if [ -z $MOCHA_ORG ]; then
-       echo "MOCHA_ORG is not set"
-       exit 1
-  fi
-
-  # check MOCHA_ENV is set
-  if [ -z $MOCHA_ENV ]; then
-       echo "MOCHA_ENV is not set"
-       exit 1
-  fi
-
-  # Cleanup all the temporary files
+  init_test_harness
   cleanUp
 
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listAPIProxies"
-  listAPIProxies; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
+  for fn in "${LIFECYCLE_SETUP[@]}"; do
+    run_test "${fn}" || break
+  done
+
+  if [ "${HARNESS_RESULT}" -eq 0 ]; then
+    run_test_suite "${FUNCTIONAL_TESTS[@]}"
   fi
 
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) createAPIProxy"
-  createAPIProxy ${PROXY_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
+  for fn in "${LIFECYCLE_TEARDOWN[@]}"; do
+    run_test "${fn}" || true
+  done
+
+  write_sponge_xml
 
   echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) createAPIProxy Quota"
-  createAPIProxy ${PROXY_NAME_QUOTA}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) createAPIProxyBundle"
-  createAPIProxyBundle ${PROXY_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) createAPIProxyBundle Quota"
-  createAPIProxyBundle ${PROXY_NAME_QUOTA}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) updateAPIProxy"
-  updateAPIProxy ${PROXY_NAME} ${PROXY_NAME}.zip ${proxyBundleVersion}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) updateAPIProxy Quota"
-  updateAPIProxy ${PROXY_NAME_QUOTA} ${PROXY_NAME_QUOTA}.zip ${proxyBundleVersion}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) deployAPIProxy"
-  deployAPIProxy ${PROXY_NAME} ${MOCHA_ENV} ${proxyBundleVersion}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) deployAPIProxy Quota"
-  deployAPIProxy ${PROXY_NAME_QUOTA} ${MOCHA_ENV} ${proxyBundleVersion}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listAPIProxy"
-  listAPIProxy ${PROXY_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) createAPIProduct"
-  createAPIProduct ${PRODUCT_NAME} ${PROXY_NAME} ${PROXY_NAME_QUOTA}; ret=$?
-  rm -f ${PRODUCT_NAME}.json
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listAPIProduct"
-  listAPIProduct ${PRODUCT_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listDevelopers"
-  listDevelopers; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) createDeveloper"
-  createDeveloper ${DEVELOPER_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listDeveloper"
-  listDeveloper ${DEVELOPER_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listDeveloperApps"
-  listDeveloperApps ${DEVELOPER_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) createDeveloperApp"
-
-  createDeveloperApp ${DEVELOPER_NAME} ${DEVELOPER_APP_NAME} ${PRODUCT_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-  rm -f ${DEVELOPER_APP_NAME}.json
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listDeveloperApps"
-  listDeveloperApps ${DEVELOPER_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) listDeveloperApp"
-  listDeveloperApp ${DEVELOPER_NAME} ${DEVELOPER_APP_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) installEMG"
-  installEMG $LOCAL_REPOSITORY_TESTING; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) checkEMGVersion"
-  checkEMGVersion; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) initEMG"
-  initEMG; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) configureEMG"
-  configureEMG; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) verifyEMG"
-  verifyEMG; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) startEMG"
-  startEMG $LOCAL_REPOSITORY_TESTING; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) setProductNameFilter"
-  setProductNameFilter; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) configAndReloadEMG"
-  configAndReloadEMG; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testAPIProxy"
-  testAPIProxy; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testQuota"
-  testQuota; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testAuthToken"
-  testAuthToken; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-  sleep 60
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testApiProxyWithAuthToken"
-  testApiProxyWithAuthToken; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testInvalidAPIKey"
-  testInvalidAPIKey; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testInvalidAPIKeyWithUpstreamResp"
-  testInvalidAPIKeyWithUpstreamResp; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testInvalidAPIKeyWithUpstreamRespFalse"
-  testInvalidAPIKeyWithUpstreamRespFalse; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testLogFileCreated"
-  testLogFileCreated; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testInvalidApiKeyEventLog"
-  testInvalidApiKeyEventLog; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testInfoLogs"
-  testInfoLogs; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testDebugLogs"
-  testDebugLogs; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testTraceEventLog"
-  testTraceEventLog; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testStackTraceConfig"
-  testStackTraceConfig; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testStackTraceFalseConfig"
-  testStackTraceFalseConfig; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testRevokedAPIKey"
-  testRevokedAPIKey; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testInvalidJWT"
-  testInvalidJWT; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testExpiredJWT"
-  testExpiredJWT; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) setInvalidProductNameFilter"
-  setInvalidProductNameFilter; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testInvalidProductNameFilter"
-  testInvalidProductNameFilter; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) resetInvalidProductNameFilter"
-  resetInvalidProductNameFilter; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) configAndReloadEMGForPublicUrl"
-  configAndReloadEMGForPublicUrl; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testPublicUrlProxy"
-  testPublicUrlProxy; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  # ======================================================================
-  # Zookeeper Downtime Simulation Tests
-  # ======================================================================
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) addZookeeperBlocklist"
-  addZookeeperBlocklist; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) configAndReloadEMG (with Zookeeper blocked)"
-  configAndReloadEMG; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) testZookeeperDowntimeResilience"
-  testZookeeperDowntimeResilience; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) removeZookeeperBlocklist"
-  removeZookeeperBlocklist; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) stopEMG"
-  stopEMG; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) uninstallEMG"
-  uninstallEMG; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) deleteDeveloperApp"
-  deleteDeveloperApp ${DEVELOPER_NAME} ${DEVELOPER_APP_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) deleteAPIProduct"
-  deleteAPIProduct ${PRODUCT_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) undeployAPIProxy"
-  undeployAPIProxy ${PROXY_NAME} ${MOCHA_ENV} ${proxyBundleVersion}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-  rm -f ${PROXY_NAME}.zip
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) undeployAPIProxy Quota"
-  undeployAPIProxy ${PROXY_NAME_QUOTA} ${MOCHA_ENV} ${proxyBundleVersion}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-  rm -f ${PROXY_NAME_QUOTA}.zip
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) deleteAPIProxy"
-  deleteAPIProxy ${PROXY_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) deleteAPIProxy Quota"
-  deleteAPIProxy ${PROXY_NAME_QUOTA}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  testCount=`expr $testCount + 1`
-  echo "$testCount) deleteDeveloper"
-  deleteDeveloper ${DEVELOPER_NAME}; ret=$?
-  if [ $ret -eq 0 ]; then
-       echo "$STATUS_PASS_STR"
-       testPassCount=`expr $testPassCount + 1`
-  else
-       echo "$STATUS_FAIL_STR"
-       result=1
-       testFailCount=`expr $testFailCount + 1`
-  fi
-
-  echo
-  let testSkipCount="$testCount - ($testPassCount + $testFailCount)"
-  echo "$testCount tests, $testPassCount passed, $testFailCount failed, $testSkipCount skipped"
-
-  exit $result
-
+  echo "${HARNESS_TOTAL} tests, ${HARNESS_PASSED} passed, ${HARNESS_FAILED} failed, ${HARNESS_SKIPPED} skipped"
+  exit "${HARNESS_RESULT}"
 }
 
-main $@
-
-
+main "$@"

@@ -68,7 +68,10 @@
     "test": "mocha tests/*.*.integ.test.js --timeout 90000 && nyc mocha tests/*.*.unit.test.js",
     "test:config": "nyc mocha config/tests/*.unit.test.js",
     "test:core": "nyc mocha core/tests",
-    "test:all": "mocha tests/*.*.integ.test.js --timeout 90000 && nyc mocha tests/*.*.unit.test.js config/tests/*.unit.test.js core/tests"
+    "test:all": "mocha tests/*.*.integ.test.js --timeout 90000 && nyc mocha tests/*.*.unit.test.js config/tests/*.unit.test.js core/tests",
+    "test:functional": "bash test-functional/NightlyTests.sh branch",
+    "test:functional:master": "bash test-functional/NightlyTests.sh master",
+    "test:functional:npm": "bash test-functional/NightlyTests.sh npm"
   },
   "directories": {
     "doc": "docs",
