@@ -38,7 +38,8 @@ spec:
       serviceAccountName: edgemicro-sidecar-injector-service-account
       containers:
         - name: webhook
-          image: gcr.io/apigee-microgateway/sidecar_injector:latest
+          # DECOMMISSIONED (b/530515247 & b/161263992): Sidecar injection mode and sidecar_injector image have been decommissioned. Use kubernetes/installer/ instead.
+          # image: gcr.io/apigee-microgateway/sidecar_injector:latest
           imagePullPolicy: IfNotPresent
           args:
             - --tlsCertFile=/etc/istio/certs/cert.pem
