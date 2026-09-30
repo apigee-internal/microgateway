@@ -43,13 +43,13 @@ NAME="microgateway_${EDGEMICRO_VERSION}_${OSEXT}"
 URL="https://github.com/apigee-internal/microgateway/releases/download/${EDGEMICRO_VERSION}/${NAME}.tar.gz"
 echo "Downloading $NAME from $URL ..."
 
-curl -L "$URL" | tar xz && cd $NAME && mkdir -p bin && mv edgemicroctl bin/edgemicroctl
+curl -L "$URL" | tar xz
 
 # TODO: change this so the version is in the tgz/directory name (users trying multiple versions)
 
 echo "Downloaded into $NAME:"
 
-BINDIR="$(cd bin; pwd)"
+BINDIR="$(cd $NAME/bin; pwd)"
 echo "Add $BINDIR to your path; e.g copy paste in your shell and/or ~/.profile:"
 echo "export PATH=\"\$PATH:$BINDIR\""
 
