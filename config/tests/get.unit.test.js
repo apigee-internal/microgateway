@@ -72,4 +72,61 @@ describe('config - get ', () => {
             done();
         });
     });
+
+    it('applies tlsOptions.agentOptions without requestCert and preserves secureProtocol string', done => {
+        const capturedOpts = [];
+        const customMockRequest = {
+            get: function (options, callback) {
+                capturedOpts.push(options);
+                return mockRequestValid.get(options, callback);
+            }
+        };
+        const mockIo = {
+            loadSync: function () {
+                const cfg = require('../lib/io')().loadSync({ source: fixturePath });
+                cfg.edge_config.tlsOptions = {
+                    agentOptions: {
+                        rejectUnauthorized: true,
+                        secureProtocol: 'TLSv1_2_method',
+                        ciphers: 'ECDHE-RSA-AES256-GCM-SHA384'
+                    }
+                };
+                return cfg;
+            },
+            setConsoleLogger: function () {}
+        };
+        const networkLoader = proxyquire.load('../lib/network', {
+            'postman-request': customMockRequest,
+            './io': function () { return mockIo; }
+        })();
+        networkLoader.get({ source: fixturePath, keys: keys }, (err) => {
+            assert.equal(err, null);
+            assert(capturedOpts.length > 0);
+            capturedOpts.forEach(opt => {
+                assert.equal(opt.rejectUnauthorized, true);
+                assert.equal(opt.secureProtocol, 'TLSv1_2_method');
+                assert.equal(opt.ciphers, 'ECDHE-RSA-AES256-GCM-SHA384');
+                assert.equal(opt.requestCert, undefined);
+            });
+            done();
+        });
+    });
+
+    it('safely serializes localproxy fields in EDGEMICRO_LOCAL_PROXY mode without JSON injection', done => {
+        process.env.EDGEMICRO_LOCAL_PROXY = '1';
+        const localproxy = {
+            apiProxyName: 'edgemicro_proxyOne',
+            revision: '1',
+            basePath: '/a","injected":"yes',
+            targetEndpoint: 'http://localhost:8080/'
+        };
+        configlibmockValid.get({ source: fixturePath, keys: keys, localproxy: localproxy }, (err, config) => {
+            delete process.env.EDGEMICRO_LOCAL_PROXY;
+            assert.equal(err, null);
+            assert.equal(config.proxies.length, 1);
+            assert.equal(config.proxies[0].base_path, '/a","injected":"yes');
+            assert.equal(config.proxies[0].injected, undefined);
+            done();
+        });
+    });
 });

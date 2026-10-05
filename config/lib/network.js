@@ -235,30 +235,31 @@ function matchWildcard(str, rule) {
 }
 
 function enableTLS(config, opts) {
-    if (config.edge_config.tlsOptions) {
-        if (config.edge_config.tlsOptions.agentOptions && config.edge_config.tlsOptions.agentOptions.requestCert) {
+    if (config.edge_config.tlsOptions && config.edge_config.tlsOptions.agentOptions) {
+        const agentOptions = config.edge_config.tlsOptions.agentOptions;
+        if (agentOptions.requestCert) {
             opts['requestCert'] = true;
-            if (config.edge_config.tlsOptions.agentOptions.cert && config.edge_config.tlsOptions.agentOptions.key) {
-                opts['cert'] = fs.readFileSync(path.resolve(config.edge_config.tlsOptions.agentOptions.cert), 'utf8');
-                opts['key'] = fs.readFileSync(path.resolve(config.edge_config.tlsOptions.agentOptions.key), 'utf8');
-                if (config.edge_config.tlsOptions.agentOptions.ca) {
-                    opts['ca'] = fs.readFileSync(path.resolve(config.edge_config.tlsOptions.agentOptions.ca), 'utf8');
-                }
-            } else if (config.edge_config.tlsOptions.agentOptions.pfx) {
-                opts['pfx'] = fs.readFileSync(path.resolve(config.edge_config.tlsOptions.agentOptions.pfx));
+            if (agentOptions.cert && agentOptions.key) {
+                opts['cert'] = fs.readFileSync(path.resolve(agentOptions.cert), 'utf8');
+                opts['key'] = fs.readFileSync(path.resolve(agentOptions.key), 'utf8');
+            } else if (agentOptions.pfx) {
+                opts['pfx'] = fs.readFileSync(path.resolve(agentOptions.pfx));
             }
-            if (config.edge_config.tlsOptions.agentOptions.rejectUnauthorized) {
-                opts['rejectUnauthorized'] = true;
-            }
-            if (config.edge_config.tlsOptions.agentOptions.secureProtocol) {
-                opts['secureProtocol'] = true;
-            }
-            if (config.edge_config.tlsOptions.agentOptions.passphrase) {
-                opts['passphrase'] = config.edge_config.tlsOptions.agentOptions.passphrase;
-            }
-            if (config.edge_config.tlsOptions.agentOptions.ciphers) {
-                opts['ciphers'] = config.edge_config.tlsOptions.agentOptions.ciphers;
-            }
+        }
+        if (agentOptions.ca) {
+            opts['ca'] = fs.readFileSync(path.resolve(agentOptions.ca), 'utf8');
+        }
+        if (agentOptions.rejectUnauthorized) {
+            opts['rejectUnauthorized'] = true;
+        }
+        if (agentOptions.secureProtocol) {
+            opts['secureProtocol'] = agentOptions.secureProtocol;
+        }
+        if (agentOptions.passphrase) {
+            opts['passphrase'] = agentOptions.passphrase;
+        }
+        if (agentOptions.ciphers) {
+            opts['ciphers'] = agentOptions.ciphers;
         }
     }
     return opts;
@@ -293,7 +294,7 @@ const processLoad = (config, keys, callback, useSynchronizer, redisClient, sourc
     }
     async.parallel([
         function(cb) {
-            const opts = _.clone(options);
+            let opts = _.clone(options);
             opts['url'] = config.edge_config.bootstrap;
             opts['auth'] = {
                 user: keys.key,
@@ -302,22 +303,27 @@ const processLoad = (config, keys, callback, useSynchronizer, redisClient, sourc
             };
             //if defined, proxy params are passed in the start cmd.
             if (process.env.EDGEMICRO_LOCAL_PROXY === "1") {
-                const proxyInfo = "{\"apiProxies\": [{\"apiProxyName\":\"" + config.proxies[0].name + "\"," +
-                    "\"revision\":\"" + config.proxies[0].revision + "\"," +
-                    "\"proxyEndpoint\": {" +
-                    "\"name\": \"default\"," +
-                    "\"basePath\":\"" + config.proxies[0].base_path + "\"" +
-                    "}," +
-                    "\"targetEndpoint\": {" +
-                    "\"name\": \"default\"," +
-                    "\"url\":\"" + config.proxies[0].url + "\"" +
-                    "}}]}";
+                const proxyInfo = JSON.stringify({
+                    apiProxies: [{
+                        apiProxyName: String(config.proxies[0].name),
+                        revision: String(config.proxies[0].revision),
+                        proxyEndpoint: {
+                            name: 'default',
+                            basePath: String(config.proxies[0].base_path)
+                        },
+                        targetEndpoint: {
+                            name: 'default',
+                            url: String(config.proxies[0].url)
+                        }
+                    }]
+                });
                 const response = {
                     statusCode: 200
                 };
                 _loadStatus('config', config.edge_config.bootstrap, null, response, proxyInfo, cb);
             } else  { //retrieve info from edge
                 if ( useSynchronizer || !config.edge_config.redisBasedConfigCache ) {
+                    opts = enableTLS(config, opts);
                     request.get(opts, function(err, response, body) {
                         if(useSynchronizer && !err && response && response.statusCode === 200 && validateJSON(body)){
                             saveConfigToRedis(redisClient, globalOptions, config.edge_config.bootstrap, body, 'config', (err)=>{
