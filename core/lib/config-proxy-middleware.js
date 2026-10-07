@@ -15,6 +15,7 @@ const checkNoProxy = require('./no-proxy-parser')
 const proxyPathMatcher = require('./proxy-path-matcher');
 const getProxyFromBasePath = proxyPathMatcher.getProxyFromBasePath;
 const generateMatchingRegex = proxyPathMatcher.generateMatchingRegex;
+const normalizePath = proxyPathMatcher.normalizePath;
 const sanitizer = require('sanitizer');
 
 /**
@@ -97,6 +98,12 @@ module.exports = function() {
 
     return (req, res, next) => {
         const reqUrl = url.parse(req.url, true);
+        const normalizedPathname = normalizePath(reqUrl.pathname);
+        if (normalizedPathname !== reqUrl.pathname) {
+            reqUrl.pathname = normalizedPathname;
+            reqUrl.path = normalizedPathname + (reqUrl.search || '');
+            req.url = reqUrl.path;
+        }
 
         req.reqUrl = reqUrl;
 

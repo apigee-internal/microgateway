@@ -125,4 +125,94 @@ describe('test configuration handling', () => {
       })
     })
   })
+
+  describe('proxy path matching and dot-segment traversal prevention', () => {
+    const proxyPathMatcher = require('../lib/proxy-path-matcher');
+
+    it('rejects sibling prefix extensions and dot-segment escapes in matchPath', () => {
+      assert.strictEqual(proxyPathMatcher.matchPath('/lab', '/lab'), true);
+      assert.strictEqual(proxyPathMatcher.matchPath('/lab/', '/lab'), true);
+      assert.strictEqual(proxyPathMatcher.matchPath('/lab/normal', '/lab'), true);
+      assert.strictEqual(proxyPathMatcher.matchPath('/lab/.well-known/openid-configuration', '/lab'), true);
+      assert.strictEqual(proxyPathMatcher.matchPath('/lab/file..json', '/lab'), true);
+      assert.strictEqual(proxyPathMatcher.matchPath('/lab/a/../normal', '/lab'), true);
+      assert.strictEqual(proxyPathMatcher.matchPath('/lab/./normal', '/lab'), true);
+
+      assert.strictEqual(proxyPathMatcher.matchPath('/labfoo', '/lab'), false);
+      assert.strictEqual(proxyPathMatcher.matchPath('/lab/../admin', '/lab'), false);
+      assert.strictEqual(proxyPathMatcher.matchPath('/lab/../../admin', '/lab'), false);
+      assert.strictEqual(proxyPathMatcher.matchPath('/lab/%2e%2e/admin', '/lab'), false);
+      assert.strictEqual(proxyPathMatcher.matchPath('/lab/a/../../admin', '/lab'), false);
+      assert.strictEqual(proxyPathMatcher.normalizePath(null), null);
+    });
+
+    it('blocks dot-segment traversal escaping target prefix while preserving valid requests', (done) => {
+      const seenBackendUrls = [];
+      server = http.createServer((req, res) => {
+        seenBackendUrls.push(req.url);
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('raw=' + req.url);
+      });
+
+      const traversalConfig = {
+        edgemicro: {
+          port: gatewayPort,
+          logging: { level: 'info', dir: './tests/log' }
+        },
+        proxies: [
+          { base_path: '/lab', secure: false, url: 'http://localhost:' + port + '/backend' }
+        ]
+      };
+
+      const sendRawGet = (rawPath, cb) => {
+        const req = http.request({
+          hostname: 'localhost',
+          port: gatewayPort,
+          method: 'GET',
+          path: rawPath
+        }, (res) => {
+          let data = '';
+          res.on('data', chunk => { data += chunk; });
+          res.on('end', () => cb(null, res.statusCode, data));
+        });
+        req.on('error', cb);
+        req.end();
+      };
+
+      server.listen(port, '127.0.0.1', () => {
+        gateway = gatewayService(traversalConfig);
+        gateway.start((err) => {
+          assert(!err, err);
+          sendRawGet('/lab/../admin', (err1, status1) => {
+            assert(!err1, err1);
+            assert.strictEqual(status1, 404);
+            sendRawGet('/lab/../../admin', (err2, status2) => {
+              assert(!err2, err2);
+              assert.strictEqual(status2, 404);
+              sendRawGet('/lab/%2e%2e/admin', (err3, status3) => {
+                assert(!err3, err3);
+                assert.strictEqual(status3, 404);
+                sendRawGet('/labfoo', (err4, status4) => {
+                  assert(!err4, err4);
+                  assert.strictEqual(status4, 404);
+                  assert.strictEqual(seenBackendUrls.length, 0);
+                  sendRawGet('/lab/normal?q=1', (err5, status5, body5) => {
+                    assert(!err5, err5);
+                    assert.strictEqual(status5, 200);
+                    assert.strictEqual(body5, 'raw=/backend/normal?q=1');
+                    sendRawGet('/lab/a/../normal?q=1', (err6, status6, body6) => {
+                      assert(!err6, err6);
+                      assert.strictEqual(status6, 200);
+                      assert.strictEqual(body6, 'raw=/backend/normal?q=1');
+                      done();
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  })
 })
