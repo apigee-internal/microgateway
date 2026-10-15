@@ -1,5 +1,12 @@
-
 ## Automatic Sidecar Injection
+
+---
+> [!IMPORTANT]
+> **DEPRECATED**
+>
+> Automatic sidecar injection and `edgemicroctl` have been **deprecated and are no longer supported** (per b/161263992).
+> For the officially supported `kubectl` deployment instructions and modern `apps/v1` manifests, please refer to **[Apigee Edge Microgateway Kubernetes Installer](../installer/README.md)**.
+---
 
 This section lists the steps required to enable automatic sidecar injection.
 
@@ -164,12 +171,15 @@ In case the container port of your app is not the same as service port defined i
 Please refer the httpbin samples:
 ```
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: httpbin-deployment
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: httpbin-app
   template:
     metadata:
       labels:
