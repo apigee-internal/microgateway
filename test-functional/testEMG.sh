@@ -28,20 +28,27 @@ installEMG() {
       return 0
       ;;
     npm)
+      export NPM_CONFIG_PREFIX="${NPM_CONFIG_PREFIX:-${HOME}/.npm-global}"
+      mkdir -p "${NPM_CONFIG_PREFIX}/bin" "${NPM_CONFIG_PREFIX}/lib/node_modules"
+      export PATH="${NPM_CONFIG_PREFIX}/bin:${PATH}"
+      local npm_registry="${EMG_NPM_REGISTRY:-https://registry.npmjs.org/}"
       local pkg_spec="edgemicro@${EMG_NPM_VERSION:-latest}"
-      logInfo "Installing published EMG package from npm registry (${pkg_spec})..."
-      npm install -g "${pkg_spec}" > "${EMG_WORK_DIR}/installEMG.txt" 2>&1 || return 1
-      export EDGEMICRO="$(command -v edgemicro 2>/dev/null || echo edgemicro)"
+      logInfo "Installing published EMG package from npm registry (${pkg_spec}, registry=${npm_registry})..."
+      npm install -g "${pkg_spec}" --registry="${npm_registry}" > "${EMG_WORK_DIR}/installEMG.txt" 2>&1 || return 1
+      export EDGEMICRO="$(command -v edgemicro 2>/dev/null || echo "${NPM_CONFIG_PREFIX}/bin/edgemicro")"
       return 0
       ;;
     master|*)
+      export NPM_CONFIG_PREFIX="${NPM_CONFIG_PREFIX:-${HOME}/.npm-global}"
+      mkdir -p "${NPM_CONFIG_PREFIX}/bin" "${NPM_CONFIG_PREFIX}/lib/node_modules"
+      export PATH="${NPM_CONFIG_PREFIX}/bin:${PATH}"
       logInfo "Packing and installing EMG globally from repository (${REPO_ROOT})..."
       local tarball
       tarball=$(cd "${REPO_ROOT}" && npm pack --quiet | tail -n 1)
       npm install -g "${REPO_ROOT}/${tarball}" > "${EMG_WORK_DIR}/installEMG.txt" 2>&1
       local ret=$?
       rm -f "${REPO_ROOT}/${tarball}"
-      export EDGEMICRO="$(command -v edgemicro 2>/dev/null || echo edgemicro)"
+      export EDGEMICRO="$(command -v edgemicro 2>/dev/null || echo "${NPM_CONFIG_PREFIX}/bin/edgemicro")"
       return $ret
       ;;
   esac
@@ -57,6 +64,13 @@ checkEMGVersion() {
   emgVersion=$(grep 'current edgemicro version is' "${version_out}" | awk '{print $NF}')
   nodejsVersion=$(grep 'current nodejs version is' "${version_out}" | awk '{print $NF}')
   logInfo "EMG version is ${emgVersion} and Node.js version is ${nodejsVersion}"
+  if [ "${EMG_TEST_MODE:-}" = "npm" ] && [ -n "${EMG_NPM_VERSION:-}" ] && [ "${EMG_NPM_VERSION}" != "latest" ]; then
+    local expected_version="${EMG_NPM_VERSION#v}"
+    if [ "${emgVersion}" != "${expected_version}" ]; then
+      logError "Installed edgemicro version (${emgVersion}) does not match expected npm version (${expected_version})"
+      return 1
+    fi
+  fi
   return 0
 }
 

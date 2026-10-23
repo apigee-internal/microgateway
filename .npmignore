@@ -5,3 +5,9 @@ kubernetes
 micro-flow.png
 microgateway.png
 release-package.sh
+kokoro
+test-reports
+.nyc_output
+.agents
+.lumbergh
+*.tgz
