@@ -38,7 +38,6 @@ spec:
       serviceAccountName: edgemicro-sidecar-injector-service-account
       containers:
         - name: webhook
-          image: gcr.io/apigee-microgateway/sidecar_injector:latest
           imagePullPolicy: IfNotPresent
           args:
             - --tlsCertFile=/etc/istio/certs/cert.pem

@@ -168,22 +168,6 @@ func createContainer(img string) v1.Container {
 	return container
 }
 
-func createInitContainer1() v1.Container {
-	container := v1.Container{}
-	var args = []string{"-p", "8000", "-u", "1001"}
-	container.Name = "edgemicro-init"
-	container.Image = containerRegURL + "edgemicro_proxy_init:latest"
-	container.Args = args
-	container.ImagePullPolicy = "Always"
-	container.SecurityContext = createSecContext()
-	return container
-}
-
-func getInitContainers() []v1.Container {
-	var containers []v1.Container
-	containers = append(containers, createInitContainer1())
-	return containers
-}
 
 func createSecContext() *v1.SecurityContext {
 	secContext := v1.SecurityContext{}
@@ -303,7 +287,6 @@ func recurse(yamlDecoder io.ReadCloser, reader *os.File, yamlData []byte) {
 		//set security context
 		deployment.Spec.Template.Spec.SecurityContext = createPodSecContext(100, 101)
 		deployment.Spec.Template.Spec.Containers = append(deployment.Spec.Template.Spec.Containers, createContainer(img))
-		deployment.Spec.Template.Spec.InitContainers = getInitContainers()
 		newDeployment, _ := json.Marshal(&deployment)
 		yamlout, _ := yml.JSONToYAML(newDeployment)
 		fmt.Printf(string(yamlout))
