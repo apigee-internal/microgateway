@@ -10,3 +10,6 @@ npm install --omit=dev --omit=optional -g edgemicro
 # 2. Navigate to the globally installed package and run install to apply committed overrides
 cd "$(npm root -g)/edgemicro"
 npm install --omit=dev --omit=optional
+
+# 3. Remove npm/npx from the runtime image; edgemicro does not use them (removes npm-bundled CVEs)
+rm -rf "$(npm root -g)/npm" /usr/local/bin/npm /usr/local/bin/npx
