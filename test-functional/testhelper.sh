@@ -58,7 +58,7 @@ resolve_edgemicro_mode() {
   current_major=$(node -p "process.versions.node.split('.')[0]" 2>/dev/null || echo "0")
   if [ "${current_major}" -lt 22 ] && [ -d "${HOME}/.nvm/versions/node" ]; then
     local nvm_node
-    nvm_node=$(ls -d "${HOME}/.nvm/versions/node/v24"* "${HOME}/.nvm/versions/node/v22"* 2>/dev/null | sort -V | tail -n 1)
+    nvm_node=$(ls -d "${HOME}/.nvm/versions/node/v26"* "${HOME}/.nvm/versions/node/v24"* "${HOME}/.nvm/versions/node/v22"* 2>/dev/null | sort -V | tail -n 1)
     if [ -n "${nvm_node}" ] && [ -d "${nvm_node}/bin" ]; then
       export PATH="${nvm_node}/bin:${PATH}"
     fi
