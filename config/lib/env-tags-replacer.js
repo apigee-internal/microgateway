@@ -54,12 +54,14 @@ class EnvTagsReplacer {
             }
   
             switch (envValueType) {
-              case 'string':
-                configStr = configStr.replace(key, value);
+              case 'string': {
+                const escapedValue = JSON.stringify(String(value)).slice(1, -1);
+                configStr = configStr.replace(key, () => escapedValue);
                 break;
+              }
               case 'number':
                 if (value.match(numberRegx)) {
-                  configStr = configStr.replace(`"${key}"`, value)
+                  configStr = configStr.replace(`"${key}"`, () => value)
                 } else {
                   if (displayLogs) {
                     let err = new Error(`Unsupported env value:${value} for ${envKey}, Supported values for <n> tags are integer`);
@@ -69,7 +71,7 @@ class EnvTagsReplacer {
                 break;
               case 'boolean':
                 if (value === 'true' || value === 'false') {
-                  configStr = configStr.replace(`"${key}"`, value)
+                  configStr = configStr.replace(`"${key}"`, () => value)
                 } else {
                   if (displayLogs) {
                     let err = new Error(`Unsupported env value:${value} for ${envKey}, Supported values for <b> tags are boolean`);
