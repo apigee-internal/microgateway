@@ -1,18 +1,5 @@
+#!/bin/bash
+# DECOMMISSIONED (b/530515247): sidecar_injector (Sidecar Mode) is deprecated and is no longer built or published to gcr.io/apigee-microgateway.
+echo "sidecar_injector has been decommissioned (b/530515247). Skipping build and push."
+exit 0
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-if [ $# -ne 2 ]; then 
-	echo "Please provide edgemicro_sidecar version and GCP project id"
-fi
-
-version=$1
-project_id=$2
-
-docker pull docker.io/istio/sidecar_injector:0.6.0
-
-if [ $# -eq 2 ]; then
-  docker tag docker.io/istio/sidecar_injector:0.6.0 gcr.io/$project_id/sidecar_injector:$version
-  docker tag docker.io/istio/sidecar_injector:0.6.0 gcr.io/$project_id/sidecar_injector:latest
-  docker push gcr.io/$project_id/sidecar_injector:$version
-  docker push gcr.io/$project_id/sidecar_injector:latest
-fi
