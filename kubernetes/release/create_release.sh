@@ -100,9 +100,6 @@ done
 
 if [[ "$BUILD_DOCKER" == "y" ]]; then
 	../docker/edgemicro/dockerbuild.sh $VERSION $PROJECT_ID
-	../docker/edgemicro_sidecar_injector/dockerbuild.sh $VERSION $PROJECT_ID
-	../docker/edgemicro_apigee_setup/dockerbuild.sh $VERSION $PROJECT_ID
-	../docker/edgemicro_proxy_init/dockerbuild.sh $VERSION $PROJECT_ID
 	../docker/helloworld/dockerbuild.sh $VERSION $PROJECT_ID
   ../docker/httpbin/dockerbuild.sh $VERSION $PROJECT_ID
 fi
