@@ -14,12 +14,15 @@ In case the container port of your app is not the same as service port defined i
 Please refer the httpbin samples:
 ```
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: helloworld
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: helloworld
   template:
     metadata:
       labels:

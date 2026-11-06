@@ -1,10 +1,13 @@
 # Microgateway on Kubernetes
 
 ---
-**NOTE**
-
-This installation process has been deprecated. Please refer to [installer/README.md](installer/README.md) for the new Microgateway Kubernetes installer.
-
+> [!IMPORTANT]
+> **OFFICIAL KUBERNETES DEPLOYMENT PATH**
+> 
+> The legacy installation process below (using `edgemicroctl` and automatic Istio sidecar injection) has been **deprecated and is no longer supported** (per b/161263992).
+> 
+> For the officially supported, standard `kubectl` deployment instructions and modern `apps/v1` manifests, please refer directly to:
+> 👉 **[Apigee Edge Microgateway Kubernetes Installer](installer/README.md)**
 ---
 
 
@@ -137,20 +140,22 @@ kubectl apply -f <(edgemicroctl -org=<org> -env=<env> -key=<edgemicro-key> -sec=
 - Setup nginx ingress controller for edgemicro
 ```
 cat <<EOF | kubectl apply -f -
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: edge-microgateway-ingress
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
 spec:
+  ingressClassName: nginx
   rules:
   - http:
       paths:
       - path: /
+        pathType: Prefix
         backend:
-          serviceName: edge-microgateway
-          servicePort: 8000
+          service:
+            name: edge-microgateway
+            port:
+              number: 8000
 EOF
 ```
 
@@ -258,12 +263,15 @@ In case, you run your container on a seperate port than your service port, edgem
 
 For ex :
 ```
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: httpbin-deployment
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: httpbin-app
   template:
     metadata:
       labels:
