@@ -1,8 +1,5 @@
 'use strict';
 
-const minimatch = require('minimatch');
-//const util = require('util');
-
 const matchPath = (requestPath, proxyPath) => {
   if ( requestPath.charAt(requestPath.length-1) !== '/') {
     requestPath += '/';
@@ -36,10 +33,14 @@ const generateMatchingRegex = (proxyPath) => {
   if(generatedRegexCache[proxyPath]) {
     return generatedRegexCache[proxyPath];
   }
-  const matchRegex = minimatch.makeRe(proxyPath);
-  //minimatch creates a regex that will hard match the path. 
-  //we remove the end of input so it can match proxy path and extras
-  const cleansedRegex = matchRegex.toString().replace('$', '').slice(1, -1);
+  const cleansedRegex = '^' + proxyPath.replace(/\*{2,}|\*|\?|[-[\]{}()+.,\\^$|#\s]/g, (match, offset) => {
+    if (match === '?') return '[^/]';
+    if (match[0] !== '*') return '\\' + match;
+    const atStart = offset === 0 || proxyPath[offset - 1] === '/';
+    const atEnd = offset + match.length === proxyPath.length || proxyPath[offset + match.length] === '/';
+    if (match.length > 1 && atStart && atEnd) return '.*';
+    return (atStart ? '(?!\\.)' : '') + (atStart && atEnd ? '[^/]+' : '[^/]*');
+  });
   return (generatedRegexCache[proxyPath] = new RegExp(cleansedRegex));
 }
 
