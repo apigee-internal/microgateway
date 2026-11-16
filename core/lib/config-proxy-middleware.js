@@ -1,13 +1,16 @@
 'use strict';
 
 //const _ = require('lodash');
-//const path = require('path');
+const path = require('path');
 
 
 const url = require('url');
 const debug = require('debug')('gateway:main');
 const configService = require('./config');
 const double_slash_regex = /\/\/+/g;
+const invalid_path_regex = /(?:^|\/|%2f|%5c)(?:\.|%2e){1,2}(?:;|%3b|%2f|%5c)|(?:%2f|%5c)(?:\.|%2e){1,2}(?:\/|$)/i;
+const dot_segment_regex = /(?:^|\/)(?:\.|%2e){1,2}(?:\/|$)/i;
+const encoded_dot_regex = /%2e/gi;
 const http = require('http');
 const https = require('https');
 const buildTunnelAgent = require('./build-tunnel-agent')
@@ -97,6 +100,7 @@ module.exports = function() {
 
     return (req, res, next) => {
         const reqUrl = url.parse(req.url, true);
+        let pathname = reqUrl.pathname;
 
         req.reqUrl = reqUrl;
 
@@ -111,7 +115,29 @@ module.exports = function() {
             req._headersToUnset.push(k);
         };
 
-        const proxy = getProxyFromBasePath(config.proxies, reqUrl.pathname);
+        if (!pathname || invalid_path_regex.test(pathname)) {
+            return rejectInvalidPath(req, res, next);
+        }
+
+        if (dot_segment_regex.test(pathname)) {
+            const decodedPathname = pathname.replace(encoded_dot_regex, '.');
+            if (escapesBase(decodedPathname)) {
+                return rejectInvalidPath(req, res, next);
+            }
+            const rawProxy = getProxyFromBasePath(config.proxies, decodedPathname);
+            const normalizedPathname = path.posix.normalize(decodedPathname);
+            const resolvedProxy = getProxyFromBasePath(config.proxies, normalizedPathname);
+            if (rawProxy !== resolvedProxy ||
+                (rawProxy && escapesBase(decodedPathname.replace(generateMatchingRegex(rawProxy.base_path), '')))) {
+                return rejectInvalidPath(req, res, next);
+            }
+            pathname = normalizedPathname;
+            reqUrl.pathname = normalizedPathname;
+            reqUrl.path = normalizedPathname + (reqUrl.search || '');
+            req.url = reqUrl.path;
+        }
+
+        const proxy = getProxyFromBasePath(config.proxies, pathname);
 
         if (!proxy) {
             res.statusCode = 404; // No matching path found
@@ -122,13 +148,18 @@ module.exports = function() {
             return next(nomatch);
         }
 
+        // plugins evaluate excludeUrls on the collapsed path, so it must select the same proxy
+        if (pathname.includes('//') && proxy !== getProxyFromBasePath(config.proxies, pathname.replace(double_slash_regex, '/'))) {
+            return rejectInvalidPath(req, res, next);
+        }
+
         res.proxy = proxy; // set for other middleware to pick up
 
         debug('selected proxy %s with base path %s for request path %s', proxy.url, proxy.base_path, reqUrl.pathname);
 
         var basePathStripRegex = generateMatchingRegex(proxy.base_path);
         // strip leading base_path
-        var strippedBasePath = reqUrl.pathname.replace(basePathStripRegex, '');
+        var strippedBasePath = pathname.replace(basePathStripRegex, '');
         var target_path =
             proxy.parsedUrl.pathname + strippedBasePath;
         target_path = target_path.replace(double_slash_regex, '/'); // remove any unintended double slashes
@@ -143,6 +174,17 @@ module.exports = function() {
         next();
     };
 
+};
+
+const escapesBase = (relPath) => /^\.\.(?:\/|$)/.test(path.posix.normalize(relPath.replace(/^\/+/, '')));
+
+const rejectInvalidPath = (req, res, next) => {
+    res.statusCode = 400;
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    debug('dropped', res.statusCode, req.method, req.url, 'invalid request path');
+    const invalidPath = Error('invalid request path');
+    invalidPath.status = res.statusCode;
+    return next(invalidPath);
 };
 
 const limit = (value) => {

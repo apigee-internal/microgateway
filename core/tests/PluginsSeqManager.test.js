@@ -641,3 +641,104 @@ describe('Quota plugin special handling', () => {
     assert(!result2.plugins.map(p => p.id).includes('quota'));
   });
 });
+
+describe('Security: excludeUrls traversal prevention (b/585274294)', () => {
+  const plugins = [
+    { id: 'analytics' },
+    { id: 'metrics' },
+    { id: 'quota' },
+    { id: 'oauth' }
+  ];
+
+  const makeConfig = (disableExcUrlsCache) => ({
+    edgemicro: {
+      plugins: {
+        disableExcUrlsCache,
+        excludeUrls: '/health/*'
+      }
+    },
+    oauth: {
+      excludeUrls: '/v1/public/*,/v1/*/status,*/open-probe,/open'
+    },
+    quota: {},
+    quotas: {
+      excludeUrls: '/v1/public/*,/v1/*/status,*/open-probe'
+    }
+  });
+
+  [false, true].forEach((disableExcUrlsCache) => {
+    describe(`disableExcUrlsCache=${disableExcUrlsCache}`, () => {
+      it('fails closed on dot-segments, encoded separators, backslashes, fragments, absolute URIs, and double slashes', () => {
+        const manager = new PluginsSeqManager(makeConfig(disableExcUrlsCache), plugins);
+        const attackUrls = [
+          '/v1/public/../orders/12345',
+          '/v1/public/../../admin',
+          '/v1/public/..',
+          '/v1/public/.',
+          '/v1/public/./orders',
+          '/v1/public/%2e%2e/orders/12345',
+          '/v1/public/%2E%2e/orders/12345',
+          '/v1/public/.%2e/orders/12345',
+          '/v1/public/%2e./orders/12345',
+          '/v1/public/%2e%2e',
+          '/v1/public/..%2forders/12345',
+          '/v1/public/%2e%2e%2forders/12345',
+          '/v1/public%2f..%2forders/12345',
+          '/v1/public\\..\\orders\\12345',
+          '/v1/public/%5c../orders/12345',
+          '/v1/public/%5C..%5Corders',
+          '/v1/public/..;/orders/12345',
+          '/v1/public/.;/orders/12345',
+          '/v1/public/%2e%2e%3b/orders/12345',
+          '/health/../v1/orders/12345',
+          '/v1/orders/12345#/open-probe',
+          '/v1/orders/12345#/v1/public/ok',
+          'http://public/v1/orders/12345/open-probe',
+          '/v1//status'
+        ];
+
+        for (const attackUrl of attackUrls) {
+          assert.strictEqual(manager.matchesPattern(attackUrl, '/v1/public/*'), false, `matchesPattern should reject ${attackUrl}`);
+          const seq = manager.getPluginSequence(attackUrl);
+          const ids = seq.plugins.map(p => p.id);
+          assert(ids.includes('oauth'), `oauth must remain active for ${attackUrl}`);
+          assert(ids.includes('quota'), `quota must remain active for ${attackUrl}`);
+        }
+
+        // a fragment in req.url must never make the request match an exclusion
+        const reqWithFragment = {
+          url: '/v1/orders/12345#/open-probe',
+          reqUrl: { path: '/v1/orders/12345', pathname: '/v1/orders/12345' }
+        };
+        manager.setPluginSequence(reqWithFragment);
+        assert(reqWithFragment.preflowPluginSequence.map(p => p.id).includes('oauth'));
+      });
+
+      it('preserves exclusions for legitimate dotted paths, accidental client // slashes, encoded URLs/slugs, and query strings', () => {
+        const manager = new PluginsSeqManager(makeConfig(disableExcUrlsCache), plugins);
+        const validPublicUrls = [
+          '/v1/public/ok',
+          '/v1/public//ok',
+          '/v1/public/.well-known/openid-configuration',
+          '/v1/public/v1.2.3/app.min.js',
+          '/v1/public/file..json',
+          '/v1/public/..hidden/readme',
+          '/v1/public/projects/org%2Frepo/info',
+          '/v1/public/redirect/https%3A%2F%2Fexample.com%2Fcb',
+          '/v1/public/users/CORP%5Calice',
+          '/v1/public/files/dir%2F.gitignore',
+          '/v1/public/items;v=1.0/details',
+          '/v1/public/docs?next=../login'
+        ];
+
+        for (const validUrl of validPublicUrls) {
+          assert.strictEqual(manager.matchesPattern(validUrl, '/v1/public/*'), true, `matchesPattern should allow ${validUrl}`);
+          const seq = manager.getPluginSequence(validUrl);
+          const ids = seq.plugins.map(p => p.id);
+          assert(!ids.includes('oauth'), `oauth should be excluded for ${validUrl}`);
+          assert(!ids.includes('quota'), `quota should be excluded for ${validUrl}`);
+        }
+      });
+    });
+  });
+});
