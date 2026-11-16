@@ -3,6 +3,7 @@ const path = require('path'); // Add path module for pattern matching
 
 const METRICS = 'metrics';
 const ANALYTICS = 'analytics';
+const AMBIGUOUS_PATH_REGEX = /(?:^|\/)\.\.?(?:\/|;|$)/;
 
 class PluginsSeqManager {
 
@@ -41,6 +42,22 @@ class PluginsSeqManager {
 
     // New: Check if URL matches a pattern
     matchesPattern(testUrl, pattern) {
+        const rawBaseUrl = testUrl.split(/[?#]/)[0];
+        if (/^(?:[a-zA-Z][a-zA-Z0-9+.-]*:)?[\\/]{2}/.test(rawBaseUrl)) {
+            return false;
+        }
+        const baseTestUrl = rawBaseUrl.replace(/[\\/]+/g, '/');
+
+        // Fail closed on dot-segments across /, \, ;, or their percent-encoded forms
+        // so security plugins are never skipped on ambiguous traversal URLs.
+        const decodedTestUrl = baseTestUrl
+            .replace(/%2e/gi, '.')
+            .replace(/%2f|%5c/gi, '/')
+            .replace(/%3b/gi, ';');
+        if (AMBIGUOUS_PATH_REGEX.test(decodedTestUrl)) {
+            return false;
+        }
+
         // Handle wildcard pattern like /hello/*
         if (pattern.includes('*')) {
             // Convert wildcard to regex pattern
@@ -51,12 +68,10 @@ class PluginsSeqManager {
             const regex = new RegExp(`^${regexPattern}$`);
 
             // For URL patterns, only match the base path, not query params
-            const baseTestUrl = testUrl.split('?')[0];
             return regex.test(baseTestUrl);
         } else {
             // For exact matches, compare base URLs without query parameters
             const basePattern = pattern.split('?')[0];
-            const baseTestUrl = testUrl.split('?')[0];
             return basePattern === baseTestUrl;
         }
     }

@@ -23,6 +23,31 @@ const METRICS = 'metrics';
 
 const clientClosedRequestErrCode = 499;
 
+const HOP_BY_HOP_HEADERS = ['connection', 'keep-alive', 'te', 'trailer', 'transfer-encoding', 'upgrade'];
+
+const PROTECTED_CONN_HEADERS = new Set([
+    'host', 'content-length', 'transfer-encoding',
+    'x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-request-id', 'via'
+]);
+
+function stripHopByHopHeaders(headers, connOnly) {
+    if (headers.connection) {
+        String(headers.connection).split(',').forEach(function(token) {
+            const name = token.trim().toLowerCase();
+            if (name && !PROTECTED_CONN_HEADERS.has(name)) {
+                delete headers[name];
+            }
+        });
+    }
+    if (connOnly) {
+        delete headers.connection;
+    } else {
+        HOP_BY_HOP_HEADERS.forEach(function(h) {
+            delete headers[h];
+        });
+    }
+}
+
 /**
  * injects plugins into gateway
  * @param pluginsSeqManager
@@ -68,6 +93,7 @@ module.exports = function(pluginsSeqManager) {
                 component:'plugins-middleware'
             }, 'sourceRequest');
             debug('sourceRequest', correlation_id, sourceRequest.method, sourceRequest.url);
+            stripHopByHopHeaders(sourceRequest.headers, true);
             //process the requests
             async.series(
                 //onrequest
@@ -187,6 +213,8 @@ function getTargetRequest(sourceRequest, sourceResponse, plugins, startTime, cor
 
     // try to pass through most of the original request headers unmodified
     const target_headers = _.clone(sourceRequest.headers);
+    const hasBody = Boolean(target_headers['content-length'] || target_headers['transfer-encoding']);
+    stripHopByHopHeaders(target_headers, false);
     //create request id only if the source doesn't have it.
     if (_configured(config, 'x-request-id') && !target_headers['x-request-id']) {
         // https://devcenter.heroku.com/articles/http-request-id
@@ -242,13 +270,11 @@ function getTargetRequest(sourceRequest, sourceResponse, plugins, startTime, cor
         if (resetHostHeader === true) {
             delete target_headers.host;
         }
+    }
 
-        if (target_headers['content-length']) {
-            delete target_headers['content-length'];
-            if(!target_headers['transfer-encoding'] && (sourceRequest.method==='DELETE' || (sourceRequest.method==='GET' && config.edgemicro.enable_GET_req_body))) {
-                target_headers['transfer-encoding'] = 'chunked';
-            }
-        }
+    delete target_headers['content-length'];
+    if (hasBody && (sourceRequest.method==='DELETE' || (sourceRequest.method==='OPTIONS' && Number(sourceRequest.headers['content-length']) !== 0) || (sourceRequest.method==='GET' && config.edgemicro.enable_GET_req_body))) {
+        target_headers['transfer-encoding'] = 'chunked';
     }
 
     var httpLibrary = http;
@@ -514,7 +540,7 @@ function subscribeToSourceRequestEvents(plugins, sourceRequest, sourceResponse, 
             });
     });
 
-    if ((targetRequest.method==='GET' && !config.edgemicro.enable_GET_req_body) || (targetRequest.method === "HEAD")) {
+    if ((targetRequest.method==='GET' && !config.edgemicro.enable_GET_req_body) || (targetRequest.method === "HEAD") || (targetRequest.method === "TRACE")) {
         targetRequest._hasBody = false;
     }
 
