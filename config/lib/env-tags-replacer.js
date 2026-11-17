@@ -33,17 +33,19 @@ class EnvTagsReplacer {
     const displayLogs = !options.disableLogs;
     try {
       let configStr = JSON.stringify(config);
-      let envRegx = RegExp('<E>.+?<\/E>','g');
-      let envKeys = configStr.match(envRegx);
-      const numberRegx = RegExp('^[0-9]+$','g');
-      if ( envKeys && envKeys.length > 0) {
-        envKeys.forEach( key => {
+      let envRegx = /"<E>(?:<n>(?:(?!<\/E>).)+<\/n>|<b>(?:(?!<\/E>).)+<\/b>)<\/E>"|<E>.+?<\/E>/g;
+      const numberRegx = /^[0-9]+$/;
+      if ( envRegx.test(configStr) ) {
+        envRegx.lastIndex = 0;
+        configStr = configStr.replace(envRegx, match => {
+          const isQuoted = match.startsWith('"');
+          const key = isQuoted ? match.slice(1, -1) : match;
           let envKey = key.replace('<E>','').replace('</E>',''); // remove env tags
           let envValueType = 'string';
-          if ( envKey.startsWith('<n>') && envKey.endsWith('</n>') ) {
+          if ( isQuoted && envKey.startsWith('<n>') && envKey.endsWith('</n>') ) {
             envValueType = 'number';
             envKey = envKey.replace('<n>','').replace('</n>',''); // remove <n> tags
-          } else if ( envKey.startsWith('<b>') && envKey.endsWith('</b>') ) {
+          } else if ( isQuoted && envKey.startsWith('<b>') && envKey.endsWith('</b>') ) {
             envValueType = 'boolean';
             envKey = envKey.replace('<b>','').replace('</b>',''); // remove <b> tags
           }
@@ -52,40 +54,36 @@ class EnvTagsReplacer {
             if ( displayLogs ) {
               debug('Replacing: %s by env value: %s', key, `${value}`);
             }
-  
+
             switch (envValueType) {
               case 'string':
-                configStr = configStr.replace(key, value);
-                break;
+                return JSON.stringify(String(value)).slice(1, -1);
               case 'number':
-                if (value.match(numberRegx)) {
-                  configStr = configStr.replace(`"${key}"`, value)
-                } else {
-                  if (displayLogs) {
-                    let err = new Error(`Unsupported env value:${value} for ${envKey}, Supported values for <n> tags are integer`);
-                    this.writeConsoleLog('log', { component: CONSOLE_LOG_TAG_COMP }, err);
-                  }
+                if (numberRegx.test(value)) {
+                  return value;
                 }
-                break;
+                if (displayLogs) {
+                  let err = new Error(`Unsupported env value:${value} for ${envKey}, Supported values for <n> tags are integer`);
+                  this.writeConsoleLog('log', { component: CONSOLE_LOG_TAG_COMP }, err);
+                }
+                return match;
               case 'boolean':
                 if (value === 'true' || value === 'false') {
-                  configStr = configStr.replace(`"${key}"`, value)
-                } else {
-                  if (displayLogs) {
-                    let err = new Error(`Unsupported env value:${value} for ${envKey}, Supported values for <b> tags are boolean`);
-                    this.writeConsoleLog('log', { component: CONSOLE_LOG_TAG_COMP }, err);
-                  }
+                  return value;
                 }
-                break;
+                if (displayLogs) {
+                  let err = new Error(`Unsupported env value:${value} for ${envKey}, Supported values for <b> tags are boolean`);
+                  this.writeConsoleLog('log', { component: CONSOLE_LOG_TAG_COMP }, err);
+                }
+                return match;
             }
-          } else {
-            if ( displayLogs ) {
-              let err = new Error('No env variable '+ envKey +' available to replace in config');
-              this.writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP}, err);
-            }
+          } else if ( displayLogs ) {
+            let err = new Error('No env variable '+ envKey +' available to replace in config');
+            this.writeConsoleLog('log',{component: CONSOLE_LOG_TAG_COMP}, err);
           }
-          config = JSON.parse(configStr);
-        })
+          return match;
+        });
+        config = JSON.parse(configStr);
       }
     } catch(err) {
       if ( displayLogs ) {
