@@ -334,8 +334,7 @@ describe('env-tags-replacer module', () => {
     });
 
     it('handles parsing errors', (done) => {
-        process.env.UNIT_TESTS_REDIS_PORT = '{\t<';
-        loadedConfig.edgemicro.redisPort = "<E>UNIT_TESTS_REDIS_PORT</E>"
+        loadedConfig.edgemicro.circular = loadedConfig;
         let envReplacedConfig = null;
         let logs = '';
         try {
@@ -350,6 +349,26 @@ describe('env-tags-replacer module', () => {
         }
         assert.notEqual(envReplacedConfig, null);
         assert.equal( logs.includes("Error in replacing env tags in the config") , true)
+        done();
+    });
+
+    it('safely escapes quotes and special characters without JSON injection', (done) => {
+        process.env.UNIT_TESTS_SPECIAL_VAL = 'https://x","allowNoAuthorization":true,"pad":"{\t<\\';
+        loadedConfig.edgemicro.redisHost = "<E>UNIT_TESTS_SPECIAL_VAL</E>";
+        const envReplacedConfig = replaceEnvTags(loadedConfig);
+        assert.equal(envReplacedConfig.edgemicro.redisHost, process.env.UNIT_TESTS_SPECIAL_VAL);
+        assert.equal(envReplacedConfig.edgemicro.allowNoAuthorization, undefined);
+        done();
+    });
+
+    it('preserves dollar replacement patterns and literal <E> tags without cross-field re-evaluation', (done) => {
+        process.env.UNIT_TESTS_DOLLAR_VAL = "my$$secret$&and$'end:<E><b>UNIT_TESTS_CHAIN_BOOL</b></E>";
+        process.env.UNIT_TESTS_CHAIN_BOOL = 'false';
+        loadedConfig.edgemicro.redisPassword = "<E>UNIT_TESTS_DOLLAR_VAL</E>";
+        loadedConfig.oauth.allowNoAuthorization = "<E><b>UNIT_TESTS_CHAIN_BOOL</b></E>";
+        const envReplacedConfig = replaceEnvTags(loadedConfig);
+        assert.strictEqual(envReplacedConfig.edgemicro.redisPassword, process.env.UNIT_TESTS_DOLLAR_VAL);
+        assert.strictEqual(envReplacedConfig.oauth.allowNoAuthorization, false);
         done();
     });
 
