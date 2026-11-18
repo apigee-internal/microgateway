@@ -1,12 +1,12 @@
 'use strict';
 const tmp = require('tmp');
 const cpr = require('cpr');
-const rimraf = require('rimraf');
 const apigeeUtils = require('volos-util-apigee');
 const assert = require('assert');
 const path = require('path');
 const async = require('async')
 const util = require('util')
+const rimraf = util.callbackify(require('rimraf').rimraf);
 const fs = require('fs')
 const xml2js = require("xml2js");
 const parseString = xml2js.parseString;
@@ -74,7 +74,7 @@ Deployment.prototype.deployWithLeanPayload = function deployWithLeanPayload(opti
     const homeDir = process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'];
     var tmpDir = tmp.dirSync({
         keep: true,
-        dir: path.resolve(homeDir, '.edgemicro')
+        tmpdir: path.resolve(homeDir, '.edgemicro')
     });
     var tasks = [];
     var publicKeyUri;

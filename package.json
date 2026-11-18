@@ -46,6 +46,18 @@
     },
     "istanbul-lib-processinfo": {
       "uuid": "^11.1.1"
+    },
+    "@eslint/config-array": {
+      "minimatch": "^11.0.6"
+    },
+    "eslint": {
+      "minimatch@10": "^11.0.6"
+    },
+    "mocha": {
+      "minimatch": "^11.0.6"
+    },
+    "test-exclude": {
+      "minimatch": "^11.0.6"
     }
   },
   "devDependencies": {
