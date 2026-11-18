@@ -100,7 +100,7 @@ class AdminServer {
                 debug('admin server listening on %s:%d',this.address,this.server.address().port);
             })
         } else {
-            this.server.listen(this.port, (err) => {
+            this.server.listen(this.port, '127.0.0.1', (err) => {
                 if (err) {
                     this.logger.info({ err: err,component:CONSOLE_LOG_TAG }, 'Error in stating admin server');
                     return;
