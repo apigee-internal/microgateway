@@ -48,6 +48,12 @@ function stripHopByHopHeaders(headers, connOnly) {
     }
 }
 
+// metrics_record is internal state set by the metrics plugin; ignore client-supplied header strings (b/586645803)
+function getMetricsRecord(req) {
+    const rec = req.headers['metrics_record'];
+    return typeof rec === 'object' ? rec : null;
+}
+
 /**
  * injects plugins into gateway
  * @param pluginsSeqManager
@@ -110,9 +116,10 @@ module.exports = function(pluginsSeqManager) {
                     if (err) {
                         // on request failed, sending metrics data to master node. 
                         logger.eventLog({ level: 'error', req: sourceRequest, res: sourceResponse, err: err, component: 'plugins-middleware' }, 'source request failed.');
-                        if(sourceRequest.headers['metrics_record']){
-                            sourceRequest.headers['metrics_record']['proxy_status_code'] = sourceResponse.statusCode;
-                            sendMetricsData(sourceRequest.headers['metrics_record']);
+                        const metricsRecord = getMetricsRecord(sourceRequest);
+                        if(metricsRecord){
+                            metricsRecord['proxy_status_code'] = sourceResponse.statusCode;
+                            sendMetricsData(metricsRecord);
                         }
                         return next(err)
                     }
@@ -134,14 +141,15 @@ module.exports = function(pluginsSeqManager) {
 
                             if (err) {
                                 // on target request failed, sending metrics data to master node. 
-                                if(sourceRequest.headers['metrics_record']){
-                                    sourceRequest.headers['metrics_record']['proxy_status_code'] = sourceResponse.statusCode;
+                                const metricsRecord = getMetricsRecord(sourceRequest);
+                                if(metricsRecord){
+                                    metricsRecord['proxy_status_code'] = sourceResponse.statusCode;
                                     if(targetResponse && targetResponse.statusCode !== 'undefined' && targetResponse.statusCode !== null){
-                                        sourceRequest.headers['metrics_record']['target_status_code'] = targetResponse.statusCode;
+                                        metricsRecord['target_status_code'] = targetResponse.statusCode;
                                     }
-                                    sourceRequest.headers['metrics_record']['target_sent_timestamp'] = sourceRequest.headers['target_sent_start_timestamp'];
-                                    sourceRequest.headers['metrics_record']['preflow_time'] = sourceRequest.headers['target_sent_start_timestamp'] - sourceRequest.headers['client_received_start_timestamp'];
-                                    sendMetricsData(sourceRequest.headers['metrics_record']);
+                                    metricsRecord['target_sent_timestamp'] = sourceRequest.headers['target_sent_start_timestamp'];
+                                    metricsRecord['preflow_time'] = sourceRequest.headers['target_sent_start_timestamp'] - sourceRequest.headers['client_received_start_timestamp'];
+                                    sendMetricsData(metricsRecord);
                                 }
                                 return next(err);
                             }
@@ -158,14 +166,15 @@ module.exports = function(pluginsSeqManager) {
                                 try {
                                     if (err) {
                                         // on target response failed, sending metrics data to master node. 
-                                        if(sourceRequest.headers['metrics_record']){
+                                        const metricsRecord = getMetricsRecord(sourceRequest);
+                                        if(metricsRecord){
                                             if(targetResponse && targetResponse.statusCode !== 'undefined' && targetResponse.statusCode !== null){
-                                                sourceRequest.headers['metrics_record']['proxy_status_code'] = targetResponse.statusCode;
-                                                sourceRequest.headers['metrics_record']['target_status_code'] = targetResponse.statusCode;
+                                                metricsRecord['proxy_status_code'] = targetResponse.statusCode;
+                                                metricsRecord['target_status_code'] = targetResponse.statusCode;
                                             }
-                                            sourceRequest.headers['metrics_record']['target_sent_timestamp'] = sourceRequest.headers['target_sent_start_timestamp'];
-                                            sourceRequest.headers['metrics_record']['preflow_time'] = sourceRequest.headers['target_sent_start_timestamp'] - sourceRequest.headers['client_received_start_timestamp'];
-                                            sendMetricsData(sourceRequest.headers['metrics_record']);
+                                            metricsRecord['target_sent_timestamp'] = sourceRequest.headers['target_sent_start_timestamp'];
+                                            metricsRecord['preflow_time'] = sourceRequest.headers['target_sent_start_timestamp'] - sourceRequest.headers['client_received_start_timestamp'];
+                                            sendMetricsData(metricsRecord);
                                         }
                                         next(err);
                                     } else {
@@ -621,8 +630,9 @@ function _subscribeToResponseEvents(plugins, sourceRequest, sourceResponse, targ
                 }
                 // on finished of response, sending data to master node 
                 onFinished(sourceResponse, function(err, sourceResponse) {
-                    if(sourceRequest.headers['metrics_record']){
-                        sendMetricsData(sourceRequest.headers['metrics_record']);
+                    const metricsRecord = getMetricsRecord(sourceRequest);
+                    if(metricsRecord){
+                        sendMetricsData(metricsRecord);
                     }
                 });
                 return cb(err, result);

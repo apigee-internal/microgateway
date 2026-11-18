@@ -739,6 +739,24 @@ describe('Security: excludeUrls traversal prevention (b/585274294)', () => {
           assert(!ids.includes('quota'), `quota should be excluded for ${validUrl}`);
         }
       });
+
+      it('caps patternCache at 1000 entries and skips oversize keys under unique-URL floods (b/586643738)', () => {
+        const manager = new PluginsSeqManager(makeConfig(disableExcUrlsCache), plugins);
+
+        for (let i = 0; i < 2500; i++) {
+          const seq = manager.getPluginSequence(`/v1/public/probe?nonce=${i}`);
+          assert(!seq.plugins.map(p => p.id).includes('oauth'));
+        }
+        assert.strictEqual(manager.patternCache.size, 1000);
+        assert(!manager.patternCache.has('/v1/public/probe?nonce=0'));
+        assert(manager.patternCache.has('/v1/public/probe?nonce=2499'));
+
+        // Oversize URL (>2048 chars) is still evaluated correctly but never retained
+        const longUrl = `/v1/public/probe?pad=${'x'.repeat(2100)}`;
+        assert(!manager.getPluginSequence(longUrl).plugins.map(p => p.id).includes('oauth'));
+        assert(!manager.patternCache.has(longUrl));
+        assert.strictEqual(manager.patternCache.size, 1000);
+      });
     });
   });
 });

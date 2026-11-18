@@ -4,6 +4,8 @@ const path = require('path'); // Add path module for pattern matching
 const METRICS = 'metrics';
 const ANALYTICS = 'analytics';
 const AMBIGUOUS_PATH_REGEX = /(?:^|\/)\.\.?(?:\/|;|$)/;
+const MAX_PATTERN_CACHE_SIZE = 1000;
+const MAX_PATTERN_CACHE_KEY_LEN = 2048;
 
 class PluginsSeqManager {
 
@@ -151,6 +153,17 @@ class PluginsSeqManager {
         return pluginsReversed;
     }
 
+    // Bounded patternCache write: keeps memory flat under unique-URL floods (b/586643738)
+    cachePatternResult(url, value) {
+        if (url.length > MAX_PATTERN_CACHE_KEY_LEN) {
+            return;
+        }
+        if (this.patternCache.size >= MAX_PATTERN_CACHE_SIZE) {
+            this.patternCache.delete(this.patternCache.keys().next().value);
+        }
+        this.patternCache.set(url, value);
+    }
+
     getPluginSequence(url) {
         // First check exact match in cache
         if (this.urlPluginsCache.has(url)) {
@@ -166,7 +179,7 @@ class PluginsSeqManager {
         for (let [pattern, value] of this.urlPluginsCache) {
             if (this.matchesPattern(url, pattern)) {
                 // Cache this result for future lookups
-                this.patternCache.set(url, value);
+                this.cachePatternResult(url, value);
                 return value;
             }
         }
@@ -188,7 +201,7 @@ class PluginsSeqManager {
                                 postflowPlugins: this.defaultPlugins
                             };
                             // Cache for future lookups
-                            this.patternCache.set(url, result);
+                            this.cachePatternResult(url, result);
                             return result;
                         }
                     }
@@ -243,7 +256,7 @@ class PluginsSeqManager {
                 };
 
                 // Cache for future lookups
-                this.patternCache.set(url, result);
+                this.cachePatternResult(url, result);
                 return result;
             }
         }
