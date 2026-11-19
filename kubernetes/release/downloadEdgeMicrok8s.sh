@@ -1,6 +1,17 @@
 #! /bin/sh
 #
+# DEPRECATED: The edgemicroctl CLI tool and release bundle downloaded by this
+# script are deprecated and no longer supported (see b/161263992).
+# Please use the standard kubectl installation workflow and manifests documented
+# in kubernetes/installer/README.md instead.
+#
 # Download microgateway
+
+echo "================================================================================"
+echo "WARNING: This script and the 'edgemicroctl' packages it downloads are DEPRECATED."
+echo "Please use the supported kubectl installation method and manifests located at:"
+echo "  kubernetes/installer/README.md"
+echo "================================================================================"
 
 OS="$(uname)"
 if [ "x${OS}" = "xDarwin" ] ; then
