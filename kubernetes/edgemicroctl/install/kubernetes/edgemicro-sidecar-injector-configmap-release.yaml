@@ -9,19 +9,6 @@ data:
   config: |
     policy: enabled
     template: |-
-      initContainers:
-      - name: edgemicro-init
-        image: gcr.io/apigee-microgateway/edgemicro_proxy_init:latest
-        args:
-        - "-p"
-        - "8000"
-        - "-u"
-        - "1001"
-        securityContext:
-          capabilities:
-            add:
-            - NET_ADMIN
-        imagePullPolicy: Always
       containers:
       - name: edge-microgateway
         image: gcr.io/apigee-microgateway/edgemicro:latest
