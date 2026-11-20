@@ -168,20 +168,9 @@ func createContainer(img string) v1.Container {
 	return container
 }
 
-func createInitContainer1() v1.Container {
-	container := v1.Container{}
-	var args = []string{"-p", "8000", "-u", "1001"}
-	container.Name = "edgemicro-init"
-	container.Image = containerRegURL + "edgemicro_proxy_init:latest"
-	container.Args = args
-	container.ImagePullPolicy = "Always"
-	container.SecurityContext = createSecContext()
-	return container
-}
-
+// DECOMMISSIONED (b/530515247): edgemicro_proxy_init image has been decommissioned along with Sidecar Mode (b/161263992).
 func getInitContainers() []v1.Container {
 	var containers []v1.Container
-	containers = append(containers, createInitContainer1())
 	return containers
 }
 
